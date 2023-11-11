@@ -118,6 +118,8 @@ Before you begin, ensure you have the following prerequisites:
 
 3. **Configuration:** The configuration file (if there is any), will be generated automatically to the same folder after the plugin firt started succesfully.
 
+4. **Permissions:** You can set the permissions as you need in the counterstrikesharp/configs/admins.json
+
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- USAGE EXAMPLES -->
@@ -139,8 +141,8 @@ The addon provides several commands and console variables (convars) to customize
 - **!stat, !statistics** - Check your statistics
 - **!time, !mytime, !playtime** - Check the current playtime
 - **!k4** - K4-System informational panel
--
-- <p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ### Permissions
 
