@@ -152,6 +152,17 @@ The addon provides several commands and console variables (convars) to customize
 
 - <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
+### Log Levels
+
+If you set a loglevel only THAT or ABOVE logs will be printed and saved.
+
+- **Debug (-1)** Print debug logs to people's chat with @css/config permission and into console/log files
+- **Info (0)** Informational log/console messages
+- **Warning (1)** Warning log/console messages
+- **Error (2)** Error log/console messages
+
+- <p align="right">(<a href="#readme-top">back to top</a>)</p>
+
 <!-- ROADMAP -->
 
 ## Roadmap
