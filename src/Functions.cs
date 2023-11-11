@@ -106,7 +106,15 @@ namespace K4ryuuSystem
 				RankColor = $"{ChatColors.Default}",
 				RankPoints = -1
 			};
+
 			PlayerSummaries[player] = newUser;
+
+			DateTime now = DateTime.UtcNow;
+
+			foreach (var key in new[] { "Connect", "Team", "Death" })
+			{
+				PlayerSummaries[player].Times[key] = now;
+			}
 
 			string escapedName = MySqlHelper.EscapeString(player.PlayerName);
 
@@ -329,7 +337,7 @@ namespace K4ryuuSystem
 
 		private void UpdatePlayerData(CCSPlayerController player, string field, double value)
 		{
-			MySql!.ExecuteNonQueryAsync($"UPDATE `player_stats` SET `{field}` = `{field}` + {(int)Math.Round(value)} WHERE `steam_id` = {player.SteamID};");
+			MySql!.ExecuteNonQueryAsync($"UPDATE `k4times` SET `{field}` = `{field}` + {(int)Math.Round(value)} WHERE `steam_id` = {player.SteamID};");
 		}
 
 		public void ResetKillStreak(int playerIndex)
@@ -389,7 +397,7 @@ namespace K4ryuuSystem
 			int allSeconds = (int)Math.Round((now - PlayerSummaries[player].Times["Connect"]).TotalSeconds);
 			int teamSeconds = (int)Math.Round((now - PlayerSummaries[player].Times["Team"]).TotalSeconds);
 
-			string updateQuery = $@"UPDATE `player_stats`
+			string updateQuery = $@"UPDATE `k4times`
                            SET `all` = `all` + {allSeconds}";
 
 			switch ((CsTeam)player.TeamNum)
@@ -415,7 +423,7 @@ namespace K4ryuuSystem
 			int deathSeconds = (int)Math.Round((now - PlayerSummaries[player].Times["Death"]).TotalSeconds);
 			updateQuery += $", `{field}` = `{field}` + {deathSeconds}";
 
-			updateQuery += $@" WHERE `steamid` = {player.SteamID}";
+			updateQuery += $@" WHERE `steam_id` = {player.SteamID}";
 
 			MySql!.ExecuteNonQueryAsync(updateQuery);
 

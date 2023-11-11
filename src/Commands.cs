@@ -232,7 +232,7 @@ namespace K4ryuuSystem
 
 			SaveClientTime(player);
 
-			MySqlQueryResult result = MySql!.Table("player_stats").Where($"steamid = '{player.SteamID}'").Select();
+			MySqlQueryResult result = MySql!.Table("k4times").Where($"`steam_id` = '{player.SteamID}'").Select();
 
 			if (result.Rows > 0)
 			{
