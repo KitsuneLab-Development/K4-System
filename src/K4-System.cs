@@ -9,7 +9,7 @@ namespace K4ryuuSystem
 	public partial class K4System : BasePlugin
 	{
 		public override string ModuleName => "K4-System";
-		public override string ModuleVersion => "v1.0.1";
+		public override string ModuleVersion => "v1.0.2";
 		public override string ModuleAuthor => "K4ryuu";
 		public static string? _ModuleDirectory { get; set; }
 
