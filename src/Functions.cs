@@ -237,6 +237,8 @@ namespace K4ryuuSystem
 			if (setRank == null || newRank == noneRank || newRank == PlayerSummaries[player].Rank)
 				return;
 
+			MySql!.ExecuteNonQueryAsync($"UPDATE `k4ranks` SET `rank` = {newRank} WHERE `steam_id` = {player.SteamID};");
+
 			if (config.ScoreboardRanks)
 				player.Clan = newRank;
 
@@ -290,6 +292,8 @@ namespace K4ryuuSystem
 
 			if (config.ScoreboardRanks)
 				player.Clan = newRank;
+
+			MySql!.ExecuteNonQueryAsync($"UPDATE `k4ranks` SET `rank` = {newRank} WHERE `steam_id` = {player.SteamID};");
 
 			PlayerSummaries[player].Rank = newRank;
 			PlayerSummaries[player].RankPoints = setRank.Exp;
