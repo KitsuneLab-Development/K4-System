@@ -70,7 +70,7 @@ K4-Systems is a plugin that enhances the server with features such as a playtime
 
 To use this server addon, you'll need the following dependencies installed:
 
-- [**CounterStrikeSharp**](https://github.com/roflmuffin/CounterStrikeSharp/actions/workflows/cmake-single-platform.yml): CounterStrikeSharp allows you to write server plugins in C# for Counter-Strike 2/Source2/CS2
+- [**CounterStrikeSharp**](https://github.com/roflmuffin/CounterStrikeSharp/releases): CounterStrikeSharp allows you to write server plugins in C# for Counter-Strike 2/Source2/CS2
 - **MySQL Database (Version 5.2 or higher):** This project requires a MySQL database to store and manage data. You can host your own MySQL server or use a third-party hosting service. Make sure it's at least version 5.2 or higher.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
