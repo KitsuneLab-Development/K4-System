@@ -146,10 +146,11 @@ The addon provides several commands and console variables (convars) to customize
 
 ### Permissions
 
-- **@k4ranks/vip/points-multiplier** VIP Point Multiplier Permission
-- **@k4ranks/admin** All K4 Admin Commands
+- **@k4system/vip/points-multiplier** VIP Point Multiplier Permission
+- **@k4system/admin** All K4 Admin Commands
+- **@css/config** See debug prints in chat
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
+- <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- ROADMAP -->
 
