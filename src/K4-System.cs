@@ -11,9 +11,12 @@ namespace K4ryuuSystem
 		public override string ModuleName => "K4-System";
 		public override string ModuleVersion => "v1.0.1";
 		public override string ModuleAuthor => "K4ryuu";
+		public static string? _ModuleDirectory { get; set; }
 
 		public override void Load(bool hotReload)
 		{
+			_ModuleDirectory = ModuleDirectory;
+
 			CheckConfig(ModuleDirectory);
 
 			MySql = new MySqlDb(config.DatabaseHost!, config.DatabaseUser!, config.DatabasePassword!, config.DatabaseName!, config.DatabasePort);
@@ -38,17 +41,6 @@ namespace K4ryuuSystem
 			SetupGameEvents();
 
 			Log($"{ModuleName} [{ModuleVersion}] by {ModuleAuthor} has been loaded.");
-		}
-
-		public void Log(string message)
-		{
-			string logFile = Path.Join(ModuleDirectory, $"logs-{DateTime.Now:yyyy-MM-dd}.txt");
-			using (StreamWriter writer = File.AppendText(logFile))
-			{
-				writer.WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss} {message}");
-			}
-
-			Console.WriteLine(message);
 		}
 	}
 }

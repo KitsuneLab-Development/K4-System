@@ -59,7 +59,7 @@ namespace K4ryuuSystem
 			}
 			catch (Exception ex)
 			{
-				Log("An error occurred: " + ex.Message);
+				Log("An error occurred: " + ex.Message, LogLevel.Error);
 			}
 		}
 
@@ -154,7 +154,7 @@ namespace K4ryuuSystem
 				return;
 
 			if (config.ScoreboardRanks)
-				player.Clan = newRank;
+				player.Clan = $"[{newRank}]";
 
 			PlayerSummaries[player].Rank = newRank;
 			PlayerSummaries[player].RankPoints = setRank.Exp;
@@ -183,7 +183,7 @@ namespace K4ryuuSystem
 			if (!PlayerSummaries.ContainsPlayer(player))
 				LoadPlayerData(player);
 
-			if (AdminManager.PlayerHasPermissions(player, "@k4ranks/vip/points-multiplier"))
+			if (AdminManager.PlayerHasPermissions(player, "@k4system/vip/points-multiplier"))
 			{
 				amount = (int)Math.Round(amount * config.VipPointMultiplier);
 			}
@@ -217,7 +217,7 @@ namespace K4ryuuSystem
 					}
 				default:
 					{
-						Log($"Invalid operation at the point modification function: {mode}");
+						Log($"Invalid operation at the point modification function: {mode}", LogLevel.Error);
 						break;
 					}
 			}
@@ -248,7 +248,7 @@ namespace K4ryuuSystem
 			MySql!.ExecuteNonQueryAsync($"UPDATE `k4ranks` SET `rank` = {newRank} WHERE `steam_id` = {player.SteamID};");
 
 			if (config.ScoreboardRanks)
-				player.Clan = newRank;
+				player.Clan = $"[{newRank}]";
 
 			Server.PrintToChatAll($" {ChatColors.Red}{config.ChatPrefix} {ChatColors.Gold}{player.PlayerName} has been {(setRank.Exp > PlayerSummaries[player].RankPoints ? "promoted" : "demoted")} to {newRank}.");
 
@@ -299,7 +299,7 @@ namespace K4ryuuSystem
 			}
 
 			if (config.ScoreboardRanks)
-				player.Clan = newRank;
+				player.Clan = $"[{newRank}]";
 
 			MySql!.ExecuteNonQueryAsync($"UPDATE `k4ranks` SET `rank` = {newRank} WHERE `steam_id` = {player.SteamID};");
 

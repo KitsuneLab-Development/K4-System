@@ -13,6 +13,7 @@ namespace K4ryuuSystem
 			// General Settings
 			ChatPrefix = "{LightRed}[K4-System]",
 			DisableSpawnMessage = false,
+			LogLevel = (int)LogLevel.Info, // -1 Debug, 0 Info, 1 Warning, 2 Error
 
 			// Database Settings
 			DatabaseHost = "localhost",
@@ -107,7 +108,7 @@ namespace K4ryuuSystem
 
 				File.WriteAllText(path, updatedConfigJson);
 
-				Log($"Config file updated @ {path}");
+				Log($"Config file updated @ K4-System/config.json");
 			}
 			else
 			{
@@ -116,7 +117,7 @@ namespace K4ryuuSystem
 					// File is created, and fs will automatically be disposed when the using block exits.
 				}
 
-				Log($"Config file created @ {path}");
+				Log($"Config file created @ K4-System/config.json");
 
 				string jsonConfig = JsonSerializer.Serialize(defaultConfig, new JsonSerializerOptions()
 				{
@@ -166,6 +167,7 @@ namespace K4ryuuSystem
 			// General Settings
 			public string? ChatPrefix { get; set; }
 			public bool DisableSpawnMessage { get; set; }
+			public int LogLevel { get; set; }
 
 			// Statistics Settings
 			public bool WarmupStats { get; set; }

@@ -82,7 +82,7 @@ namespace K4ryuuSystem
 
 		[ConsoleCommand("resetrank", "Resets the targeted player's points to zero")]
 		[CommandHelper(minArgs: 1, usage: "[SteamID64]", whoCanExecute: CommandUsage.CLIENT_AND_SERVER)]
-		[RequiresPermissions("@k4ranks/admin")]
+		[RequiresPermissions("@k4system/admin")]
 		public void OnCommandResetOtherRank(CCSPlayerController? player, CommandInfo command)
 		{
 			if (!player.IsValidPlayer())
@@ -99,7 +99,7 @@ namespace K4ryuuSystem
 					MySql!.ExecuteNonQueryAsync($"UPDATE `k4ranks` SET `points` = 0 WHERE `steam_id` = {target.SteamID};");
 
 					Server.PrintToChatAll($" {config.ChatPrefix} {ChatColors.Red}{target.PlayerName}'s rank and points has been reset by {player!.PlayerName}.");
-					Log($"{player.PlayerName} has reset {target.PlayerName}'s points.");
+					Log($"{player.PlayerName} has reset {target.PlayerName}'s points.", LogLevel.Warning);
 
 					PlayerSummaries[player].Points = 0;
 					CheckNewRank(player);
@@ -111,7 +111,7 @@ namespace K4ryuuSystem
 
 		[ConsoleCommand("setpoints", "Sets the targeted player's points to the given value")]
 		[CommandHelper(minArgs: 2, usage: "[SteamID64] <amount>", whoCanExecute: CommandUsage.CLIENT_AND_SERVER)]
-		[RequiresPermissions("@k4ranks/admin")]
+		[RequiresPermissions("@k4system/admin")]
 		public void OnCommandSetPoints(CCSPlayerController? player, CommandInfo command)
 		{
 			if (!player.IsValidPlayer())
@@ -130,7 +130,7 @@ namespace K4ryuuSystem
 						MySql!.ExecuteNonQueryAsync($"UPDATE `k4ranks` SET `points` = {parsedInt} WHERE `steam_id` = {target.SteamID};");
 
 						Server.PrintToChatAll($" {config.ChatPrefix} {ChatColors.Red}{target.PlayerName}'s points has been set to {parsedInt} by {player!.PlayerName}.");
-						Log($"{player.PlayerName} has set {target.PlayerName}'s points to {parsedInt}.");
+						Log($"{player.PlayerName} has set {target.PlayerName}'s points to {parsedInt}.", LogLevel.Warning);
 
 						PlayerSummaries[player].Points = parsedInt;
 						CheckNewRank(player);
@@ -147,7 +147,7 @@ namespace K4ryuuSystem
 
 		[ConsoleCommand("givepoints", "Gives points to the targeted player")]
 		[CommandHelper(minArgs: 2, usage: "[SteamID64] <amount>", whoCanExecute: CommandUsage.CLIENT_AND_SERVER)]
-		[RequiresPermissions("@k4ranks/admin")]
+		[RequiresPermissions("@k4system/admin")]
 		public void OnCommandGivePoints(CCSPlayerController? player, CommandInfo command)
 		{
 			if (!player.IsValidPlayer())
@@ -166,7 +166,7 @@ namespace K4ryuuSystem
 						MySql!.ExecuteNonQueryAsync($"UPDATE `k4ranks` SET `points` = (`points` + {parsedInt}) WHERE `steam_id` = {target.SteamID};");
 
 						Server.PrintToChatAll($" {config.ChatPrefix} {ChatColors.Red}{player!.PlayerName} has given {parsedInt} points to {target.PlayerName}.");
-						Log($"{player.PlayerName} has given {parsedInt} points to {target.PlayerName}.");
+						Log($"{player.PlayerName} has given {parsedInt} points to {target.PlayerName}.", LogLevel.Warning);
 
 						PlayerSummaries[player].Points += parsedInt;
 						CheckNewRank(player);
@@ -183,7 +183,7 @@ namespace K4ryuuSystem
 
 		[ConsoleCommand("removepoints", "Removes points from the targeted player")]
 		[CommandHelper(minArgs: 2, usage: "[SteamID64] <amount>", whoCanExecute: CommandUsage.CLIENT_AND_SERVER)]
-		[RequiresPermissions("@k4ranks/admin")]
+		[RequiresPermissions("@k4system/admin")]
 		public void OnCommandRemovePoints(CCSPlayerController? player, CommandInfo command)
 		{
 			if (!player.IsValidPlayer())
@@ -202,7 +202,7 @@ namespace K4ryuuSystem
 						MySql!.ExecuteNonQueryAsync($"UPDATE `k4ranks` SET `points` = (`points` - {parsedInt}) WHERE `steam_id` = {target.SteamID};");
 
 						Server.PrintToChatAll($" {config.ChatPrefix} {ChatColors.Red}{player!.PlayerName} has removed {parsedInt} points from {target.PlayerName}.");
-						Log($"{player.PlayerName} has removed {parsedInt} points from {target.PlayerName}.");
+						Log($"{player.PlayerName} has removed {parsedInt} points from {target.PlayerName}.", LogLevel.Warning);
 
 						PlayerSummaries[player].Points -= parsedInt;
 

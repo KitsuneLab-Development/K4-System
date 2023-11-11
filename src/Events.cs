@@ -419,7 +419,7 @@ namespace K4ryuuSystem
 							if (config.ScoreboardScoreSync)
 								killerController.Score = PlayerSummaries[killerController].Points;
 
-							if (AdminManager.PlayerHasPermissions(killerController, "@k4ranks/vip/points-multiplier"))
+							if (AdminManager.PlayerHasPermissions(killerController, "@k4system/vip/points-multiplier"))
 							{
 								pointChange = (int)Math.Round(pointChange * config.VipPointMultiplier);
 							}
@@ -453,7 +453,7 @@ namespace K4ryuuSystem
 					if (config.ScoreboardScoreSync)
 						assisterController.Score = PlayerSummaries[assisterController].Points;
 
-					if (AdminManager.PlayerHasPermissions(assisterController, "@k4ranks/vip/points-multiplier"))
+					if (AdminManager.PlayerHasPermissions(assisterController, "@k4system/vip/points-multiplier"))
 					{
 						pointChange = (int)Math.Round(pointChange * config.VipPointMultiplier);
 					}
