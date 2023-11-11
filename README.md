@@ -1,28 +1,28 @@
 <a name="readme-top"></a>
 
-![GitHub tag (with filter)](https://img.shields.io/github/v/tag/K4ryuu/Project_Template?style=for-the-badge&label=Version)
-![GitHub Repo stars](https://img.shields.io/github/stars/K4ryuu/Project_Template?style=for-the-badge)
-![GitHub issues](https://img.shields.io/github/issues/K4ryuu/Project_Template?style=for-the-badge)
-![GitHub](https://img.shields.io/github/license/K4ryuu/Project_Template?style=for-the-badge)
-![GitHub contributors](https://img.shields.io/github/contributors/K4ryuu/Project_Template?style=for-the-badge)
-![GitHub all releases](https://img.shields.io/github/downloads/K4ryuu/Project_Template/total?style=for-the-badge)
-![GitHub last commit (branch)](https://img.shields.io/github/last-commit/K4ryuu/Project_Template/dev?style=for-the-badge)
+![GitHub tag (with filter)](https://img.shields.io/github/v/tag/K4ryuu/K4-System?style=for-the-badge&label=Version)
+![GitHub Repo stars](https://img.shields.io/github/stars/K4ryuu/K4-System?style=for-the-badge)
+![GitHub issues](https://img.shields.io/github/issues/K4ryuu/K4-System?style=for-the-badge)
+![GitHub](https://img.shields.io/github/license/K4ryuu/K4-System?style=for-the-badge)
+![GitHub contributors](https://img.shields.io/github/contributors/K4ryuu/K4-System?style=for-the-badge)
+![GitHub all releases](https://img.shields.io/github/downloads/K4ryuu/K4-System/total?style=for-the-badge)
+![GitHub last commit (branch)](https://img.shields.io/github/last-commit/K4ryuu/K4-System/dev?style=for-the-badge)
 
 <!-- PROJECT LOGO -->
 <br />
 <div align="center">
   <h1 align="center">K4ryuu</h1>
-  <h3 align="center">PLACE OF TITLE</h3>
+  <h3 align="center">K4-System</h3>
 
   <p align="center">
     An awesome CS2 server addon created with <a href="https://github.com/roflmuffin/CounterStrikeSharp"><strong>CounterStrikeSharp</strong></a>
     <br />
     <br />
-    <a href="https://github.com/K4ryuu/Project_Template/releases">Download</a>
+    <a href="https://github.com/K4ryuu/K4-System/releases">Download</a>
     ·
-    <a href="https://github.com/K4ryuu/Project_Template/issues/new?assignees=K4ryuu&labels=bug&projects=&template=bug_report.md&title=%5BBUG%5D">Report Bug</a>
+    <a href="https://github.com/K4ryuu/K4-System/issues/new?assignees=K4ryuu&labels=bug&projects=&template=bug_report.md&title=%5BBUG%5D">Report Bug</a>
     ·
-    <a href="https://github.com/K4ryuu/Project_Template/issues/new?assignees=K4ryuu&labels=enhancement&projects=&template=feature_request.md&title=%5BREQ%5D">Request Feature</a>
+    <a href="https://github.com/K4ryuu/K4-System/issues/new?assignees=K4ryuu&labels=enhancement&projects=&template=feature_request.md&title=%5BREQ%5D">Request Feature</a>
   </p>
 </div>
 
@@ -62,7 +62,7 @@
 
 ## About The Project
 
-DESCRIPTION HERE
+K4-Systems is a plugin that enhances the server with features such as a playtime tracker, statistical records, and player ranks. Additionally, it includes VIP functions and admin commands for added functionality.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -112,7 +112,7 @@ Before you begin, ensure you have the following prerequisites:
 
 ### Installation
 
-1. **Download the Addon:** Start by downloading the addon from the [GitHub Releases Page](https://github.com/K4ryuu/Project_Template/releases). Choose the latest release version.
+1. **Download the Addon:** Start by downloading the addon from the [GitHub Releases Page](https://github.com/K4ryuu/K4-System/releases). Choose the latest release version.
 
 2. **Extract the Addon:** After downloading, extract the contents of the addon to the counterstrikesharp/plugins directory on your server. Inside the plugins folder, you should have a folder named exactly as the project dll. From the releases, you find it pre zipped with the correct name.
 
@@ -128,13 +128,24 @@ The addon provides several commands and console variables (convars) to customize
 
 ### Commands
 
-- **Command 1:** Describe the first command and how to use it.
+- **!rank** - Check the current rank and points
+- **!ranktop, !top, !top5** - Check the top 5 players by points
+- **!top10** - Check the top 10 players by points
+- **!resetmyrank** - Reset the players self rank and points
+- **!resetrank "SteamID64"** - Reset the rank of the target if its used by admin
+- **!setpoints "SteamID64" 100** - Sets the targeted player's points to the given value if its used by admin
+- **!givepoints "SteamID64" 100** - Gives points to the targeted player if its used by admin
+- **!removepoints "SteamID64" 100** - Removes points from the targeted player if its used by admin
+- **!stat, !statistics** - Check your statistics
+- **!time, !mytime, !playtime** - Check the current playtime
+- **!k4** - K4-System informational panel
+-
+- <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
+### Permissions
 
-### Console Variables (Convars)
-
-- **Convar 1:** Describe the first convar and how to set its value.
+- **@k4ranks/vip/points-multiplier** VIP Point Multiplier Permission
+- **@k4ranks/admin** All K4 Admin Commands
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -142,7 +153,11 @@ The addon provides several commands and console variables (convars) to customize
 
 ## Roadmap
 
-- [ ] No plans for now
+- [ ] Automated Moderation System
+- [ ] Daily Rewards
+- [ ] More VIP perks
+- [ ] Point For Playtime
+- [ ] WebPanel (under development)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
