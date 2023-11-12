@@ -168,6 +168,8 @@ If you set a loglevel only THAT or ABOVE logs will be printed and saved.
 ## Roadmap
 
 - [ ] Automated Moderation System
+- [ ] VIP Clan Tag
+- [ ] Config to disable modules fully
 - [ ] Daily Rewards
 - [ ] More VIP perks
 - [ ] Point For Playtime
