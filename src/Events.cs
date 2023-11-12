@@ -356,7 +356,7 @@ namespace K4ryuuSystem
 									{
 										case 2:
 											points = config.DoubleKillPoints;
-											killStreakMessage = "DoubleK ill";
+											killStreakMessage = "Double Kill";
 											break;
 										case 3:
 											points = config.TripleKillPoints;
