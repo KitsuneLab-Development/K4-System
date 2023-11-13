@@ -58,12 +58,16 @@ namespace K4ryuuSystem
 			// Find the player's place in the top list
 			int playerPlace = GetPlayerPlaceInTopList(playerName);
 
+			// Count higher ranks
+			int higherRanksCount = ranks.Count(kv => kv.Value.Exp > playerPoints);
+
 			player.PrintToChat($" {Config.GeneralSettings.Prefix} {PlayerSummaries[player].RankColor}{playerName}");
-			player.PrintToChat($" {ChatColors.Blue}You have {ChatColors.Gold}{playerPoints} {ChatColors.Blue}points and is currently {PlayerSummaries[player].RankColor}{PlayerSummaries[player].Rank}.");
+			player.PrintToChat($" {ChatColors.Blue}You have {ChatColors.Gold}{playerPoints} {ChatColors.Blue}points and are currently {PlayerSummaries[player].RankColor}{PlayerSummaries[player].Rank} ({ranks.Count - higherRanksCount} of {ranks.Count})");
 			player.PrintToChat($" {ChatColors.Blue}Next rank: {modifiedValue}{nextRank}");
 			player.PrintToChat($" {ChatColors.Blue}Points until next rank: {ChatColors.Gold}{pointsUntilNextRank}");
-			player.PrintToChat($" {ChatColors.Blue}Place in top list: {ChatColors.Gold}{playerPlace}");
+			player.PrintToChat($" {ChatColors.Blue}Place in top list: #{ChatColors.Gold}{playerPlace}");
 		}
+
 
 		[ConsoleCommand("resetmyrank", "Resets the player's own points to zero")]
 		[CommandHelper(whoCanExecute: CommandUsage.CLIENT_ONLY)]
