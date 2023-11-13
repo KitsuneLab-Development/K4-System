@@ -19,7 +19,7 @@ namespace K4ryuuSystem
 			if (!player.IsValidPlayer())
 				return;
 
-			command.ReplyToCommand($" {config.ChatPrefix} {PlayerSummaries[player!].RankColor}{player!.PlayerName} {ChatColors.White}has {ChatColors.Red}{PlayerSummaries[player].Points} {ChatColors.White}points and is currently {PlayerSummaries[player].RankColor}{PlayerSummaries[player].Rank}");
+			command.ReplyToCommand($" {Config.GeneralSettings.Prefix} {PlayerSummaries[player!].RankColor}{player!.PlayerName} {ChatColors.White}has {ChatColors.Red}{PlayerSummaries[player].Points} {ChatColors.White}points and is currently {PlayerSummaries[player].RankColor}{PlayerSummaries[player].Rank}");
 		}
 
 		[ConsoleCommand("resetmyrank", "Resets the player's own points to zero")]
@@ -34,7 +34,7 @@ namespace K4ryuuSystem
 
 			MySql!.ExecuteNonQueryAsync($"UPDATE `k4ranks` SET `points` = 0 WHERE `steam_id` = {player!.SteamID};");
 
-			Server.PrintToChatAll($" {config.ChatPrefix} {ChatColors.Red}{player.PlayerName} has reset their rank and points.");
+			Server.PrintToChatAll($" {Config.GeneralSettings.Prefix} {ChatColors.Red}{player.PlayerName} has reset their rank and points.");
 		}
 
 		[ConsoleCommand("top", "Check the top 5 players by points")]
@@ -71,12 +71,12 @@ namespace K4ryuuSystem
 
 			if (result.Rows > 0)
 			{
-				command.ReplyToCommand($" {config.ChatPrefix} {ChatColors.LightRed}{player.PlayerName}'s Statistics:");
+				command.ReplyToCommand($" {Config.GeneralSettings.Prefix} {ChatColors.LightRed}{player.PlayerName}'s Statistics:");
 				command.ReplyToCommand($" {ChatColors.Blue}Kills: {ChatColors.LightRed}{result.Get<int>(0, "kills")} {ChatColors.Blue}| Headshots: {ChatColors.LightRed}{result.Get<int>(0, "headshots")}");
 				command.ReplyToCommand($" {ChatColors.Blue}Deaths: {ChatColors.LightRed}{result.Get<int>(0, "deaths")}");
 				command.ReplyToCommand($" {ChatColors.Blue}Hits: {ChatColors.LightRed}{result.Get<int>(0, "hits")} {ChatColors.Blue}| Grenades Thrown: {ChatColors.LightRed}{result.Get<int>(0, "grenades")}");
 			}
-			else command.ReplyToCommand($" {config.ChatPrefix} {ChatColors.LightRed}We don't have your statistics data at the moment. Please check again later!");
+			else command.ReplyToCommand($" {Config.GeneralSettings.Prefix} {ChatColors.LightRed}We don't have your statistics data at the moment. Please check again later!");
 
 		}
 
@@ -98,7 +98,7 @@ namespace K4ryuuSystem
 
 					MySql!.ExecuteNonQueryAsync($"UPDATE `k4ranks` SET `points` = 0 WHERE `steam_id` = {target.SteamID};");
 
-					Server.PrintToChatAll($" {config.ChatPrefix} {ChatColors.Red}{target.PlayerName}'s rank and points has been reset by {player!.PlayerName}.");
+					Server.PrintToChatAll($" {Config.GeneralSettings.Prefix} {ChatColors.Red}{target.PlayerName}'s rank and points has been reset by {player!.PlayerName}.");
 					Log($"{player.PlayerName} has reset {target.PlayerName}'s points.", LogLevel.Warning);
 
 					PlayerSummaries[player].Points = 0;
@@ -129,7 +129,7 @@ namespace K4ryuuSystem
 
 						MySql!.ExecuteNonQueryAsync($"UPDATE `k4ranks` SET `points` = {parsedInt} WHERE `steam_id` = {target.SteamID};");
 
-						Server.PrintToChatAll($" {config.ChatPrefix} {ChatColors.Red}{target.PlayerName}'s points has been set to {parsedInt} by {player!.PlayerName}.");
+						Server.PrintToChatAll($" {Config.GeneralSettings.Prefix} {ChatColors.Red}{target.PlayerName}'s points has been set to {parsedInt} by {player!.PlayerName}.");
 						Log($"{player.PlayerName} has set {target.PlayerName}'s points to {parsedInt}.", LogLevel.Warning);
 
 						PlayerSummaries[player].Points = parsedInt;
@@ -141,7 +141,7 @@ namespace K4ryuuSystem
 			}
 			else
 			{
-				command.ReplyToCommand($" {config.ChatPrefix} {ChatColors.Red}The given amount is invalid.");
+				command.ReplyToCommand($" {Config.GeneralSettings.Prefix} {ChatColors.Red}The given amount is invalid.");
 			}
 		}
 
@@ -165,7 +165,7 @@ namespace K4ryuuSystem
 
 						MySql!.ExecuteNonQueryAsync($"UPDATE `k4ranks` SET `points` = (`points` + {parsedInt}) WHERE `steam_id` = {target.SteamID};");
 
-						Server.PrintToChatAll($" {config.ChatPrefix} {ChatColors.Red}{player!.PlayerName} has given {parsedInt} points to {target.PlayerName}.");
+						Server.PrintToChatAll($" {Config.GeneralSettings.Prefix} {ChatColors.Red}{player!.PlayerName} has given {parsedInt} points to {target.PlayerName}.");
 						Log($"{player.PlayerName} has given {parsedInt} points to {target.PlayerName}.", LogLevel.Warning);
 
 						PlayerSummaries[player].Points += parsedInt;
@@ -177,7 +177,7 @@ namespace K4ryuuSystem
 			}
 			else
 			{
-				command.ReplyToCommand($" {config.ChatPrefix} {ChatColors.Red}The given amount is invalid.");
+				command.ReplyToCommand($" {Config.GeneralSettings.Prefix} {ChatColors.Red}The given amount is invalid.");
 			}
 		}
 
@@ -201,7 +201,7 @@ namespace K4ryuuSystem
 
 						MySql!.ExecuteNonQueryAsync($"UPDATE `k4ranks` SET `points` = (`points` - {parsedInt}) WHERE `steam_id` = {target.SteamID};");
 
-						Server.PrintToChatAll($" {config.ChatPrefix} {ChatColors.Red}{player!.PlayerName} has removed {parsedInt} points from {target.PlayerName}.");
+						Server.PrintToChatAll($" {Config.GeneralSettings.Prefix} {ChatColors.Red}{player!.PlayerName} has removed {parsedInt} points from {target.PlayerName}.");
 						Log($"{player.PlayerName} has removed {parsedInt} points from {target.PlayerName}.", LogLevel.Warning);
 
 						PlayerSummaries[player].Points -= parsedInt;
@@ -217,7 +217,7 @@ namespace K4ryuuSystem
 			}
 			else
 			{
-				command.ReplyToCommand($" {config.ChatPrefix} {ChatColors.Red}The given amount is invalid.");
+				command.ReplyToCommand($" {Config.GeneralSettings.Prefix} {ChatColors.Red}The given amount is invalid.");
 			}
 		}
 
@@ -236,13 +236,13 @@ namespace K4ryuuSystem
 
 			if (result.Rows > 0)
 			{
-				command.ReplyToCommand($" {config.ChatPrefix} {ChatColors.LightRed}{player.PlayerName}'s Playtime Statistics:");
+				command.ReplyToCommand($" {Config.GeneralSettings.Prefix} {ChatColors.LightRed}{player.PlayerName}'s Playtime Statistics:");
 				command.ReplyToCommand($" {ChatColors.Blue}Total: {ChatColors.LightRed}{FormatPlaytime(result.Get<int>(0, "all"))}");
 				command.ReplyToCommand($" {ChatColors.Blue}CT: {ChatColors.LightRed}{FormatPlaytime(result.Get<int>(0, "ct"))} {ChatColors.Blue}| T: {ChatColors.LightRed}{FormatPlaytime(result.Get<int>(0, "t"))}");
 				command.ReplyToCommand($" {ChatColors.Blue}Spectator: {ChatColors.LightRed}{FormatPlaytime(result.Get<int>(0, "spec"))}");
 				command.ReplyToCommand($" {ChatColors.Blue}Alive: {ChatColors.LightRed}{FormatPlaytime(result.Get<int>(0, "alive"))} {ChatColors.Blue}| Dead: {ChatColors.LightRed}{FormatPlaytime(result.Get<int>(0, "dead"))}");
 			}
-			else command.ReplyToCommand($" {config.ChatPrefix} {ChatColors.LightRed}We don't have your playtime data at the moment. Please check again later!");
+			else command.ReplyToCommand($" {Config.GeneralSettings.Prefix} {ChatColors.LightRed}We don't have your playtime data at the moment. Please check again later!");
 		}
 
 		[ConsoleCommand("k4", "More informations about K4-System")]
@@ -252,7 +252,7 @@ namespace K4ryuuSystem
 			if (player == null || !player.IsValid)
 				return;
 
-			command.ReplyToCommand($" {config.ChatPrefix} Available Commands:");
+			command.ReplyToCommand($" {Config.GeneralSettings.Prefix} Available Commands:");
 			command.ReplyToCommand($" {ChatColors.Blue}PlayTime Commands: !time, !mytime, !playtime");
 			command.ReplyToCommand($" {ChatColors.Blue}Rank Commands: !rank, !resetmyrank");
 			command.ReplyToCommand($" {ChatColors.Blue}Statistic Commands: !stat, !statistics");

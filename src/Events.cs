@@ -31,32 +31,32 @@ namespace K4ryuuSystem
 			});
 			RegisterEventHandler<EventHostageRescued>((@event, info) =>
 			{
-				ModifyClientPoints(@event.Userid, CHANGE_MODE.GIVE, config.HostageRescuePoints, "Hostage Rescued");
+				ModifyClientPoints(@event.Userid, CHANGE_MODE.GIVE, Config.PointSettings.HostageRescue, "Hostage Rescued");
 				return HookResult.Continue;
 			});
 			RegisterEventHandler<EventHostageKilled>((@event, info) =>
 			{
-				ModifyClientPoints(@event.Userid, CHANGE_MODE.REMOVE, config.HostageKillPoints, "Hostage Killed");
+				ModifyClientPoints(@event.Userid, CHANGE_MODE.REMOVE, Config.PointSettings.HostageKill, "Hostage Killed");
 				return HookResult.Continue;
 			});
 			RegisterEventHandler<EventHostageHurt>((@event, info) =>
 			{
-				ModifyClientPoints(@event.Userid, CHANGE_MODE.REMOVE, config.HostageHurtPoints, "Hostage Hurt");
+				ModifyClientPoints(@event.Userid, CHANGE_MODE.REMOVE, Config.PointSettings.HostageHurt, "Hostage Hurt");
 				return HookResult.Continue;
 			});
 			RegisterEventHandler<EventBombDropped>((@event, info) =>
 			{
-				ModifyClientPoints(@event.Userid, CHANGE_MODE.REMOVE, config.BombDropPoints, "Bomb Dropped");
+				ModifyClientPoints(@event.Userid, CHANGE_MODE.REMOVE, Config.PointSettings.BombDrop, "Bomb Dropped");
 				return HookResult.Continue;
 			});
 			RegisterEventHandler<EventBombPickup>((@event, info) =>
 			{
-				ModifyClientPoints(@event.Userid, CHANGE_MODE.GIVE, config.BombPickupPoints, "Bomb Pickup");
+				ModifyClientPoints(@event.Userid, CHANGE_MODE.GIVE, Config.PointSettings.BombPickup, "Bomb Pickup");
 				return HookResult.Continue;
 			});
 			RegisterEventHandler<EventBombDefused>((@event, info) =>
 			{
-				ModifyClientPoints(@event.Userid, CHANGE_MODE.GIVE, config.DefusePoints, "Bomb Defused");
+				ModifyClientPoints(@event.Userid, CHANGE_MODE.GIVE, Config.PointSettings.Defuse, "Bomb Defused");
 				return HookResult.Continue;
 			});
 			RegisterEventHandler<EventPlayerTeam>((@event, info) =>
@@ -83,7 +83,7 @@ namespace K4ryuuSystem
 
 				MySql!.ExecuteNonQueryAsync($"UPDATE `k4stats` SET `mvp` = (`mvp` + 1) WHERE `steam_id` = {player.SteamID};");
 
-				ModifyClientPoints(@event.Userid, CHANGE_MODE.GIVE, config.MVPPoints, "Round MVP");
+				ModifyClientPoints(@event.Userid, CHANGE_MODE.GIVE, Config.PointSettings.MVP, "Round MVP");
 				return HookResult.Continue;
 			});
 			RegisterEventHandler<EventRoundStart>((@event, info) =>
@@ -100,10 +100,10 @@ namespace K4ryuuSystem
 					if (!PlayerSummaries.ContainsPlayer(player!))
 						LoadPlayerData(player!);
 
-					if (config.DisableSpawnMessage || PlayerSummaries[player].SpawnedThisRound)
+					if (!Config.GeneralSettings.SpawnMessage || PlayerSummaries[player].SpawnedThisRound)
 						continue;
 
-					player.PrintToChat($" {config.ChatPrefix} {ChatColors.Green}The server is using the {ChatColors.Gold}K4-System {ChatColors.Green}plugin. Type {ChatColors.Red}!k4 {ChatColors.Green}to get more information!");
+					player.PrintToChat($" {Config.GeneralSettings.Prefix} {ChatColors.Green}The server is using the {ChatColors.Gold}K4-System {ChatColors.Green}plugin. Type {ChatColors.Red}!k4 {ChatColors.Green}to get more information!");
 
 					PlayerSummaries[player].SpawnedThisRound = true;
 				}
@@ -132,14 +132,14 @@ namespace K4ryuuSystem
 							if (IsStatsAllowed())
 								MySql!.ExecuteNonQueryAsync($"UPDATE `k4stats` SET `round_win` = (`round_win` + 1) WHERE `steam_id` = {player.SteamID};");
 
-							ModifyClientPoints(player, CHANGE_MODE.GIVE, config.RoundWinPoints, "Round Win");
+							ModifyClientPoints(player, CHANGE_MODE.GIVE, Config.PointSettings.RoundWin, "Round Win");
 						}
 						else
 						{
 							if (IsStatsAllowed())
 								MySql!.ExecuteNonQueryAsync($"UPDATE `k4stats` SET `round_lose` = (`round_lose` + 1) WHERE `steam_id` = {player.SteamID};");
 
-							ModifyClientPoints(player, CHANGE_MODE.REMOVE, config.RoundLosePoints, "Round Lose");
+							ModifyClientPoints(player, CHANGE_MODE.REMOVE, Config.PointSettings.RoundLose, "Round Lose");
 						}
 					}
 
@@ -172,7 +172,7 @@ namespace K4ryuuSystem
 			});
 			RegisterEventHandler<EventBombPlanted>((@event, info) =>
 			{
-				ModifyClientPoints(@event.Userid, CHANGE_MODE.GIVE, config.PlantPoints, "Bomb Plant");
+				ModifyClientPoints(@event.Userid, CHANGE_MODE.GIVE, Config.PointSettings.Plant, "Bomb Plant");
 				return HookResult.Continue;
 			});
 			RegisterEventHandler<EventGrenadeThrown>((@event, info) =>
@@ -209,23 +209,23 @@ namespace K4ryuuSystem
 				if (!victimController.IsValid)
 					return HookResult.Continue;
 
-				if (!victimController.IsBot && IsStatsAllowed() && (config.StatsForBots || !killerController.IsBot))
+				if (!victimController.IsBot && IsStatsAllowed() && (Config.StatisticSettings.StatsForBots || !killerController.IsBot))
 				{
 					MySql!.ExecuteNonQueryAsync($"UPDATE `k4stats` SET `deaths` = (`deaths` + 1) WHERE `steam_id` = {victimController.SteamID};");
 				}
 
-				if (!victimController.IsBot && (config.PointsForBots || !killerController.IsBot) && IsPointsAllowed())
+				if (!victimController.IsBot && (Config.RankSettings.PointsForBots || !killerController.IsBot) && IsPointsAllowed())
 				{
 					if (victimController.UserId == killerController.UserId)
 					{
-						ModifyClientPoints(victimController, CHANGE_MODE.REMOVE, config.SuicidePoints, "Suicide");
+						ModifyClientPoints(victimController, CHANGE_MODE.REMOVE, Config.PointSettings.Suicide, "Suicide");
 					}
 					else
 					{
-						ModifyClientPoints(victimController, CHANGE_MODE.REMOVE, config.DeathPoints, "Dying");
+						ModifyClientPoints(victimController, CHANGE_MODE.REMOVE, Config.PointSettings.Death, "Dying");
 					}
 
-					if (config.ScoreboardScoreSync)
+					if (Config.RankSettings.ScoreboardScoreSync)
 						victimController.Score = PlayerSummaries[victimController].Points;
 				}
 
@@ -234,16 +234,16 @@ namespace K4ryuuSystem
 
 				if (killerController.IsValidPlayer())
 				{
-					if (IsStatsAllowed() && (config.StatsForBots || !victimController.IsBot))
+					if (IsStatsAllowed() && (Config.StatisticSettings.StatsForBots || !victimController.IsBot))
 					{
 						MySql!.ExecuteNonQueryAsync($"UPDATE `k4stats` SET `kills` = (`kills` + 1) WHERE `steam_id` = {killerController.SteamID};");
 					}
 
-					if ((config.PointsForBots || !victimController.IsBot) && IsPointsAllowed())
+					if ((Config.RankSettings.PointsForBots || !victimController.IsBot) && IsPointsAllowed())
 					{
-						if (!config.FFAMode && killerController.TeamNum == victimController.TeamNum)
+						if (!Config.RankSettings.FFAMode && killerController.TeamNum == victimController.TeamNum)
 						{
-							ModifyClientPoints(killerController, CHANGE_MODE.REMOVE, config.TeamKillPoints, "TeamKill");
+							ModifyClientPoints(killerController, CHANGE_MODE.REMOVE, Config.PointSettings.TeamKill, "TeamKill");
 						}
 						else
 						{
@@ -252,55 +252,55 @@ namespace K4ryuuSystem
 
 							int pointChange = 0;
 
-							if (config.KillPoints > 0)
+							if (Config.PointSettings.Kill > 0)
 							{
-								pointChange += config.KillPoints;
-								killerController.PrintToChat($" {config.ChatPrefix} {ChatColors.White}Points: {ChatColors.Green}{PlayerSummaries[killerController].Points} [+{config.KillPoints} Kill]");
-								PlayerSummaries[killerController].Points += config.KillPoints;
+								pointChange += Config.PointSettings.Kill;
+								killerController.PrintToChat($" {Config.GeneralSettings.Prefix} {ChatColors.White}Points: {ChatColors.Green}{PlayerSummaries[killerController].Points} [+{Config.PointSettings.Kill} Kill]");
+								PlayerSummaries[killerController].Points += Config.PointSettings.Kill;
 							}
 
-							if (@event.Headshot && config.HeadshotPoints > 0)
+							if (@event.Headshot && Config.PointSettings.Headshot > 0)
 							{
-								pointChange += config.HeadshotPoints;
-								killerController.PrintToChat($" {config.ChatPrefix} {ChatColors.White}Points: {ChatColors.Green}{PlayerSummaries[killerController].Points} {ChatColors.Olive}[+{config.HeadshotPoints} Headshot]");
-								PlayerSummaries[killerController].Points += config.HeadshotPoints;
+								pointChange += Config.PointSettings.Headshot;
+								killerController.PrintToChat($" {Config.GeneralSettings.Prefix} {ChatColors.White}Points: {ChatColors.Green}{PlayerSummaries[killerController].Points} {ChatColors.Olive}[+{Config.PointSettings.Headshot} Headshot]");
+								PlayerSummaries[killerController].Points += Config.PointSettings.Headshot;
 							}
 
 							int penetrateCount = @event.Penetrated;
-							if (penetrateCount > 0 && config.PenetratedPoints > 0)
+							if (penetrateCount > 0 && Config.PointSettings.Penetrated > 0)
 							{
-								int calculatedPoints = @event.Penetrated * config.PenetratedPoints;
+								int calculatedPoints = @event.Penetrated * Config.PointSettings.Penetrated;
 								pointChange += calculatedPoints;
-								killerController.PrintToChat($" {config.ChatPrefix} {ChatColors.White}Points: {ChatColors.Green}{PlayerSummaries[killerController].Points} {ChatColors.LightBlue}[+{calculatedPoints} Penetration]");
+								killerController.PrintToChat($" {Config.GeneralSettings.Prefix} {ChatColors.White}Points: {ChatColors.Green}{PlayerSummaries[killerController].Points} {ChatColors.LightBlue}[+{calculatedPoints} Penetration]");
 								PlayerSummaries[killerController].Points += calculatedPoints;
 							}
 
-							if (@event.Noscope && config.NoScopePoints > 0)
+							if (@event.Noscope && Config.PointSettings.NoScope > 0)
 							{
-								pointChange += config.NoScopePoints;
-								killerController.PrintToChat($" {config.ChatPrefix} {ChatColors.White}Points: {ChatColors.Green}{PlayerSummaries[killerController].Points} {ChatColors.LightRed}[+{config.NoScopePoints} NoScope]");
-								PlayerSummaries[killerController].Points += config.NoScopePoints;
+								pointChange += Config.PointSettings.NoScope;
+								killerController.PrintToChat($" {Config.GeneralSettings.Prefix} {ChatColors.White}Points: {ChatColors.Green}{PlayerSummaries[killerController].Points} {ChatColors.LightRed}[+{Config.PointSettings.NoScope} NoScope]");
+								PlayerSummaries[killerController].Points += Config.PointSettings.NoScope;
 							}
 
-							if (@event.Thrusmoke && config.ThrusmokePoints > 0)
+							if (@event.Thrusmoke && Config.PointSettings.Thrusmoke > 0)
 							{
-								pointChange += config.ThrusmokePoints;
-								killerController.PrintToChat($" {config.ChatPrefix} {ChatColors.White}Points: {ChatColors.Green}{PlayerSummaries[killerController].Points} {ChatColors.LightRed}[+{config.ThrusmokePoints} ThruSmoke]");
-								PlayerSummaries[killerController].Points += config.ThrusmokePoints;
+								pointChange += Config.PointSettings.Thrusmoke;
+								killerController.PrintToChat($" {Config.GeneralSettings.Prefix} {ChatColors.White}Points: {ChatColors.Green}{PlayerSummaries[killerController].Points} {ChatColors.LightRed}[+{Config.PointSettings.Thrusmoke} ThruSmoke]");
+								PlayerSummaries[killerController].Points += Config.PointSettings.Thrusmoke;
 							}
 
-							if (@event.Attackerblind && config.BlindKillPoints > 0)
+							if (@event.Attackerblind && Config.PointSettings.BlindKill > 0)
 							{
-								pointChange += config.BlindKillPoints;
-								killerController.PrintToChat($" {config.ChatPrefix} {ChatColors.White}Points: {ChatColors.Green}{PlayerSummaries[killerController].Points} {ChatColors.LightRed}[+{config.BlindKillPoints} Blind Kill]");
-								PlayerSummaries[killerController].Points += config.BlindKillPoints;
+								pointChange += Config.PointSettings.BlindKill;
+								killerController.PrintToChat($" {Config.GeneralSettings.Prefix} {ChatColors.White}Points: {ChatColors.Green}{PlayerSummaries[killerController].Points} {ChatColors.LightRed}[+{Config.PointSettings.BlindKill} Blind Kill]");
+								PlayerSummaries[killerController].Points += Config.PointSettings.BlindKill;
 							}
 
-							if (@event.Distance >= config.LongDistance && config.LongDistanceKillPoints > 0)
+							if (@event.Distance >= Config.PointSettings.LongDistance && Config.PointSettings.LongDistanceKill > 0)
 							{
-								pointChange += config.LongDistanceKillPoints;
-								killerController.PrintToChat($" {config.ChatPrefix} {ChatColors.White}Points: {ChatColors.Green}{PlayerSummaries[killerController].Points} {ChatColors.Magenta}[+{config.LongDistanceKillPoints} Long Distance]");
-								PlayerSummaries[killerController].Points += config.LongDistanceKillPoints;
+								pointChange += Config.PointSettings.LongDistanceKill;
+								killerController.PrintToChat($" {Config.GeneralSettings.Prefix} {ChatColors.White}Points: {ChatColors.Green}{PlayerSummaries[killerController].Points} {ChatColors.Magenta}[+{Config.PointSettings.LongDistanceKill} Long Distance]");
+								PlayerSummaries[killerController].Points += Config.PointSettings.LongDistanceKill;
 							}
 
 							string lowerCaseWeaponName = @event.Weapon.ToLower();
@@ -309,31 +309,31 @@ namespace K4ryuuSystem
 							{
 								case var _ when lowerCaseWeaponName.Contains("hegrenade") || lowerCaseWeaponName.Contains("tagrenade") || lowerCaseWeaponName.Contains("firebomb") || lowerCaseWeaponName.Contains("molotov") || lowerCaseWeaponName.Contains("incgrenade") || lowerCaseWeaponName.Contains("flashbang") || lowerCaseWeaponName.Contains("smokegrenade") || lowerCaseWeaponName.Contains("frag") || lowerCaseWeaponName.Contains("bumpmine"):
 									{
-										if (config.GrenadeKillPoints > 0)
+										if (Config.PointSettings.GrenadeKill > 0)
 										{
-											pointChange += config.GrenadeKillPoints;
-											killerController.PrintToChat($" {config.ChatPrefix} {ChatColors.White}Points: {ChatColors.Green}{PlayerSummaries[killerController].Points} {ChatColors.Magenta}[+{config.GrenadeKillPoints} Grenade Kill]");
-											PlayerSummaries[killerController].Points += config.GrenadeKillPoints;
+											pointChange += Config.PointSettings.GrenadeKill;
+											killerController.PrintToChat($" {Config.GeneralSettings.Prefix} {ChatColors.White}Points: {ChatColors.Green}{PlayerSummaries[killerController].Points} {ChatColors.Magenta}[+{Config.PointSettings.GrenadeKill} Grenade Kill]");
+											PlayerSummaries[killerController].Points += Config.PointSettings.GrenadeKill;
 										}
 										break;
 									}
 								case var _ when lowerCaseWeaponName.Contains("cord") || lowerCaseWeaponName.Contains("bowie") || lowerCaseWeaponName.Contains("butterfly") || lowerCaseWeaponName.Contains("karambit") || lowerCaseWeaponName.Contains("skeleton") || lowerCaseWeaponName.Contains("m9_bayonet") || lowerCaseWeaponName.Contains("bayonet") || lowerCaseWeaponName.Contains("t") || lowerCaseWeaponName.Contains("knifegg") || lowerCaseWeaponName.Contains("stiletto") || lowerCaseWeaponName.Contains("ursus") || lowerCaseWeaponName.Contains("tactical") || lowerCaseWeaponName.Contains("push") || lowerCaseWeaponName.Contains("widowmaker") || lowerCaseWeaponName.Contains("outdoor") || lowerCaseWeaponName.Contains("canis"):
 									{
-										if (config.KnifeKillPoints > 0)
+										if (Config.PointSettings.KnifeKill > 0)
 										{
-											pointChange += config.KnifeKillPoints;
-											killerController.PrintToChat($" {config.ChatPrefix} {ChatColors.White}Points: {ChatColors.Green}{PlayerSummaries[killerController].Points} {ChatColors.Magenta}[+{config.KnifeKillPoints} Knife Kill]");
-											PlayerSummaries[killerController].Points += config.KnifeKillPoints;
+											pointChange += Config.PointSettings.KnifeKill;
+											killerController.PrintToChat($" {Config.GeneralSettings.Prefix} {ChatColors.White}Points: {ChatColors.Green}{PlayerSummaries[killerController].Points} {ChatColors.Magenta}[+{Config.PointSettings.KnifeKill} Knife Kill]");
+											PlayerSummaries[killerController].Points += Config.PointSettings.KnifeKill;
 										}
 										break;
 									}
 								case "taser":
 									{
-										if (config.TaserKillPoints > 0)
+										if (Config.PointSettings.TaserKill > 0)
 										{
-											pointChange += config.TaserKillPoints;
-											killerController.PrintToChat($" {config.ChatPrefix} {ChatColors.White}Points: {ChatColors.Green}{PlayerSummaries[killerController].Points} {ChatColors.Magenta}[+{config.TaserKillPoints} Taser Kill]");
-											PlayerSummaries[killerController].Points += config.TaserKillPoints;
+											pointChange += Config.PointSettings.TaserKill;
+											killerController.PrintToChat($" {Config.GeneralSettings.Prefix} {ChatColors.White}Points: {ChatColors.Green}{PlayerSummaries[killerController].Points} {ChatColors.Magenta}[+{Config.PointSettings.TaserKill} Taser Kill]");
+											PlayerSummaries[killerController].Points += Config.PointSettings.TaserKill;
 										}
 										break;
 									}
@@ -343,7 +343,7 @@ namespace K4ryuuSystem
 							if (playerKillStreaks.ContainsKey(attackerIndex))
 							{
 								// Check if the player got a kill within the last 5 seconds
-								if (playerKillStreaks[attackerIndex].killStreak > 0 && DateTime.Now - playerKillStreaks[attackerIndex].lastKillTime <= TimeSpan.FromSeconds(config.SecondsBetweenKills))
+								if (playerKillStreaks[attackerIndex].killStreak > 0 && DateTime.Now - playerKillStreaks[attackerIndex].lastKillTime <= TimeSpan.FromSeconds(Config.PointSettings.SecondsBetweenKills))
 								{
 									playerKillStreaks[attackerIndex] = (playerKillStreaks[attackerIndex].killStreak + 1, DateTime.Now);
 									int killStreak = playerKillStreaks[attackerIndex].killStreak;
@@ -355,47 +355,47 @@ namespace K4ryuuSystem
 									switch (killStreak)
 									{
 										case 2:
-											points = config.DoubleKillPoints;
+											points = Config.PointSettings.DoubleKill;
 											killStreakMessage = "Double Kill";
 											break;
 										case 3:
-											points = config.TripleKillPoints;
+											points = Config.PointSettings.TripleKill;
 											killStreakMessage = "Triple Kill";
 											break;
 										case 4:
-											points = config.DominationPoints;
+											points = Config.PointSettings.Domination;
 											killStreakMessage = "Domination";
 											break;
 										case 5:
-											points = config.RampagePoints;
+											points = Config.PointSettings.Rampage;
 											killStreakMessage = "Rampage";
 											break;
 										case 6:
-											points = config.MegaKillPoints;
+											points = Config.PointSettings.MegaKill;
 											killStreakMessage = "Mega Kill";
 											break;
 										case 7:
-											points = config.OwnagePoints;
+											points = Config.PointSettings.Ownage;
 											killStreakMessage = "Ownage";
 											break;
 										case 8:
-											points = config.UltraKillPoints;
+											points = Config.PointSettings.UltraKill;
 											killStreakMessage = "Ultra Kill";
 											break;
 										case 9:
-											points = config.KillingSpreePoints;
+											points = Config.PointSettings.KillingSpree;
 											killStreakMessage = "Killing Spree";
 											break;
 										case 10:
-											points = config.MonsterKillPoints;
+											points = Config.PointSettings.MonsterKill;
 											killStreakMessage = "Monster Kill";
 											break;
 										case 11:
-											points = config.UnstoppablePoints;
+											points = Config.PointSettings.Unstoppable;
 											killStreakMessage = "Unstoppable";
 											break;
 										case 12:
-											points = config.GodLikePoints;
+											points = Config.PointSettings.GodLike;
 											killStreakMessage = "God Like";
 											break;
 										default:
@@ -406,7 +406,7 @@ namespace K4ryuuSystem
 									if (points > 0)
 									{
 										pointChange += points;
-										killerController.PrintToChat($" {config.ChatPrefix} {ChatColors.White}Points: {ChatColors.Green}{PlayerSummaries[killerController].Points} {ChatColors.LightYellow}[+{points} {killStreakMessage}]");
+										killerController.PrintToChat($" {Config.GeneralSettings.Prefix} {ChatColors.White}Points: {ChatColors.Green}{PlayerSummaries[killerController].Points} {ChatColors.LightYellow}[+{points} {killStreakMessage}]");
 										PlayerSummaries[killerController].Points += points;
 									}
 								}
@@ -416,12 +416,12 @@ namespace K4ryuuSystem
 								}
 							}
 
-							if (config.ScoreboardScoreSync)
+							if (Config.RankSettings.ScoreboardScoreSync)
 								killerController.Score = PlayerSummaries[killerController].Points;
 
 							if (AdminManager.PlayerHasPermissions(killerController, "@k4system/vip/points-multiplier"))
 							{
-								pointChange = (int)Math.Round(pointChange * config.VipPointMultiplier);
+								pointChange = (int)Math.Round(pointChange * Config.RankSettings.VipMultiplier);
 							}
 
 							MySql!.ExecuteNonQueryAsync($"UPDATE `k4ranks` SET `points` = (`points` + {pointChange}) WHERE `steam_id` = {killerController.SteamID};");
@@ -436,26 +436,26 @@ namespace K4ryuuSystem
 
 					int pointChange = 0;
 
-					if (config.AssistPoints > 0)
+					if (Config.PointSettings.Assist > 0)
 					{
-						pointChange += config.AssistPoints;
-						assisterController.PrintToChat($" {config.ChatPrefix} {ChatColors.White}Points: {ChatColors.Green}{PlayerSummaries[assisterController].Points} [+{config.AssistPoints} Assist]");
-						PlayerSummaries[assisterController].Points += config.AssistPoints;
+						pointChange += Config.PointSettings.Assist;
+						assisterController.PrintToChat($" {Config.GeneralSettings.Prefix} {ChatColors.White}Points: {ChatColors.Green}{PlayerSummaries[assisterController].Points} [+{Config.PointSettings.Assist} Assist]");
+						PlayerSummaries[assisterController].Points += Config.PointSettings.Assist;
 					}
 
-					if (@event.Assistedflash && config.AsssistFlashPoints > 0)
+					if (@event.Assistedflash && Config.PointSettings.AssistFlash > 0)
 					{
-						pointChange += config.AsssistFlashPoints;
-						assisterController.PrintToChat($" {config.ChatPrefix} {ChatColors.White}Points: {ChatColors.Green}{PlayerSummaries[assisterController].Points} [+{config.AsssistFlashPoints} Flash Assist]");
-						PlayerSummaries[assisterController].Points += config.AsssistFlashPoints;
+						pointChange += Config.PointSettings.AssistFlash;
+						assisterController.PrintToChat($" {Config.GeneralSettings.Prefix} {ChatColors.White}Points: {ChatColors.Green}{PlayerSummaries[assisterController].Points} [+{Config.PointSettings.AssistFlash} Flash Assist]");
+						PlayerSummaries[assisterController].Points += Config.PointSettings.AssistFlash;
 					}
 
-					if (config.ScoreboardScoreSync)
+					if (Config.RankSettings.ScoreboardScoreSync)
 						assisterController.Score = PlayerSummaries[assisterController].Points;
 
 					if (AdminManager.PlayerHasPermissions(assisterController, "@k4system/vip/points-multiplier"))
 					{
-						pointChange = (int)Math.Round(pointChange * config.VipPointMultiplier);
+						pointChange = (int)Math.Round(pointChange * Config.RankSettings.VipMultiplier);
 					}
 
 					MySql!.ExecuteNonQueryAsync($"UPDATE `k4ranks` SET `points` = (`points` + {pointChange}) WHERE `steam_id` = {assisterController.SteamID};");

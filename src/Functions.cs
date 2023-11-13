@@ -69,7 +69,7 @@ namespace K4ryuuSystem
 
 			if (result.Count > 0)
 			{
-				player!.PrintToChat($" {config.ChatPrefix} Top 5 Players:");
+				player!.PrintToChat($" {Config.GeneralSettings.Prefix} Top 5 Players:");
 
 				for (int i = 0; i < result.Count; i++)
 				{
@@ -93,7 +93,7 @@ namespace K4ryuuSystem
 			}
 			else
 			{
-				player!.PrintToChat($" {config.ChatPrefix} No players found in the top {number}.");
+				player!.PrintToChat($" {Config.GeneralSettings.Prefix} No players found in the top {number}.");
 			}
 		}
 
@@ -130,7 +130,7 @@ namespace K4ryuuSystem
 
 			PlayerSummaries[player].Points = result.Rows > 0 ? result.Get<int>(0, "points") : 0;
 
-			if (config.ScoreboardScoreSync)
+			if (Config.RankSettings.ScoreboardScoreSync)
 				player.Score = PlayerSummaries[player].Points;
 
 			string newRank = noneRank;
@@ -153,7 +153,7 @@ namespace K4ryuuSystem
 			if (setRank == null)
 				return;
 
-			if (config.ScoreboardRanks)
+			if (Config.RankSettings.ScoreboardRanks)
 				player.Clan = $"[{newRank}]";
 
 			PlayerSummaries[player].Rank = newRank;
@@ -185,28 +185,28 @@ namespace K4ryuuSystem
 
 			if (AdminManager.PlayerHasPermissions(player, "@k4system/vip/points-multiplier"))
 			{
-				amount = (int)Math.Round(amount * config.VipPointMultiplier);
+				amount = (int)Math.Round(amount * Config.RankSettings.VipMultiplier);
 			}
 
 			switch (mode)
 			{
 				case CHANGE_MODE.SET:
 					{
-						player.PrintToChat($" {config.ChatPrefix} {ChatColors.White}Points: {ChatColors.Gold}{PlayerSummaries[player].Points} [={amount} {reason}]");
+						player.PrintToChat($" {Config.GeneralSettings.Prefix} {ChatColors.White}Points: {ChatColors.Gold}{PlayerSummaries[player].Points} [={amount} {reason}]");
 						PlayerSummaries[player].Points = amount;
 						MySql!.ExecuteNonQueryAsync($"UPDATE `k4ranks` SET `points` = {amount} WHERE `steam_id` = {player.SteamID};");
 						break;
 					}
 				case CHANGE_MODE.GIVE:
 					{
-						player.PrintToChat($" {config.ChatPrefix} {ChatColors.White}Points: {ChatColors.Green}{PlayerSummaries[player].Points} [+{amount} {reason}]");
+						player.PrintToChat($" {Config.GeneralSettings.Prefix} {ChatColors.White}Points: {ChatColors.Green}{PlayerSummaries[player].Points} [+{amount} {reason}]");
 						PlayerSummaries[player].Points += amount;
 						MySql!.ExecuteNonQueryAsync($"UPDATE `k4ranks` SET `points` = (`points` + {amount}) WHERE `steam_id` = {player.SteamID};");
 						break;
 					}
 				case CHANGE_MODE.REMOVE:
 					{
-						player.PrintToChat($" {config.ChatPrefix} {ChatColors.White}Points: {ChatColors.Red}{PlayerSummaries[player].Points} [-{amount} {reason}]");
+						player.PrintToChat($" {Config.GeneralSettings.Prefix} {ChatColors.White}Points: {ChatColors.Red}{PlayerSummaries[player].Points} [-{amount} {reason}]");
 						PlayerSummaries[player].Points -= amount;
 
 						if (PlayerSummaries[player].Points < 0)
@@ -222,7 +222,7 @@ namespace K4ryuuSystem
 					}
 			}
 
-			if (config.ScoreboardScoreSync)
+			if (Config.RankSettings.ScoreboardScoreSync)
 				player.Score = PlayerSummaries[player].Points;
 
 			string newRank = noneRank;
@@ -247,10 +247,10 @@ namespace K4ryuuSystem
 
 			MySql!.ExecuteNonQueryAsync($"UPDATE `k4ranks` SET `rank` = {newRank} WHERE `steam_id` = {player.SteamID};");
 
-			if (config.ScoreboardRanks)
+			if (Config.RankSettings.ScoreboardRanks)
 				player.Clan = $"[{newRank}]";
 
-			Server.PrintToChatAll($" {ChatColors.Red}{config.ChatPrefix} {ChatColors.Gold}{player.PlayerName} has been {(setRank.Exp > PlayerSummaries[player].RankPoints ? "promoted" : "demoted")} to {newRank}.");
+			Server.PrintToChatAll($" {ChatColors.Red}{Config.GeneralSettings.Prefix} {ChatColors.Gold}{player.PlayerName} has been {(setRank.Exp > PlayerSummaries[player].RankPoints ? "promoted" : "demoted")} to {newRank}.");
 
 			PlayerSummaries[player].Rank = newRank;
 			PlayerSummaries[player].RankPoints = setRank.Exp;
@@ -270,7 +270,7 @@ namespace K4ryuuSystem
 
 		public void CheckNewRank(CCSPlayerController player)
 		{
-			if (config.ScoreboardScoreSync)
+			if (Config.RankSettings.ScoreboardScoreSync)
 				player.Score = PlayerSummaries[player].Points;
 
 			string newRank = noneRank;
@@ -298,7 +298,7 @@ namespace K4ryuuSystem
 				return;
 			}
 
-			if (config.ScoreboardRanks)
+			if (Config.RankSettings.ScoreboardRanks)
 				player.Clan = $"[{newRank}]";
 
 			MySql!.ExecuteNonQueryAsync($"UPDATE `k4ranks` SET `rank` = {newRank} WHERE `steam_id` = {player.SteamID};");
@@ -324,7 +324,7 @@ namespace K4ryuuSystem
 			List<CCSPlayerController> players = Utilities.GetPlayers();
 			int notBots = players.Count(player => !player.IsBot);
 
-			return (!K4ryuu.GameRules().WarmupPeriod || config.WarmupPoints) && (config.MinPlayersPoints <= notBots);
+			return (!K4ryuu.GameRules().WarmupPeriod || Config.RankSettings.WarmupPoints) && (Config.RankSettings.MinPlayers <= notBots);
 		}
 
 		public bool IsStatsAllowed()
@@ -332,7 +332,7 @@ namespace K4ryuuSystem
 			List<CCSPlayerController> players = Utilities.GetPlayers();
 			int notBots = players.Count(player => !player.IsBot);
 
-			return (!K4ryuu.GameRules().WarmupPeriod || config.WarmupStats) && (config.MinPlayersStats <= notBots);
+			return (!K4ryuu.GameRules().WarmupPeriod || Config.StatisticSettings.WarmupStats) && (Config.StatisticSettings.MinPlayers <= notBots);
 		}
 
 		private void UpdatePlayerData(CCSPlayerController player, string field, double value)

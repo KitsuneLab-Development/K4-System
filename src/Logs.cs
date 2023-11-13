@@ -17,12 +17,12 @@ namespace K4ryuuSystem
 
 		public void Log(string message, LogLevel level = LogLevel.Info)
 		{
-			if ((int)level < config.LogLevel)
+			if ((int)level < Config.GeneralSettings.LogLevel)
 			{
 				return; // Skip logging if the log level is lower than the configured level
 			}
 
-			string logFile = Path.Join(_ModuleDirectory, $"logs-{DateTime.Now:yyyy-MM-dd}.txt");
+			string logFile = Path.Join(ModuleDirectory, $"logs-{DateTime.Now:yyyy-MM-dd}.txt");
 
 			string logLevelString = LogLevelToString(level);
 			string logMessage = $"{DateTime.Now:yyyy-MM-dd HH:mm:ss} [{logLevelString}] > {message}";

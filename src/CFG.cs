@@ -1,145 +1,227 @@
+using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Utils;
 using System.Reflection;
 using System.Text.Json;
+using System.Text.Json.Serialization;
+
+public class GeneralSettings
+{
+	[JsonPropertyName("chat-prefix")]
+	public string Prefix { get; set; } = "{LightRed}[K4-System]";
+
+	[JsonPropertyName("spawn-message")]
+	public bool SpawnMessage { get; set; } = true;
+
+	[JsonPropertyName("log-level")]
+	public int LogLevel { get; set; } = 0;
+}
+
+public class DatabaseSettings
+{
+	[JsonPropertyName("host")]
+	public string Host { get; set; } = "localhost";
+
+	[JsonPropertyName("username")]
+	public string Username { get; set; } = "root";
+
+	[JsonPropertyName("database")]
+	public string Database { get; set; } = "database";
+
+	[JsonPropertyName("password")]
+	public string Password { get; set; } = "password";
+
+	[JsonPropertyName("port")]
+	public int Port { get; set; } = 3306;
+}
+
+public class StatisticSettings
+{
+	[JsonPropertyName("stats-for-bots")]
+	public bool StatsForBots { get; set; } = false;
+
+	[JsonPropertyName("warmup-stats")]
+	public bool WarmupStats { get; set; } = false;
+
+	[JsonPropertyName("minimum-players")]
+	public int MinPlayers { get; set; } = 4;
+}
+
+public class RankSettings
+{
+	[JsonPropertyName("points-for-bots")]
+	public bool PointsForBots { get; set; } = false;
+
+	[JsonPropertyName("warmup-points")]
+	public bool WarmupPoints { get; set; } = false;
+
+	[JsonPropertyName("ffa-mode")]
+	public bool FFAMode { get; set; } = false;
+
+	[JsonPropertyName("minimum-players")]
+	public int MinPlayers { get; set; } = 4;
+
+	[JsonPropertyName("scoreboard-ranks")]
+	public bool ScoreboardRanks { get; set; } = true;
+
+	[JsonPropertyName("scoreboard-score-sync")]
+	public bool ScoreboardScoreSync { get; set; } = false;
+
+	[JsonPropertyName("vip-multiplier")]
+	public double VipMultiplier { get; set; } = 1.25;
+}
+
+public class PointSettings
+{
+	[JsonPropertyName("death")]
+	public int Death { get; set; } = 5;
+
+	[JsonPropertyName("kill")]
+	public int Kill { get; set; } = 10;
+
+	[JsonPropertyName("headshot")]
+	public int Headshot { get; set; } = 5;
+
+	[JsonPropertyName("penetrated")]
+	public int Penetrated { get; set; } = 3;
+
+	[JsonPropertyName("noscope")]
+	public int NoScope { get; set; } = 15;
+
+	[JsonPropertyName("thrusmoke")]
+	public int Thrusmoke { get; set; } = 15;
+
+	[JsonPropertyName("blind-kill")]
+	public int BlindKill { get; set; } = 5;
+
+	[JsonPropertyName("team-kill")]
+	public int TeamKill { get; set; } = 10;
+
+	[JsonPropertyName("suicide")]
+	public int Suicide { get; set; } = 5;
+
+	[JsonPropertyName("assist")]
+	public int Assist { get; set; } = 5;
+
+	[JsonPropertyName("assist-flash")]
+	public int AssistFlash { get; set; } = 7;
+
+	[JsonPropertyName("plant")]
+	public int Plant { get; set; } = 10;
+
+	[JsonPropertyName("round-win")]
+	public int RoundWin { get; set; } = 5;
+
+	[JsonPropertyName("round-lose")]
+	public int RoundLose { get; set; } = 2;
+
+	[JsonPropertyName("mvp")]
+	public int MVP { get; set; } = 10;
+
+	[JsonPropertyName("defuse")]
+	public int Defuse { get; set; } = 8;
+
+	[JsonPropertyName("bomb-drop")]
+	public int BombDrop { get; set; } = 2;
+
+	[JsonPropertyName("bomb-pickup")]
+	public int BombPickup { get; set; } = 2;
+
+	[JsonPropertyName("hostage-hurt")]
+	public int HostageHurt { get; set; } = 2;
+
+	[JsonPropertyName("hostage-kill")]
+	public int HostageKill { get; set; } = 20;
+
+	[JsonPropertyName("hostage-rescue")]
+	public int HostageRescue { get; set; } = 15;
+
+	[JsonPropertyName("long-distance-kill")]
+	public int LongDistanceKill { get; set; } = 8;
+
+	[JsonPropertyName("long-distance")]
+	public int LongDistance { get; set; } = 30;
+
+	[JsonPropertyName("seconds-between-kills")]
+	public int SecondsBetweenKills { get; set; } = 5;
+
+	[JsonPropertyName("double-kill")]
+	public int DoubleKill { get; set; } = 5;
+
+	[JsonPropertyName("triple-kill")]
+	public int TripleKill { get; set; } = 10;
+
+	[JsonPropertyName("domination")]
+	public int Domination { get; set; } = 15;
+
+	[JsonPropertyName("rampage")]
+	public int Rampage { get; set; } = 20;
+
+	[JsonPropertyName("mega-kill")]
+	public int MegaKill { get; set; } = 25;
+
+	[JsonPropertyName("ownage")]
+	public int Ownage { get; set; } = 30;
+
+	[JsonPropertyName("ultra-kill")]
+	public int UltraKill { get; set; } = 35;
+
+	[JsonPropertyName("killing-spree")]
+	public int KillingSpree { get; set; } = 40;
+
+	[JsonPropertyName("monster-kill")]
+	public int MonsterKill { get; set; } = 45;
+
+	[JsonPropertyName("unstoppable")]
+	public int Unstoppable { get; set; } = 50;
+
+	[JsonPropertyName("godlike")]
+	public int GodLike { get; set; } = 60;
+
+	[JsonPropertyName("grenade-kill")]
+	public int GrenadeKill { get; set; } = 30;
+
+	[JsonPropertyName("taser-kill")]
+	public int TaserKill { get; set; } = 20;
+
+	[JsonPropertyName("knife-kill")]
+	public int KnifeKill { get; set; } = 15;
+}
+
+public class MyConfig : BasePluginConfig
+{
+	[JsonPropertyName("general-settings")]
+	public GeneralSettings GeneralSettings { get; set; } = new GeneralSettings();
+
+	[JsonPropertyName("database-settings")]
+	public DatabaseSettings DatabaseSettings { get; set; } = new DatabaseSettings();
+
+	[JsonPropertyName("statistic-settings")]
+	public StatisticSettings StatisticSettings { get; set; } = new StatisticSettings();
+
+	[JsonPropertyName("rank-settings")]
+	public RankSettings RankSettings { get; set; } = new RankSettings();
+
+	[JsonPropertyName("point-settings")]
+	public PointSettings PointSettings { get; set; } = new PointSettings();
+}
 
 namespace K4ryuuSystem
 {
 	public partial class K4System
 	{
-		public static Config config = new();
+		public required MyConfig Config { get; set; }
 
-		public static Config defaultConfig = new Config
+		public void OnConfigParsed(MyConfig config)
 		{
-			// General Settings
-			ChatPrefix = "{LightRed}[K4-System]",
-			DisableSpawnMessage = false,
-			LogLevel = (int)LogLevel.Info, // -1 Debug, 0 Info, 1 Warning, 2 Error
-
-			// Database Settings
-			DatabaseHost = "localhost",
-			DatabasePort = 3306,
-			DatabaseUser = "root",
-			DatabasePassword = "password",
-			DatabaseName = "database",
-
-			// Stat Settings
-			StatsForBots = false,
-
-			// Rank Settings
-			FFAMode = false,
-			WarmupPoints = false,
-			PointsForBots = false,
-			MinPlayersPoints = 4,
-			ScoreboardRanks = true,
-			ScoreboardScoreSync = false,
-			VipPointMultiplier = 1.5,
-
-			// Point Values
-			DeathPoints = 5,
-			KillPoints = 10,
-			HeadshotPoints = 5,
-			PenetratedPoints = 3,
-			NoScopePoints = 15,
-			ThrusmokePoints = 15,
-			BlindKillPoints = 5,
-			TeamKillPoints = 10,
-			SuicidePoints = 5,
-			AssistPoints = 5,
-			AsssistFlashPoints = 7,
-			PlantPoints = 10,
-			RoundWinPoints = 5,
-			RoundLosePoints = 2,
-			MVPPoints = 10,
-			DefusePoints = 8,
-			BombDropPoints = 2,
-			BombPickupPoints = 2,
-			HostageHurtPoints = 2,
-			HostageKillPoints = 20,
-			HostageRescuePoints = 15,
-			LongDistanceKillPoints = 8,
-			LongDistance = 30,
-			SecondsBetweenKills = 5,
-			DoubleKillPoints = 5,
-			TripleKillPoints = 10,
-			DominationPoints = 15,
-			RampagePoints = 20,
-			MegaKillPoints = 25,
-			OwnagePoints = 30,
-			UltraKillPoints = 35,
-			KillingSpreePoints = 40,
-			MonsterKillPoints = 45,
-			UnstoppablePoints = 50,
-			GodLikePoints = 60,
-			GrenadeKillPoints = 30,
-			TaserKillPoints = 20,
-			KnifeKillPoints = 15
-		};
-
-		public void CheckConfig(string moduleDirectory)
-		{
-			string path = Path.Join(moduleDirectory, "config.json");
-
-			CreateAndWriteFile(path);
-
-			using (FileStream fs = new FileStream(path, FileMode.Open, FileAccess.Read))
-			using (StreamReader sr = new StreamReader(fs))
+			if (config.Version == ModuleConfigVersion)
 			{
-				// Deserialize the JSON from the file and load the configuration.
-				config = JsonSerializer.Deserialize<Config>(sr.ReadToEnd())!;
+				throw new Exception($"A new config file version is available. Your version ({config.Version}), new version: ({ModuleConfigVersion})");
 			}
 
-			if (config != null && config.ChatPrefix != null)
-				config.ChatPrefix = ModifyColorValue(config.ChatPrefix);
-		}
+			config.GeneralSettings.Prefix = ModifyColorValue(config.GeneralSettings.Prefix);
 
-		private void CreateAndWriteFile(string path)
-		{
-			if (File.Exists(path))
-			{
-				string existingConfigJson = File.ReadAllText(path);
-				Config existingConfig = JsonSerializer.Deserialize<Config>(existingConfigJson)!;
-
-				UpdateConfigWithDefaultValues(existingConfig);
-
-				string updatedConfigJson = JsonSerializer.Serialize(existingConfig, new JsonSerializerOptions()
-				{
-					WriteIndented = true
-				});
-
-				File.WriteAllText(path, updatedConfigJson);
-
-				Log($"Config file updated @ K4-System/config.json");
-			}
-			else
-			{
-				using (FileStream fs = File.Create(path))
-				{
-					// File is created, and fs will automatically be disposed when the using block exits.
-				}
-
-				Log($"Config file created @ K4-System/config.json");
-
-				string jsonConfig = JsonSerializer.Serialize(defaultConfig, new JsonSerializerOptions()
-				{
-					WriteIndented = true
-				});
-
-				File.WriteAllText(path, jsonConfig);
-			}
-		}
-
-		private static void UpdateConfigWithDefaultValues(Config existingConfig)
-		{
-			foreach (PropertyInfo property in typeof(Config).GetProperties())
-			{
-				object? existingValue = property.GetValue(existingConfig);
-				object defaultValue = property.GetValue(defaultConfig)!;
-
-				if (existingValue == null || existingValue.Equals(defaultValue))
-				{
-					property.SetValue(existingConfig, defaultValue);
-				}
-			}
+			// if everything is good, lets save the instance reference
+			Config = config;
 		}
 
 		private string ModifyColorValue(string msg)
@@ -158,88 +240,7 @@ namespace K4ryuuSystem
 				return modifiedValue;
 			}
 
-			return string.IsNullOrEmpty(msg) ? "[K4-System]" : msg;
-		}
-
-
-		public class Config
-		{
-			// General Settings
-			public string? ChatPrefix { get; set; }
-			public bool DisableSpawnMessage { get; set; }
-			public int LogLevel { get; set; }
-
-			// Statistics Settings
-			public bool WarmupStats { get; set; }
-			public bool StatsForBots { get; set; }
-			public int MinPlayersStats { get; set; }
-
-
-			// Rank Settings
-			public bool WarmupPoints { get; set; }
-			public int MinPlayersPoints { get; set; }
-			public bool FFAMode { get; set; }
-			public bool ScoreboardRanks { get; set; }
-			public bool ScoreboardScoreSync { get; set; }
-			public double VipPointMultiplier { get; set; }
-			public bool PointsForBots { get; set; }
-
-			// Database Settings
-			public string? DatabaseHost { get; set; }
-			public int DatabasePort { get; set; }
-			public string? DatabaseUser { get; set; }
-			public string? DatabasePassword { get; set; }
-			public string? DatabaseName { get; set; }
-
-			// Individual Actions
-			public int DeathPoints { get; set; }
-			public int KillPoints { get; set; }
-			public int HeadshotPoints { get; set; }
-			public int PenetratedPoints { get; set; }
-			public int NoScopePoints { get; set; }
-			public int ThrusmokePoints { get; set; }
-			public int BlindKillPoints { get; set; }
-			public int TeamKillPoints { get; set; }
-			public int SuicidePoints { get; set; }
-			public int AssistPoints { get; set; }
-			public int AsssistFlashPoints { get; set; }
-			public int PlantPoints { get; set; }
-
-			// Round and Game Outcomes
-			public int RoundWinPoints { get; set; }
-			public int RoundLosePoints { get; set; }
-			public int MVPPoints { get; set; }
-			public int DefusePoints { get; set; }
-			public int BombDropPoints { get; set; }
-			public int BombPickupPoints { get; set; }
-
-			// Hostage Actions
-			public int HostageHurtPoints { get; set; }
-			public int HostageKillPoints { get; set; }
-			public int HostageRescuePoints { get; set; }
-
-			// Kill Streaks
-			public int LongDistanceKillPoints { get; set; }
-			public int LongDistance { get; set; }
-			public int SecondsBetweenKills { get; set; }
-			public int DoubleKillPoints { get; set; }
-			public int TripleKillPoints { get; set; }
-
-			// Multi-Kill Streaks
-			public int DominationPoints { get; set; }
-			public int RampagePoints { get; set; }
-			public int MegaKillPoints { get; set; }
-			public int OwnagePoints { get; set; }
-			public int UltraKillPoints { get; set; }
-			public int KillingSpreePoints { get; set; }
-			public int MonsterKillPoints { get; set; }
-			public int UnstoppablePoints { get; set; }
-			public int GodLikePoints { get; set; }
-
-			// Special Kills
-			public int GrenadeKillPoints { get; set; }
-			public int TaserKillPoints { get; set; }
-			public int KnifeKillPoints { get; set; }
+			return string.IsNullOrEmpty(msg) ? $"{ChatColors.LightRed}[K4-System]" : msg;
 		}
 	}
 }
