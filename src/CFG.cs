@@ -213,9 +213,9 @@ namespace K4ryuuSystem
 
 		public void OnConfigParsed(MyConfig config)
 		{
-			if (config.Version == ModuleConfigVersion)
+			if (config.Version < ModuleConfigVersion)
 			{
-				throw new Exception($"A new config file version is available. Your version ({config.Version}), new version: ({ModuleConfigVersion})");
+				Log($"{config.GeneralSettings.Prefix} A new config file version is available. Your version ({config.Version}), new version: ({ModuleConfigVersion})", LogLevel.Warning);
 			}
 
 			config.GeneralSettings.Prefix = ModifyColorValue(config.GeneralSettings.Prefix);

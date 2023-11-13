@@ -7,6 +7,7 @@ using CounterStrikeSharp.API.Modules.Commands;
 using CounterStrikeSharp.API.Modules.Utils;
 using Nexd.MySQL;
 using CounterStrikeSharp.API.Modules.Admin;
+using System.Reflection;
 
 namespace K4ryuuSystem
 {
@@ -41,14 +42,24 @@ namespace K4ryuuSystem
 				}
 			}
 
+			string modifiedValue = nextRankColor;
+			foreach (FieldInfo field in typeof(ChatColors).GetFields())
+			{
+				string pattern = $"{field.Name}";
+				if (nextRankColor.Contains(pattern, StringComparison.OrdinalIgnoreCase))
+				{
+					modifiedValue = modifiedValue.Replace(pattern, field.GetValue(null)!.ToString(), StringComparison.OrdinalIgnoreCase);
+				}
+			}
+
 			// Find the player's place in the top list
 			int playerPlace = GetPlayerPlaceInTopList(playerName);
 
-			player.PrintToChat($"{Config.GeneralSettings.Prefix} {PlayerSummaries[player].RankColor}{playerName}");
-			player.PrintToChat($"{ChatColors.Default}You have {ChatColors.Red}{playerPoints} {ChatColors.Default}points and is currently {ChatColors.Red}{PlayerSummaries[player].RankColor}{PlayerSummaries[player].Rank}.");
-			player.PrintToChat($"{ChatColors.Default}Next rank: {nextRankColor}{nextRank}");
-			player.PrintToChat($"{ChatColors.Default}Points until next rank: {ChatColors.Red}{pointsUntilNextRank}");
-			player.PrintToChat($"{ChatColors.Default}Place in top list: {ChatColors.Green}{playerPlace}");
+			player.PrintToChat($" {Config.GeneralSettings.Prefix} {PlayerSummaries[player].RankColor}{playerName}");
+			player.PrintToChat($" {ChatColors.Blue}You have {ChatColors.Gold}{playerPoints} {ChatColors.Blue}points and is currently {PlayerSummaries[player].RankColor}{PlayerSummaries[player].Rank}.");
+			player.PrintToChat($" {ChatColors.Blue}Next rank: {modifiedValue}{nextRank}");
+			player.PrintToChat($" {ChatColors.Blue}Points until next rank: {ChatColors.Gold}{pointsUntilNextRank}");
+			player.PrintToChat($" {ChatColors.Blue}Place in top list: {ChatColors.Gold}{playerPlace}");
 		}
 
 		[ConsoleCommand("resetmyrank", "Resets the player's own points to zero")]
@@ -282,10 +293,10 @@ namespace K4ryuuSystem
 				return;
 
 			command.ReplyToCommand($" {Config.GeneralSettings.Prefix} Available Commands:");
-			command.ReplyToCommand($" {ChatColors.Blue}PlayTime Commands: !time, !mytime, !playtime");
-			command.ReplyToCommand($" {ChatColors.Blue}Rank Commands: !rank, !resetmyrank");
-			command.ReplyToCommand($" {ChatColors.Blue}Statistic Commands: !stat, !statistics");
-			command.ReplyToCommand($" {ChatColors.Blue}Toplist Commands: !ranktop, !top, !top5, !top10");
+			command.ReplyToCommand($" {ChatColors.Blue}PlayTime Commands: {ChatColors.Gold}!time{ChatColors.Blue}, {ChatColors.Gold}!mytime{ChatColors.Blue}, {ChatColors.Gold}!playtime");
+			command.ReplyToCommand($" {ChatColors.Blue}Rank Commands: {ChatColors.Gold}!rank{ChatColors.Blue}, {ChatColors.Gold}!resetmyrank");
+			command.ReplyToCommand($" {ChatColors.Blue}Statistic Commands: {ChatColors.Gold}!stat{ChatColors.Blue}, {ChatColors.Gold}!statistics");
+			command.ReplyToCommand($" {ChatColors.Blue}Toplist Commands: {ChatColors.Gold}!ranktop{ChatColors.Blue}, {ChatColors.Gold}!top{ChatColors.Blue}, {ChatColors.Gold}!top5{ChatColors.Blue}, {ChatColors.Gold}!top10");
 		}
 	}
 }
