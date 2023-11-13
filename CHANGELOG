@@ -1,0 +1,10 @@
+-- 2023.10.13 - V1.2.0
+
+- Added max rank and current rank id to !rank
+- Added player count to toplist
+- Upgraded save mechanism
+- Upgraded data storing mechanism
+- Upgraded point setter mechanism
+- Fixed missing VIP multiplier sections
+- Fixed several minor bug
+- Cleaned and refactored the full code
