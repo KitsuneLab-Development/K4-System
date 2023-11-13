@@ -41,6 +41,9 @@ public class DatabaseSettings
 
 	[JsonPropertyName("port")]
 	public int Port { get; set; } = 3306;
+
+	[JsonPropertyName("table-prefix")]
+	public string TablePrefix { get; set; } = "";
 }
 
 public class StatisticSettings
@@ -220,12 +223,17 @@ namespace K4ryuuSystem
 	{
 		public required MyConfig Config { get; set; }
 
+		public required string TablePrefix = string.Empty;
+
 		public void OnConfigParsed(MyConfig config)
 		{
 			if (config.Version < ModuleConfigVersion)
 			{
 				Log($"{config.GeneralSettings.Prefix} A new config file version is available. Your version ({config.Version}), new version: ({ModuleConfigVersion})", LogLevel.Warning);
 			}
+
+			if (Config.DatabaseSettings.TablePrefix.Length > 0)
+				TablePrefix = $"{Config.DatabaseSettings.TablePrefix}_";
 
 			config.GeneralSettings.Prefix = ModifyColorValue(config.GeneralSettings.Prefix);
 

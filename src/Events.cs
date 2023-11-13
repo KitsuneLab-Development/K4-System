@@ -85,7 +85,7 @@ namespace K4ryuuSystem
 					return HookResult.Continue;
 
 				if (Config.GeneralSettings.ModuleStats)
-					MySql!.ExecuteNonQueryAsync($"UPDATE `k4stats` SET `mvp` = (`mvp` + 1) WHERE `steam_id` = {player.SteamID};");
+					MySql!.ExecuteNonQueryAsync($"UPDATE `{TablePrefix}k4stats` SET `mvp` = (`mvp` + 1) WHERE `steam_id` = {player.SteamID};");
 
 				if (Config.GeneralSettings.ModuleRanks)
 					ModifyClientPoints(@event.Userid, CHANGE_MODE.GIVE, Config.PointSettings.MVP, "Round MVP");
@@ -133,7 +133,7 @@ namespace K4ryuuSystem
 						if (playerTeam == winnerTeam)
 						{
 							if (IsStatsAllowed())
-								MySql!.ExecuteNonQueryAsync($"UPDATE `k4stats` SET `round_win` = (`round_win` + 1) WHERE `steam_id` = {player.SteamID};");
+								MySql!.ExecuteNonQueryAsync($"UPDATE `{TablePrefix}k4stats` SET `round_win` = (`round_win` + 1) WHERE `steam_id` = {player.SteamID};");
 
 							if (IsPointsAllowed())
 								ModifyClientPoints(player, CHANGE_MODE.GIVE, Config.PointSettings.RoundWin, "Round Win");
@@ -141,7 +141,7 @@ namespace K4ryuuSystem
 						else
 						{
 							if (IsStatsAllowed())
-								MySql!.ExecuteNonQueryAsync($"UPDATE `k4stats` SET `round_lose` = (`round_lose` + 1) WHERE `steam_id` = {player.SteamID};");
+								MySql!.ExecuteNonQueryAsync($"UPDATE `{TablePrefix}k4stats` SET `round_lose` = (`round_lose` + 1) WHERE `steam_id` = {player.SteamID};");
 
 							if (IsPointsAllowed())
 								ModifyClientPoints(player, CHANGE_MODE.REMOVE, Config.PointSettings.RoundLose, "Round Lose");
@@ -191,7 +191,7 @@ namespace K4ryuuSystem
 					return HookResult.Continue;
 
 				if (IsStatsAllowed())
-					MySql!.ExecuteNonQueryAsync($"UPDATE `k4stats` SET `grenades` = (`grenades` + 1) WHERE `steam_id` = {playerController.SteamID};");
+					MySql!.ExecuteNonQueryAsync($"UPDATE `{TablePrefix}k4stats` SET `grenades` = (`grenades` + 1) WHERE `steam_id` = {playerController.SteamID};");
 
 				return HookResult.Continue;
 			});
@@ -203,7 +203,7 @@ namespace K4ryuuSystem
 					return HookResult.Continue;
 
 				if (IsStatsAllowed())
-					MySql!.ExecuteNonQueryAsync($"UPDATE `k4stats` SET `hits` = (`hits` + 1){(@event.Hitgroup == 1 ? $", `headshots` = (`headshots` + 1)" : "")} WHERE `steam_id` = {attackerController.SteamID};");
+					MySql!.ExecuteNonQueryAsync($"UPDATE `{TablePrefix}k4stats` SET `hits` = (`hits` + 1){(@event.Hitgroup == 1 ? $", `headshots` = (`headshots` + 1)" : "")} WHERE `steam_id` = {attackerController.SteamID};");
 
 				return HookResult.Continue;
 			});
@@ -219,7 +219,7 @@ namespace K4ryuuSystem
 
 				if (!victimController.IsBot && IsStatsAllowed() && (Config.StatisticSettings.StatsForBots || !killerController.IsBot))
 				{
-					MySql!.ExecuteNonQueryAsync($"UPDATE `k4stats` SET `deaths` = (`deaths` + 1) WHERE `steam_id` = {victimController.SteamID};");
+					MySql!.ExecuteNonQueryAsync($"UPDATE `{TablePrefix}k4stats` SET `deaths` = (`deaths` + 1) WHERE `steam_id` = {victimController.SteamID};");
 				}
 
 				if (!victimController.IsBot && (Config.RankSettings.PointsForBots || !killerController.IsBot) && IsPointsAllowed())
@@ -244,7 +244,7 @@ namespace K4ryuuSystem
 				{
 					if (IsStatsAllowed() && (Config.StatisticSettings.StatsForBots || !victimController.IsBot))
 					{
-						MySql!.ExecuteNonQueryAsync($"UPDATE `k4stats` SET `kills` = (`kills` + 1) WHERE `steam_id` = {killerController.SteamID};");
+						MySql!.ExecuteNonQueryAsync($"UPDATE `{TablePrefix}k4stats` SET `kills` = (`kills` + 1) WHERE `steam_id` = {killerController.SteamID};");
 					}
 
 					if ((Config.RankSettings.PointsForBots || !victimController.IsBot) && IsPointsAllowed())
@@ -466,7 +466,7 @@ namespace K4ryuuSystem
 						pointChange = (int)Math.Round(pointChange * Config.RankSettings.VipMultiplier);
 					}
 
-					MySql!.ExecuteNonQueryAsync($"UPDATE `k4ranks` SET `points` = (`points` + {pointChange}) WHERE `steam_id` = {assisterController.SteamID};");
+					MySql!.ExecuteNonQueryAsync($"UPDATE `{TablePrefix}k4ranks` SET `points` = (`points` + {pointChange}) WHERE `steam_id` = {assisterController.SteamID};");
 				}
 
 				return HookResult.Continue;

@@ -65,7 +65,7 @@ namespace K4ryuuSystem
 
 		public async void PrintTopXPlayers(CCSPlayerController player, int number)
 		{
-			MySqlQueryResult result = await MySql!.Table("k4ranks").ExecuteQueryAsync($"SELECT `points`, `name` FROM `k4ranks` ORDER BY `points` DESC LIMIT {number};");
+			MySqlQueryResult result = await MySql!.Table($"{TablePrefix}k4ranks").ExecuteQueryAsync($"SELECT `points`, `name` FROM `k4ranks` ORDER BY `points` DESC LIMIT {number};");
 
 			if (result.Count > 0)
 			{
@@ -122,14 +122,14 @@ namespace K4ryuuSystem
 										.Add("name", escapedName)
 										.Add("steam_id", player.SteamID.ToString());
 
-			MySql!.Table("k4times").InsertIfNotExist(values, $"`name` = '{escapedName}'");
-			MySql!.Table("k4stats").InsertIfNotExist(values, $"`name` = '{escapedName}'");
-			MySql!.Table("k4ranks").InsertIfNotExist(values.Add("`rank`", MySqlHelper.EscapeString(noneRank)), $"`name` = '{escapedName}'");
+			MySql!.Table($"{TablePrefix}k4times").InsertIfNotExist(values, $"`name` = '{escapedName}'");
+			MySql!.Table($"{TablePrefix}k4stats").InsertIfNotExist(values, $"`name` = '{escapedName}'");
+			MySql!.Table($"{TablePrefix}k4ranks").InsertIfNotExist(values.Add("`rank`", MySqlHelper.EscapeString(noneRank)), $"`name` = '{escapedName}'");
 
 			if (!Config.GeneralSettings.ModuleRanks)
 				return;
 
-			MySqlQueryResult result = MySql!.Table("k4ranks").Where(MySqlQueryCondition.New("steam_id", "=", player.SteamID.ToString())).Select("points");
+			MySqlQueryResult result = MySql!.Table($"{TablePrefix}k4ranks").Where(MySqlQueryCondition.New("steam_id", "=", player.SteamID.ToString())).Select("points");
 
 			PlayerSummaries[player].Points = result.Rows > 0 ? result.Get<int>(0, "points") : 0;
 
@@ -177,7 +177,7 @@ namespace K4ryuuSystem
 
 		private int GetPlayerPlaceInTopList(string playerName)
 		{
-			MySqlQueryResult result = MySql!.Table("k4ranks").ExecuteQuery($"SELECT COUNT(*) AS playerCount FROM `k4ranks` WHERE `points` > (SELECT `points` FROM `k4ranks` WHERE `name` = '{playerName}')")!;
+			MySqlQueryResult result = MySql!.Table($"{TablePrefix}k4ranks").ExecuteQuery($"SELECT COUNT(*) AS playerCount FROM `k4ranks` WHERE `points` > (SELECT `points` FROM `k4ranks` WHERE `name` = '{playerName}')")!;
 			return result.Count > 0 ? result.Get<int>(0, "playerCount") + 1 : 0;
 		}
 
@@ -203,14 +203,14 @@ namespace K4ryuuSystem
 					{
 						player.PrintToChat($" {Config.GeneralSettings.Prefix} {ChatColors.White}Points: {ChatColors.Gold}{PlayerSummaries[player].Points} [={amount} {reason}]");
 						PlayerSummaries[player].Points = amount;
-						MySql!.ExecuteNonQueryAsync($"UPDATE `k4ranks` SET `points` = {amount} WHERE `steam_id` = {player.SteamID};");
+						MySql!.ExecuteNonQueryAsync($"UPDATE `{TablePrefix}k4ranks` SET `points` = {amount} WHERE `steam_id` = {player.SteamID};");
 						break;
 					}
 				case CHANGE_MODE.GIVE:
 					{
 						player.PrintToChat($" {Config.GeneralSettings.Prefix} {ChatColors.White}Points: {ChatColors.Green}{PlayerSummaries[player].Points} [+{amount} {reason}]");
 						PlayerSummaries[player].Points += amount;
-						MySql!.ExecuteNonQueryAsync($"UPDATE `k4ranks` SET `points` = (`points` + {amount}) WHERE `steam_id` = {player.SteamID};");
+						MySql!.ExecuteNonQueryAsync($"UPDATE `{TablePrefix}k4ranks` SET `points` = (`points` + {amount}) WHERE `steam_id` = {player.SteamID};");
 						break;
 					}
 				case CHANGE_MODE.REMOVE:
@@ -221,7 +221,7 @@ namespace K4ryuuSystem
 						if (PlayerSummaries[player].Points < 0)
 							PlayerSummaries[player].Points = 0;
 
-						MySql!.ExecuteNonQueryAsync($"UPDATE `k4ranks` SET `points` = GREATEST(`points` - {amount}, 0) WHERE `steam_id` = {player.SteamID};");
+						MySql!.ExecuteNonQueryAsync($"UPDATE `{TablePrefix}k4ranks` SET `points` = GREATEST(`points` - {amount}, 0) WHERE `steam_id` = {player.SteamID};");
 						break;
 					}
 				default:
@@ -254,7 +254,7 @@ namespace K4ryuuSystem
 			if (setRank == null || newRank == noneRank || newRank == PlayerSummaries[player].Rank)
 				return;
 
-			MySql!.ExecuteNonQueryAsync($"UPDATE `k4ranks` SET `rank` = {newRank} WHERE `steam_id` = {player.SteamID};");
+			MySql!.ExecuteNonQueryAsync($"UPDATE `{TablePrefix}k4ranks` SET `rank` = {newRank} WHERE `steam_id` = {player.SteamID};");
 
 			if (Config.RankSettings.ScoreboardRanks)
 				player.Clan = $"[{newRank}]";
@@ -313,7 +313,7 @@ namespace K4ryuuSystem
 			if (Config.RankSettings.ScoreboardRanks)
 				player.Clan = $"[{newRank}]";
 
-			MySql!.ExecuteNonQueryAsync($"UPDATE `k4ranks` SET `rank` = {newRank} WHERE `steam_id` = {player.SteamID};");
+			MySql!.ExecuteNonQueryAsync($"UPDATE `{TablePrefix}k4ranks` SET `rank` = {newRank} WHERE `steam_id` = {player.SteamID};");
 
 			PlayerSummaries[player].Rank = newRank;
 			PlayerSummaries[player].RankPoints = setRank.Exp;
@@ -349,7 +349,7 @@ namespace K4ryuuSystem
 
 		private void UpdatePlayerData(CCSPlayerController player, string field, double value)
 		{
-			MySql!.ExecuteNonQueryAsync($"UPDATE `k4times` SET `{field}` = `{field}` + {(int)Math.Round(value)} WHERE `steam_id` = {player.SteamID};");
+			MySql!.ExecuteNonQueryAsync($"UPDATE `{TablePrefix}k4times` SET `{field}` = `{field}` + {(int)Math.Round(value)} WHERE `steam_id` = {player.SteamID};");
 		}
 
 		public void ResetKillStreak(int playerIndex)
@@ -409,7 +409,7 @@ namespace K4ryuuSystem
 			int allSeconds = (int)Math.Round((now - PlayerSummaries[player].Times["Connect"]).TotalSeconds);
 			int teamSeconds = (int)Math.Round((now - PlayerSummaries[player].Times["Team"]).TotalSeconds);
 
-			string updateQuery = $@"UPDATE `k4times`
+			string updateQuery = $@"UPDATE `{TablePrefix}k4times`
                            SET `all` = `all` + {allSeconds}";
 
 			switch ((CsTeam)player.TeamNum)
