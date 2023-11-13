@@ -19,7 +19,36 @@ namespace K4ryuuSystem
 			if (!player.IsValidPlayer())
 				return;
 
-			command.ReplyToCommand($" {Config.GeneralSettings.Prefix} {PlayerSummaries[player!].RankColor}{player!.PlayerName} {ChatColors.White}has {ChatColors.Red}{PlayerSummaries[player].Points} {ChatColors.White}points and is currently {PlayerSummaries[player].RankColor}{PlayerSummaries[player].Rank}");
+			string playerName = player!.PlayerName;
+			int playerPoints = PlayerSummaries[player].Points;
+
+			// Find the next rank
+			string nextRank = noneRank;
+			string nextRankColor = "";
+			int pointsUntilNextRank = 0;
+
+			foreach (var kvp in ranks.OrderBy(r => r.Value.Exp))
+			{
+				string level = kvp.Key;
+				Rank rank = kvp.Value;
+
+				if (playerPoints < rank.Exp)
+				{
+					nextRank = level;
+					pointsUntilNextRank = rank.Exp - playerPoints;
+					nextRankColor = rank.Color;
+					break;
+				}
+			}
+
+			// Find the player's place in the top list
+			int playerPlace = GetPlayerPlaceInTopList(playerName);
+
+			player.PrintToChat($"{Config.GeneralSettings.Prefix} {PlayerSummaries[player].RankColor}{playerName}");
+			player.PrintToChat($"{ChatColors.Default}You have {ChatColors.Red}{playerPoints} {ChatColors.Default}points and is currently {ChatColors.Red}{PlayerSummaries[player].RankColor}{PlayerSummaries[player].Rank}.");
+			player.PrintToChat($"{ChatColors.Default}Next rank: {nextRankColor}{nextRank}");
+			player.PrintToChat($"{ChatColors.Default}Points until next rank: {ChatColors.Red}{pointsUntilNextRank}");
+			player.PrintToChat($"{ChatColors.Default}Place in top list: {ChatColors.Green}{playerPlace}");
 		}
 
 		[ConsoleCommand("resetmyrank", "Resets the player's own points to zero")]

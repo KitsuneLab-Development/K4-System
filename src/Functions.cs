@@ -172,6 +172,12 @@ namespace K4ryuuSystem
 			PlayerSummaries[player].RankColor = modifiedValue;
 		}
 
+		private int GetPlayerPlaceInTopList(string playerName)
+		{
+			MySqlQueryResult result = MySql!.Table("k4ranks").ExecuteQuery($"SELECT COUNT(*) AS playerCount FROM `k4ranks` WHERE `points` > (SELECT `points` FROM `k4ranks` WHERE `name` = '{playerName}')")!;
+			return result.Count > 0 ? result.Get<int>(0, "playerCount") + 1 : 0;
+		}
+
 		public void ModifyClientPoints(CCSPlayerController player, CHANGE_MODE mode, int amount, string reason)
 		{
 			if (!player.IsValidPlayer())
