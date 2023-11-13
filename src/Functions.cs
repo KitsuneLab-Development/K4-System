@@ -126,6 +126,9 @@ namespace K4ryuuSystem
 			MySql!.Table("k4stats").InsertIfNotExist(values, $"`name` = '{escapedName}'");
 			MySql!.Table("k4ranks").InsertIfNotExist(values.Add("`rank`", MySqlHelper.EscapeString(noneRank)), $"`name` = '{escapedName}'");
 
+			if (!Config.GeneralSettings.ModuleRanks)
+				return;
+
 			MySqlQueryResult result = MySql!.Table("k4ranks").Where(MySqlQueryCondition.New("steam_id", "=", player.SteamID.ToString())).Select("points");
 
 			PlayerSummaries[player].Points = result.Rows > 0 ? result.Get<int>(0, "points") : 0;
@@ -276,6 +279,9 @@ namespace K4ryuuSystem
 
 		public void CheckNewRank(CCSPlayerController player)
 		{
+			if (!Config.GeneralSettings.ModuleRanks)
+				return;
+
 			if (Config.RankSettings.ScoreboardScoreSync)
 				player.Score = PlayerSummaries[player].Points;
 
