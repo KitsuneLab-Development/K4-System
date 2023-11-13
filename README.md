@@ -116,7 +116,7 @@ Before you begin, ensure you have the following prerequisites:
 
 2. **Extract the Addon:** After downloading, extract the contents of the addon to the counterstrikesharp/plugins directory on your server. Inside the plugins folder, you should have a folder named exactly as the project dll. From the releases, you find it pre zipped with the correct name.
 
-3. **Configuration:** The configuration file (if there is any), will be generated automatically to the same folder after the plugin firt started succesfully.
+3. **Configuration:** The config is being generated after the first start of the plugin, to configs/plugins/K4-System/ folder.
 
 4. **Permissions:** You can set the permissions as you need in the counterstrikesharp/configs/admins.json
 
