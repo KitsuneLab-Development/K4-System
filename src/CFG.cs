@@ -14,6 +14,15 @@ public class GeneralSettings
 
 	[JsonPropertyName("log-level")]
 	public int LogLevel { get; set; } = 0;
+
+	[JsonPropertyName("module_ranks")]
+	public bool ModuleRanks { get; set; } = true;
+
+	[JsonPropertyName("module_stats")]
+	public bool ModuleStats { get; set; } = true;
+
+	[JsonPropertyName("module_times")]
+	public bool ModuleTimes { get; set; } = true;
 }
 
 public class DatabaseSettings

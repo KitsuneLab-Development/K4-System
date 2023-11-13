@@ -330,7 +330,7 @@ namespace K4ryuuSystem
 			List<CCSPlayerController> players = Utilities.GetPlayers();
 			int notBots = players.Count(player => !player.IsBot);
 
-			return (!K4ryuu.GameRules().WarmupPeriod || Config.RankSettings.WarmupPoints) && (Config.RankSettings.MinPlayers <= notBots);
+			return Config.GeneralSettings.ModuleRanks && (!K4ryuu.GameRules().WarmupPeriod || Config.RankSettings.WarmupPoints) && (Config.RankSettings.MinPlayers <= notBots);
 		}
 
 		public bool IsStatsAllowed()
@@ -338,7 +338,7 @@ namespace K4ryuuSystem
 			List<CCSPlayerController> players = Utilities.GetPlayers();
 			int notBots = players.Count(player => !player.IsBot);
 
-			return (!K4ryuu.GameRules().WarmupPeriod || Config.StatisticSettings.WarmupStats) && (Config.StatisticSettings.MinPlayers <= notBots);
+			return Config.GeneralSettings.ModuleStats && (!K4ryuu.GameRules().WarmupPeriod || Config.StatisticSettings.WarmupStats) && (Config.StatisticSettings.MinPlayers <= notBots);
 		}
 
 		private void UpdatePlayerData(CCSPlayerController player, string field, double value)

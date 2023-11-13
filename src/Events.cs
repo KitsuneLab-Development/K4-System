@@ -22,7 +22,8 @@ namespace K4ryuuSystem
 			{
 				CCSPlayerController playerController = @event.Userid;
 
-				playerKillStreaks[playerController.UserId ?? 0] = (0, DateTime.MinValue);
+				if (Config.GeneralSettings.ModuleRanks)
+					playerKillStreaks[playerController.UserId ?? 0] = (0, DateTime.MinValue);
 
 				if (playerController.IsValidPlayer())
 					LoadPlayerData(playerController);
@@ -61,6 +62,9 @@ namespace K4ryuuSystem
 			});
 			RegisterEventHandler<EventPlayerTeam>((@event, info) =>
 			{
+				if (Config.GeneralSettings.ModuleTimes)
+					return HookResult.Continue;
+
 				CCSPlayerController player = @event.Userid;
 				if (player == null || !player.IsValid || player.IsBot || @event.Oldteam == @event.Team)
 					return HookResult.Continue;
@@ -77,13 +81,15 @@ namespace K4ryuuSystem
 			RegisterEventHandler<EventRoundMvp>((@event, info) =>
 			{
 				CCSPlayerController player = @event.Userid;
-
 				if (player == null || !player.IsValid || player.IsBot)
 					return HookResult.Continue;
 
-				MySql!.ExecuteNonQueryAsync($"UPDATE `k4stats` SET `mvp` = (`mvp` + 1) WHERE `steam_id` = {player.SteamID};");
+				if (Config.GeneralSettings.ModuleStats)
+					MySql!.ExecuteNonQueryAsync($"UPDATE `k4stats` SET `mvp` = (`mvp` + 1) WHERE `steam_id` = {player.SteamID};");
 
-				ModifyClientPoints(@event.Userid, CHANGE_MODE.GIVE, Config.PointSettings.MVP, "Round MVP");
+				if (Config.GeneralSettings.ModuleRanks)
+					ModifyClientPoints(@event.Userid, CHANGE_MODE.GIVE, Config.PointSettings.MVP, "Round MVP");
+
 				return HookResult.Continue;
 			});
 			RegisterEventHandler<EventRoundStart>((@event, info) =>
@@ -114,9 +120,6 @@ namespace K4ryuuSystem
 			{
 				CsTeam winnerTeam = (CsTeam)@event.Winner;
 
-				if (!IsPointsAllowed())
-					return HookResult.Continue;
-
 				List<CCSPlayerController> players = Utilities.GetPlayers();
 				foreach (CCSPlayerController player in players)
 				{
@@ -132,14 +135,16 @@ namespace K4ryuuSystem
 							if (IsStatsAllowed())
 								MySql!.ExecuteNonQueryAsync($"UPDATE `k4stats` SET `round_win` = (`round_win` + 1) WHERE `steam_id` = {player.SteamID};");
 
-							ModifyClientPoints(player, CHANGE_MODE.GIVE, Config.PointSettings.RoundWin, "Round Win");
+							if (IsPointsAllowed())
+								ModifyClientPoints(player, CHANGE_MODE.GIVE, Config.PointSettings.RoundWin, "Round Win");
 						}
 						else
 						{
 							if (IsStatsAllowed())
 								MySql!.ExecuteNonQueryAsync($"UPDATE `k4stats` SET `round_lose` = (`round_lose` + 1) WHERE `steam_id` = {player.SteamID};");
 
-							ModifyClientPoints(player, CHANGE_MODE.REMOVE, Config.PointSettings.RoundLose, "Round Lose");
+							if (IsPointsAllowed())
+								ModifyClientPoints(player, CHANGE_MODE.REMOVE, Config.PointSettings.RoundLose, "Round Lose");
 						}
 					}
 
@@ -150,6 +155,9 @@ namespace K4ryuuSystem
 			});
 			RegisterEventHandler<EventPlayerSpawn>((@event, info) =>
 			{
+				if (!Config.GeneralSettings.ModuleTimes)
+					return HookResult.Continue;
+
 				CCSPlayerController player = @event.Userid;
 				if (player == null || !player.IsValid || player.IsBot)
 					return HookResult.Continue;
@@ -429,7 +437,7 @@ namespace K4ryuuSystem
 					}
 				}
 
-				if (assisterController.IsValidPlayer())
+				if (assisterController.IsValidPlayer() && IsPointsAllowed())
 				{
 					if (!PlayerSummaries.ContainsPlayer(assisterController))
 						LoadPlayerData(assisterController);

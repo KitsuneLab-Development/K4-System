@@ -20,6 +20,9 @@ namespace K4ryuuSystem
 			if (!player.IsValidPlayer())
 				return;
 
+			if (!Config.GeneralSettings.ModuleRanks)
+				return;
+
 			string playerName = player!.PlayerName;
 			int playerPoints = PlayerSummaries[player].Points;
 
@@ -69,6 +72,9 @@ namespace K4ryuuSystem
 			if (!player.IsValidPlayer())
 				return;
 
+			if (!Config.GeneralSettings.ModuleRanks)
+				return;
+
 			if (!PlayerSummaries.ContainsPlayer(player!))
 				LoadPlayerData(player!);
 
@@ -86,6 +92,9 @@ namespace K4ryuuSystem
 			if (!player.IsValidPlayer())
 				return;
 
+			if (!Config.GeneralSettings.ModuleRanks)
+				return;
+
 			PrintTopXPlayers(player!, 5);
 		}
 
@@ -94,6 +103,9 @@ namespace K4ryuuSystem
 		public void OnCommandCheckRankTopTen(CCSPlayerController? player, CommandInfo command)
 		{
 			if (!player.IsValidPlayer())
+				return;
+
+			if (!Config.GeneralSettings.ModuleRanks)
 				return;
 
 			PrintTopXPlayers(player!, 10);
@@ -105,6 +117,9 @@ namespace K4ryuuSystem
 		public void OnCommandCheckStatistics(CCSPlayerController? player, CommandInfo command)
 		{
 			if (!player.IsValidPlayer())
+				return;
+
+			if (!Config.GeneralSettings.ModuleStats)
 				return;
 
 			MySqlQueryResult result = MySql!.Table("k4stats").Where(MySqlQueryCondition.New("steam_id", "=", player!.SteamID.ToString())).Select();
@@ -126,6 +141,9 @@ namespace K4ryuuSystem
 		public void OnCommandResetOtherRank(CCSPlayerController? player, CommandInfo command)
 		{
 			if (!player.IsValidPlayer())
+				return;
+
+			if (!Config.GeneralSettings.ModuleRanks)
 				return;
 
 			List<CCSPlayerController> players = Utilities.GetPlayers();
@@ -155,6 +173,9 @@ namespace K4ryuuSystem
 		public void OnCommandSetPoints(CCSPlayerController? player, CommandInfo command)
 		{
 			if (!player.IsValidPlayer())
+				return;
+
+			if (!Config.GeneralSettings.ModuleRanks)
 				return;
 
 			if (int.TryParse(command.ArgByIndex(2), out int parsedInt))
@@ -193,6 +214,9 @@ namespace K4ryuuSystem
 			if (!player.IsValidPlayer())
 				return;
 
+			if (!Config.GeneralSettings.ModuleRanks)
+				return;
+
 			if (int.TryParse(command.ArgByIndex(2), out int parsedInt))
 			{
 				List<CCSPlayerController> players = Utilities.GetPlayers();
@@ -227,6 +251,9 @@ namespace K4ryuuSystem
 		public void OnCommandRemovePoints(CCSPlayerController? player, CommandInfo command)
 		{
 			if (!player.IsValidPlayer())
+				return;
+
+			if (!Config.GeneralSettings.ModuleRanks)
 				return;
 
 			if (int.TryParse(command.ArgByIndex(2), out int parsedInt))
@@ -268,6 +295,9 @@ namespace K4ryuuSystem
 		public void OnCommandCheckPlaytime(CCSPlayerController? player, CommandInfo command)
 		{
 			if (player == null || !player.IsValid)
+				return;
+
+			if (!Config.GeneralSettings.ModuleTimes)
 				return;
 
 			SaveClientTime(player);
