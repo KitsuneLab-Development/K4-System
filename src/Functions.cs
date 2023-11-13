@@ -97,6 +97,7 @@ namespace K4ryuuSystem
 			}
 		}
 
+
 		public void LoadPlayerData(CCSPlayerController player)
 		{
 			User newUser = new User
@@ -109,13 +110,6 @@ namespace K4ryuuSystem
 
 			PlayerSummaries[player] = newUser;
 
-			DateTime now = DateTime.UtcNow;
-
-			foreach (var key in new[] { "Connect", "Team", "Death" })
-			{
-				PlayerSummaries[player].Times[key] = now;
-			}
-
 			string escapedName = MySqlHelper.EscapeString(player.PlayerName);
 
 			MySqlQueryValue values = new MySqlQueryValue()
@@ -126,59 +120,96 @@ namespace K4ryuuSystem
 			MySql!.Table($"{TablePrefix}k4stats").InsertIfNotExist(values, $"`name` = '{escapedName}'");
 			MySql!.Table($"{TablePrefix}k4ranks").InsertIfNotExist(values.Add("`rank`", MySqlHelper.EscapeString(noneRank)), $"`name` = '{escapedName}'");
 
-			if (!Config.GeneralSettings.ModuleRanks)
-				return;
 
-			MySqlQueryResult result = MySql!.Table($"{TablePrefix}k4ranks").Where(MySqlQueryCondition.New("steam_id", "=", player.SteamID.ToString())).Select("points");
-
-			PlayerSummaries[player].Points = result.Rows > 0 ? result.Get<int>(0, "points") : 0;
-
-			if (Config.RankSettings.ScoreboardScoreSync)
-				player.Score = PlayerSummaries[player].Points;
-
-			string newRank = noneRank;
-			Rank? setRank = null;
-
-			foreach (var kvp in ranks)
+			if (Config.GeneralSettings.ModuleTimes)
 			{
-				string level = kvp.Key;
-				Rank rank = kvp.Value;
+				MySqlQueryResult result = MySql!.Table($"{TablePrefix}k4times").Where(MySqlQueryCondition.New("steam_id", "=", player.SteamID.ToString())).Select();
 
-				if (PlayerSummaries[player].Points >= rank.Exp)
+				string[] timeFieldNames = { "all", "ct", "t", "spec", "alive", "dead" };
+
+				foreach (var timeField in timeFieldNames)
 				{
-					setRank = rank;
-					newRank = level;
+					PlayerSummaries[player].TimeFields[timeField] = result.Rows > 0 ? result.Get<int>(0, timeField) : 0;
 				}
-				else
-					break;
+
+				DateTime now = DateTime.UtcNow;
+				PlayerSummaries[player].Times["Connect"] = PlayerSummaries[player].Times["Team"] = PlayerSummaries[player].Times["Death"] = now;
 			}
 
-			if (setRank == null)
-				return;
-
-			if (Config.RankSettings.ScoreboardRanks)
-				player.Clan = $"[{newRank}]";
-
-			PlayerSummaries[player].Rank = newRank;
-			PlayerSummaries[player].RankPoints = setRank.Exp;
-
-			string modifiedValue = setRank.Color;
-			foreach (FieldInfo field in typeof(ChatColors).GetFields())
+			if (Config.GeneralSettings.ModuleStats)
 			{
-				string pattern = $"{field.Name}";
-				if (setRank.Color.Contains(pattern, StringComparison.OrdinalIgnoreCase))
+				MySqlQueryResult result = MySql!.Table($"{TablePrefix}k4stats").Where(MySqlQueryCondition.New("steam_id", "=", player.SteamID.ToString())).Select();
+
+				string[] statFieldNames = { "kills", "deaths", "hits", "headshots", "grenades", "mvp", "round_win", "round_lose" };
+
+				foreach (var statField in statFieldNames)
 				{
-					modifiedValue = modifiedValue.Replace(pattern, field.GetValue(null)!.ToString(), StringComparison.OrdinalIgnoreCase);
+					PlayerSummaries[player].StatFields[statField] = result.Rows > 0 ? result.Get<int>(0, statField) : 0;
 				}
 			}
 
-			PlayerSummaries[player].RankColor = modifiedValue;
+			if (Config.GeneralSettings.ModuleRanks)
+			{
+				MySqlQueryResult result = MySql!.Table($"{TablePrefix}k4ranks").Where(MySqlQueryCondition.New("steam_id", "=", player.SteamID.ToString())).Select("points");
+
+				PlayerSummaries[player].Points = result.Rows > 0 ? result.Get<int>(0, "points") : 0;
+
+				if (Config.RankSettings.ScoreboardScoreSync)
+					player.Score = PlayerSummaries[player].Points;
+
+				string newRank = noneRank;
+				Rank? setRank = null;
+
+				foreach (var kvp in ranks)
+				{
+					string level = kvp.Key;
+					Rank rank = kvp.Value;
+
+					if (PlayerSummaries[player].Points >= rank.Exp)
+					{
+						setRank = rank;
+						newRank = level;
+					}
+					else
+						break;
+				}
+
+				if (setRank == null)
+					return;
+
+				if (Config.RankSettings.ScoreboardRanks)
+					player.Clan = $"[{newRank}]";
+
+				PlayerSummaries[player].Rank = newRank;
+				PlayerSummaries[player].RankPoints = setRank.Exp;
+
+				string modifiedValue = setRank.Color;
+				foreach (FieldInfo field in typeof(ChatColors).GetFields())
+				{
+					string pattern = $"{field.Name}";
+					if (setRank.Color.Contains(pattern, StringComparison.OrdinalIgnoreCase))
+					{
+						modifiedValue = modifiedValue.Replace(pattern, field.GetValue(null)!.ToString(), StringComparison.OrdinalIgnoreCase);
+					}
+				}
+
+				PlayerSummaries[player].RankColor = modifiedValue;
+			}
 		}
 
-		private int GetPlayerPlaceInTopList(string playerName)
+		private (int playerPlace, int totalPlayers) GetPlayerPlaceAndCount(string playerName)
 		{
-			MySqlQueryResult result = MySql!.Table($"{TablePrefix}k4ranks").ExecuteQuery($"SELECT COUNT(*) AS playerCount FROM `k4ranks` WHERE `points` > (SELECT `points` FROM `k4ranks` WHERE `name` = '{playerName}')")!;
-			return result.Count > 0 ? result.Get<int>(0, "playerCount") + 1 : 0;
+			MySqlQueryResult result = MySql!.Table($"{TablePrefix}k4ranks").ExecuteQuery($"SELECT (SELECT COUNT(*) FROM `k4ranks` WHERE `points` > (SELECT `points` FROM `k4ranks` WHERE `name` = '{playerName}')) AS playerCount, COUNT(*) AS totalPlayers FROM `k4ranks`")!;
+
+			if (result.Count > 0)
+			{
+				int playersWithMorePoints = result.Get<int>(0, "playerCount");
+				int totalPlayers = result.Get<int>(0, "totalPlayers");
+
+				return (playersWithMorePoints + 1, totalPlayers);
+			}
+
+			return (0, 0);
 		}
 
 		public void ModifyClientPoints(CCSPlayerController player, CHANGE_MODE mode, int amount, string reason)
@@ -203,14 +234,12 @@ namespace K4ryuuSystem
 					{
 						player.PrintToChat($" {Config.GeneralSettings.Prefix} {ChatColors.White}Points: {ChatColors.Gold}{PlayerSummaries[player].Points} [={amount} {reason}]");
 						PlayerSummaries[player].Points = amount;
-						MySql!.ExecuteNonQueryAsync($"UPDATE `{TablePrefix}k4ranks` SET `points` = {amount} WHERE `steam_id` = {player.SteamID};");
 						break;
 					}
 				case CHANGE_MODE.GIVE:
 					{
 						player.PrintToChat($" {Config.GeneralSettings.Prefix} {ChatColors.White}Points: {ChatColors.Green}{PlayerSummaries[player].Points} [+{amount} {reason}]");
 						PlayerSummaries[player].Points += amount;
-						MySql!.ExecuteNonQueryAsync($"UPDATE `{TablePrefix}k4ranks` SET `points` = (`points` + {amount}) WHERE `steam_id` = {player.SteamID};");
 						break;
 					}
 				case CHANGE_MODE.REMOVE:
@@ -221,7 +250,6 @@ namespace K4ryuuSystem
 						if (PlayerSummaries[player].Points < 0)
 							PlayerSummaries[player].Points = 0;
 
-						MySql!.ExecuteNonQueryAsync($"UPDATE `{TablePrefix}k4ranks` SET `points` = GREATEST(`points` - {amount}, 0) WHERE `steam_id` = {player.SteamID};");
 						break;
 					}
 				default:
@@ -253,8 +281,6 @@ namespace K4ryuuSystem
 
 			if (setRank == null || newRank == noneRank || newRank == PlayerSummaries[player].Rank)
 				return;
-
-			MySql!.ExecuteNonQueryAsync($"UPDATE `{TablePrefix}k4ranks` SET `rank` = {newRank} WHERE `steam_id` = {player.SteamID};");
 
 			if (Config.RankSettings.ScoreboardRanks)
 				player.Clan = $"[{newRank}]";
@@ -313,8 +339,6 @@ namespace K4ryuuSystem
 			if (Config.RankSettings.ScoreboardRanks)
 				player.Clan = $"[{newRank}]";
 
-			MySql!.ExecuteNonQueryAsync($"UPDATE `{TablePrefix}k4ranks` SET `rank` = {newRank} WHERE `steam_id` = {player.SteamID};");
-
 			PlayerSummaries[player].Rank = newRank;
 			PlayerSummaries[player].RankPoints = setRank.Exp;
 
@@ -347,11 +371,6 @@ namespace K4ryuuSystem
 			return Config.GeneralSettings.ModuleStats && (!K4ryuu.GameRules().WarmupPeriod || Config.StatisticSettings.WarmupStats) && (Config.StatisticSettings.MinPlayers <= notBots);
 		}
 
-		private void UpdatePlayerData(CCSPlayerController player, string field, double value)
-		{
-			MySql!.ExecuteNonQueryAsync($"UPDATE `{TablePrefix}k4times` SET `{field}` = `{field}` + {(int)Math.Round(value)} WHERE `steam_id` = {player.SteamID};");
-		}
-
 		public void ResetKillStreak(int playerIndex)
 		{
 			playerKillStreaks[playerIndex] = (1, DateTime.Now);
@@ -373,7 +392,7 @@ namespace K4ryuuSystem
 		public string FormatPlaytime(int totalSeconds)
 		{
 			string[] units = { "y", "mo", "d", "h", "m", "s" };
-			int[] values = { totalSeconds / 31536000, (totalSeconds % 31536000) / 2592000, (totalSeconds % 2592000) / 86400, (totalSeconds % 86400) / 3600, (totalSeconds % 3600) / 60, totalSeconds % 60 };
+			int[] values = { totalSeconds / 31536000, totalSeconds % 31536000 / 2592000, totalSeconds % 2592000 / 86400, totalSeconds % 86400 / 3600, totalSeconds % 3600 / 60, totalSeconds % 60 };
 
 			StringBuilder formattedTime = new StringBuilder();
 
@@ -396,52 +415,67 @@ namespace K4ryuuSystem
 			return formattedTime.ToString().TrimEnd(' ', ',');
 		}
 
+		public void SaveClientRank(CCSPlayerController player)
+		{
+			string escapedName = MySqlHelper.EscapeString(player.PlayerName);
+
+			string updateQuery = @$"INSERT INTO `{TablePrefix}k4ranks`
+                                (`steam_id`, `name`, `rank`, `points`)
+                                VALUES ('{player.SteamID}', '{escapedName}', '{PlayerSummaries[player].Rank}', {PlayerSummaries[player].Points})
+                                ON DUPLICATE KEY UPDATE
+								`name` = '{escapedName}',
+                                `rank` = '{PlayerSummaries[player].Rank}',
+                                `points` = {PlayerSummaries[player].Points};";
+
+			MySql!.ExecuteNonQueryAsync(updateQuery);
+		}
+
+		public void SaveClientStats(CCSPlayerController player)
+		{
+			string escapedName = MySqlHelper.EscapeString(player.PlayerName);
+
+			string updateQuery = @$"INSERT INTO `{TablePrefix}k4stats`
+                                (`steam_id`, `name`, `kills`, `deaths`, `hits`, `headshots`, `grenades`, `mvp`, `round_win`, `round_lose`)
+                                VALUES ('{player.SteamID}', '{escapedName}', {PlayerSummaries[player].StatFields["kills"]}, {PlayerSummaries[player].StatFields["deaths"]}, {PlayerSummaries[player].StatFields["hits"]}, {PlayerSummaries[player].StatFields["headshots"]}, {PlayerSummaries[player].StatFields["grenades"]}, {PlayerSummaries[player].StatFields["mvp"]}, {PlayerSummaries[player].StatFields["round_win"]}, {PlayerSummaries[player].StatFields["round_lose"]})
+                                ON DUPLICATE KEY UPDATE
+								`name` = '{escapedName}',
+                                `kills` = {PlayerSummaries[player].StatFields["kills"]},
+                                `deaths` = {PlayerSummaries[player].StatFields["deaths"]},
+                                `hits` = {PlayerSummaries[player].StatFields["hits"]},
+                                `headshots` = {PlayerSummaries[player].StatFields["headshots"]},
+                                `grenades` = {PlayerSummaries[player].StatFields["grenades"]},
+								`mvp` = {PlayerSummaries[player].StatFields["mvp"]},
+								`round_win` = {PlayerSummaries[player].StatFields["round_win"]},
+                                `round_lose` = {PlayerSummaries[player].StatFields["round_lose"]};";
+
+			MySql!.ExecuteNonQueryAsync(updateQuery);
+		}
+
 		public void SaveClientTime(CCSPlayerController player)
 		{
 			DateTime now = DateTime.UtcNow;
 
-			if (!player.IsValidPlayer())
-				return;
+			PlayerSummaries[player].TimeFields["all"] += (int)Math.Round((now - PlayerSummaries[player].Times["Connect"]).TotalSeconds);
+			PlayerSummaries[player].TimeFields[GetFieldForTeam((CsTeam)player.TeamNum)] += (int)Math.Round((now - PlayerSummaries[player].Times["Team"]).TotalSeconds);
+			PlayerSummaries[player].TimeFields[player.PawnIsAlive ? "alive" : "dead"] = (int)Math.Round((now - PlayerSummaries[player].Times["Death"]).TotalSeconds);
 
-			if (!PlayerSummaries.ContainsPlayer(player))
-				LoadPlayerData(player);
+			string escapedName = MySqlHelper.EscapeString(player.PlayerName);
 
-			int allSeconds = (int)Math.Round((now - PlayerSummaries[player].Times["Connect"]).TotalSeconds);
-			int teamSeconds = (int)Math.Round((now - PlayerSummaries[player].Times["Team"]).TotalSeconds);
-
-			string updateQuery = $@"UPDATE `{TablePrefix}k4times`
-                           SET `all` = `all` + {allSeconds}";
-
-			switch ((CsTeam)player.TeamNum)
-			{
-				case CsTeam.Terrorist:
-					{
-						updateQuery += $", `t` = `t` + {teamSeconds}";
-						break;
-					}
-				case CsTeam.CounterTerrorist:
-					{
-						updateQuery += $", `ct` = `ct` + {teamSeconds}";
-						break;
-					}
-				default:
-					{
-						updateQuery += $", `spec` = `spec` + {teamSeconds}";
-						break;
-					}
-			}
-
-			string field = player.PawnIsAlive ? "alive" : "dead";
-			int deathSeconds = (int)Math.Round((now - PlayerSummaries[player].Times["Death"]).TotalSeconds);
-			updateQuery += $", `{field}` = `{field}` + {deathSeconds}";
-
-			updateQuery += $@" WHERE `steam_id` = {player.SteamID}";
+			string updateQuery = @$"INSERT INTO `{TablePrefix}k4times`
+                                (`steam_id`, `name`, `all`, `ct`, `t`, `spec`, `dead`, `alive`)
+                                VALUES ('{player.SteamID}', '{escapedName}', {PlayerSummaries[player].TimeFields["all"]}, {PlayerSummaries[player].TimeFields["ct"]}, {PlayerSummaries[player].TimeFields["t"]}, {PlayerSummaries[player].TimeFields["spec"]}, {PlayerSummaries[player].TimeFields["dead"]}, {PlayerSummaries[player].TimeFields["alive"]})
+                                ON DUPLICATE KEY UPDATE
+								`name` = '{escapedName}',
+                                `all` = {PlayerSummaries[player].TimeFields["all"]},
+                                `ct` = {PlayerSummaries[player].TimeFields["ct"]},
+                                `t` = {PlayerSummaries[player].TimeFields["t"]},
+                                `spec` = {PlayerSummaries[player].TimeFields["spec"]},
+                                `dead` = {PlayerSummaries[player].TimeFields["dead"]},
+                                `alive` = {PlayerSummaries[player].TimeFields["alive"]};";
 
 			MySql!.ExecuteNonQueryAsync(updateQuery);
 
-			PlayerSummaries[player].Times["Connect"] = now;
-			PlayerSummaries[player].Times["Team"] = now;
-			PlayerSummaries[player].Times["Death"] = now;
+			PlayerSummaries[player].Times["Connect"] = PlayerSummaries[player].Times["Team"] = PlayerSummaries[player].Times["Death"] = now;
 		}
 	}
 }

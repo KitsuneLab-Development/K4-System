@@ -18,19 +18,21 @@ namespace K4ryuuSystem
 		public int RankPoints { get; set; } = 0;
 		public bool SpawnedThisRound { get; set; } = false;
 		public Dictionary<string, DateTime> Times { get; set; } = new Dictionary<string, DateTime>();
+		public Dictionary<string, int> StatFields { get; set; } = new Dictionary<string, int>();
+		public Dictionary<string, int> TimeFields { get; set; } = new Dictionary<string, int>();
 	}
 
 	public class PlayerCache<T> : Dictionary<int, T>
 	{
 		public T this[CCSPlayerController controller]
 		{
-			get { return (T)this[controller.UserId!.Value]; }
+			get { return this[controller.UserId!.Value]; }
 			set { this[controller.UserId!.Value] = value; }
 		}
 
 		public T GetFromIndex(int index)
 		{
-			return (T)this[index - 1];
+			return this[index - 1];
 		}
 
 		public bool ContainsPlayer(CCSPlayerController player)
