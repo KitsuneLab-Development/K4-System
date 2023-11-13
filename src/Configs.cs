@@ -232,7 +232,7 @@ namespace K4ryuuSystem
 				Log($"{config.GeneralSettings.Prefix} A new config file version is available. Your version ({config.Version}), new version: ({ModuleConfigVersion})", LogLevel.Warning);
 			}
 
-			if (Config.DatabaseSettings.TablePrefix.Length > 0)
+			if (config.DatabaseSettings.TablePrefix.Length > 0)
 				TablePrefix = $"{Config.DatabaseSettings.TablePrefix}_";
 
 			config.GeneralSettings.Prefix = ModifyColorValue(config.GeneralSettings.Prefix);
