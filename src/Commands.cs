@@ -23,6 +23,9 @@ namespace K4ryuuSystem
 			if (!Config.GeneralSettings.ModuleRanks)
 				return;
 
+			if (!PlayerSummaries.ContainsPlayer(player!))
+				LoadPlayerData(player!);
+
 			string playerName = player!.PlayerName;
 			int playerPoints = PlayerSummaries[player].Points;
 
@@ -98,6 +101,9 @@ namespace K4ryuuSystem
 			if (!Config.GeneralSettings.ModuleRanks)
 				return;
 
+			if (!PlayerSummaries.ContainsPlayer(player!))
+				LoadPlayerData(player!);
+
 			PrintTopXPlayers(player!, 5);
 		}
 
@@ -110,6 +116,9 @@ namespace K4ryuuSystem
 
 			if (!Config.GeneralSettings.ModuleRanks)
 				return;
+
+			if (!PlayerSummaries.ContainsPlayer(player!))
+				LoadPlayerData(player!);
 
 			PrintTopXPlayers(player!, 10);
 		}
@@ -148,8 +157,8 @@ namespace K4ryuuSystem
 			{
 				if (!target.IsBot && target.SteamID.ToString() == Regex.Replace(command.ArgByIndex(1), @"['"",\s]", ""))
 				{
-					if (!PlayerSummaries.ContainsPlayer(target!))
-						LoadPlayerData(target!);
+					if (!PlayerSummaries.ContainsPlayer(target))
+						LoadPlayerData(target);
 
 					Server.PrintToChatAll($" {Config.GeneralSettings.Prefix} {ChatColors.Red}{target.PlayerName}'s rank and points has been reset by {player!.PlayerName}.");
 					Log($"{player.PlayerName} has reset {target.PlayerName}'s points.", LogLevel.Warning);
@@ -180,8 +189,8 @@ namespace K4ryuuSystem
 				{
 					if (!target.IsBot && target.SteamID.ToString() == Regex.Replace(command.ArgByIndex(1), @"['"",\s]", ""))
 					{
-						if (!PlayerSummaries.ContainsPlayer(target!))
-							LoadPlayerData(target!);
+						if (!PlayerSummaries.ContainsPlayer(target))
+							LoadPlayerData(target);
 
 						Server.PrintToChatAll($" {Config.GeneralSettings.Prefix} {ChatColors.Red}{target.PlayerName}'s points has been set to {parsedInt} by {player!.PlayerName}.");
 						Log($"{player.PlayerName} has set {target.PlayerName}'s points to {parsedInt}.", LogLevel.Warning);
@@ -217,8 +226,8 @@ namespace K4ryuuSystem
 				{
 					if (!target.IsBot && target.SteamID.ToString() == Regex.Replace(command.ArgByIndex(1), @"['"",\s]", ""))
 					{
-						if (!PlayerSummaries.ContainsPlayer(target!))
-							LoadPlayerData(target!);
+						if (!PlayerSummaries.ContainsPlayer(target))
+							LoadPlayerData(target);
 
 						Server.PrintToChatAll($" {Config.GeneralSettings.Prefix} {ChatColors.Red}{player!.PlayerName} has given {parsedInt} points to {target.PlayerName}.");
 						Log($"{player.PlayerName} has given {parsedInt} points to {target.PlayerName}.", LogLevel.Warning);
@@ -254,8 +263,8 @@ namespace K4ryuuSystem
 				{
 					if (!target.IsBot && target.SteamID.ToString() == Regex.Replace(command.ArgByIndex(1), @"['"",\s]", ""))
 					{
-						if (!PlayerSummaries.ContainsPlayer(target!))
-							LoadPlayerData(target!);
+						if (!PlayerSummaries.ContainsPlayer(target))
+							LoadPlayerData(target);
 
 						Server.PrintToChatAll($" {Config.GeneralSettings.Prefix} {ChatColors.Red}{player!.PlayerName} has removed {parsedInt} points from {target.PlayerName}.");
 						Log($"{player.PlayerName} has removed {parsedInt} points from {target.PlayerName}.", LogLevel.Warning);
@@ -288,6 +297,9 @@ namespace K4ryuuSystem
 
 			if (!Config.GeneralSettings.ModuleTimes)
 				return;
+
+			if (!PlayerSummaries.ContainsPlayer(player))
+				LoadPlayerData(player);
 
 			DateTime now = DateTime.UtcNow;
 

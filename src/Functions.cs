@@ -73,6 +73,9 @@ namespace K4ryuuSystem
 				if (savePlayer.IsBot || savePlayer.IsHLTV)
 					continue;
 
+				if (!PlayerSummaries.ContainsPlayer(savePlayer))
+					LoadPlayerData(savePlayer);
+
 				SaveClientRank(savePlayer);
 			}
 

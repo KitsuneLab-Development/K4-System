@@ -2,7 +2,7 @@
 
 - Added customization option to rank scoreboard tags
 - Added save mechanism toplist to show actual data for all online players
-- Fixed harmless error log for disctionary
+- Fixed multiple harmless error log for dictionary
 
 -- 2023.10.13 - V1.2.0
 
