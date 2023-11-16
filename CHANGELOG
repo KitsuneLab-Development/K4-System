@@ -1,3 +1,9 @@
+-- 2023.10.13 - V1.3.0
+
+- Added customization option to rank scoreboard tags
+- Added save mechanism toplist to show actual data for all online players
+- Fixed harmless error log for disctionary
+
 -- 2023.10.13 - V1.2.0
 
 - Added max rank and current rank id to !rank
