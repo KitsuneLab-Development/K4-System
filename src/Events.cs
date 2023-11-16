@@ -255,19 +255,27 @@ namespace K4ryuuSystem
 				if (!victimController.IsValid || victimController.UserId <= 0)
 					return HookResult.Continue;
 
-				if (!victimController.IsBot && IsStatsAllowed() && (Config.StatisticSettings.StatsForBots || !killerController.IsBot))
+				if (!victimController.IsBot)
 				{
-					PlayerSummaries[victimController].StatFields["deaths"]++;
-				}
+					if (!PlayerSummaries.ContainsPlayer(killerController))
+						LoadPlayerData(killerController);
 
-				if (!victimController.IsBot && (Config.RankSettings.PointsForBots || !killerController.IsBot) && IsPointsAllowed())
-				{
-					if (victimController.UserId == killerController.UserId)
+					if (IsStatsAllowed() && (Config.StatisticSettings.StatsForBots || !killerController.IsBot))
 					{
-						ModifyClientPoints(victimController, CHANGE_MODE.REMOVE, Config.PointSettings.Suicide, "Suicide");
+						PlayerSummaries[victimController].StatFields["deaths"]++;
 					}
-					else
-						ModifyClientPoints(victimController, CHANGE_MODE.REMOVE, Config.PointSettings.Death, "Dying");
+
+					if (IsPointsAllowed())
+					{
+						if (victimController.UserId == killerController.UserId)
+						{
+							ModifyClientPoints(victimController, CHANGE_MODE.REMOVE, Config.PointSettings.Suicide, "Suicide");
+						}
+						else if (!killerController.IsBot)
+						{
+							ModifyClientPoints(victimController, CHANGE_MODE.REMOVE, Config.PointSettings.Death, "Dying");
+						}
+					}
 				}
 
 				if (victimController.UserId == killerController.UserId)
@@ -275,6 +283,9 @@ namespace K4ryuuSystem
 
 				if (killerController.IsValidPlayer())
 				{
+					if (!PlayerSummaries.ContainsPlayer(killerController))
+						LoadPlayerData(killerController);
+
 					if (IsStatsAllowed() && (Config.StatisticSettings.StatsForBots || !victimController.IsBot))
 					{
 						PlayerSummaries[killerController].StatFields["kills"]++;
@@ -296,7 +307,7 @@ namespace K4ryuuSystem
 							int penetrateCount = @event.Penetrated;
 							if (penetrateCount > 0 && Config.PointSettings.Penetrated > 0)
 							{
-								int calculatedPoints = @event.Penetrated * Config.PointSettings.Penetrated;
+								int calculatedPoints = penetrateCount * Config.PointSettings.Penetrated;
 								ModifyClientPoints(killerController, CHANGE_MODE.GIVE, calculatedPoints, "Penetrated");
 							}
 
@@ -365,7 +376,6 @@ namespace K4ryuuSystem
 								}
 								else
 									ResetKillStreak(attackerIndex);
-
 							}
 						}
 					}
