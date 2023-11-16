@@ -1,11 +1,9 @@
-using Newtonsoft.Json;
 using System.Text.RegularExpressions;
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Core.Attributes.Registration;
 using CounterStrikeSharp.API.Modules.Commands;
 using CounterStrikeSharp.API.Modules.Utils;
-using Nexd.MySQL;
 using CounterStrikeSharp.API.Modules.Admin;
 using System.Reflection;
 

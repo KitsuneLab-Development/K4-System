@@ -1,7 +1,6 @@
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Utils;
 using System.Reflection;
-using System.Text.Json;
 using System.Text.Json.Serialization;
 
 public class GeneralSettings
