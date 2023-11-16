@@ -15,8 +15,9 @@ namespace K4ryuuSystem
 			Error
 		}
 
-		public void Log(string message, LogLevel level = LogLevel.Info)
+		public void Log(string message, LogLevel level = LogLevel.Info, bool hotReload = true)
 		{
+
 			if ((int)level < Config.GeneralSettings.LogLevel)
 			{
 				return; // Skip logging if the log level is lower than the configured level
@@ -32,7 +33,7 @@ namespace K4ryuuSystem
 				writer.WriteLine(logMessage);
 			}
 
-			if (level == LogLevel.Debug)
+			if (hotReload && level == LogLevel.Debug)
 			{
 				List<CCSPlayerController> players = Utilities.GetPlayers();
 
