@@ -60,8 +60,8 @@ namespace K4ryuuSystem
 			// Count higher ranks
 			int higherRanksCount = ranks.Count(kv => kv.Value.Exp > playerPoints);
 
-			player.PrintToChat($" {Config.GeneralSettings.Prefix} {PlayerSummaries[player].RankColor}{playerName}");
-			player.PrintToChat($" {ChatColors.Blue}You have {ChatColors.Gold}{playerPoints} {ChatColors.Blue}points and are currently {PlayerSummaries[player].RankColor}{PlayerSummaries[player].Rank} ({ranks.Count - higherRanksCount} out of {ranks.Count})");
+			player.PrintToChat($" {Config.GeneralSettings.Prefix} {PlayerSummaries[player].RankObject!.Color}{playerName}");
+			player.PrintToChat($" {ChatColors.Blue}You have {ChatColors.Gold}{playerPoints} {ChatColors.Blue}points and are currently {PlayerSummaries[player].RankObject!.Color}{PlayerSummaries[player].Rank} ({ranks.Count - higherRanksCount} out of {ranks.Count})");
 			player.PrintToChat($" {ChatColors.Blue}Next rank: {modifiedValue}{nextRank}");
 			player.PrintToChat($" {ChatColors.Blue}Points until next rank: {ChatColors.Gold}{pointsUntilNextRank}");
 			player.PrintToChat($" {ChatColors.Blue}Place in top list: {ChatColors.Gold}{playerPlace} out of {totalPlayers}");

@@ -24,10 +24,12 @@ namespace K4ryuuSystem
 		""Color"": ""Default""
 	},
 	""Silver"": {
+		""Tag"": ""S"", // Clan tag (scoreboard) of the rank. If not set, it uses the key instead, which is currently ""Silver""
 		""Exp"": 250, // From this amount of experience, the player is Silver
 		""Color"": ""LightBlue"" // Color code for the rank. Find color names here: https://github.com/roflmuffin/CounterStrikeSharp/blob/main/managed/CounterStrikeSharp.API/Modules/Utils/ChatColors.cs
 	},
 	""Gold"": {
+		""Tag"": ""G"",
 		""Exp"": 1000,
 		""Color"": ""Red""
 	}
@@ -104,7 +106,6 @@ namespace K4ryuuSystem
 			{
 				Points = 0,
 				Rank = noneRank,
-				RankColor = $"{ChatColors.Default}",
 				RankPoints = -1
 			};
 
@@ -150,6 +151,12 @@ namespace K4ryuuSystem
 
 			if (Config.GeneralSettings.ModuleRanks)
 			{
+				newUser.RankObject = ranks.ContainsKey(noneRank) ? ranks[noneRank] : new Rank
+				{
+					Exp = -1,
+					Color = $"{ChatColors.Default}"
+				};
+
 				MySqlQueryResult result = MySql!.Table($"{TablePrefix}k4ranks").Where(MySqlQueryCondition.New("steam_id", "=", player.SteamID.ToString())).Select("points");
 
 				PlayerSummaries[player].Points = result.Rows > 0 ? result.Get<int>(0, "points") : 0;
@@ -158,6 +165,7 @@ namespace K4ryuuSystem
 					player.Score = PlayerSummaries[player].Points;
 
 				string newRank = noneRank;
+				string clanTag = string.Empty;
 				Rank? setRank = null;
 
 				foreach (var kvp in ranks)
@@ -169,6 +177,7 @@ namespace K4ryuuSystem
 					{
 						setRank = rank;
 						newRank = level;
+						clanTag = rank.Tag ?? level;
 					}
 					else
 						break;
@@ -178,7 +187,7 @@ namespace K4ryuuSystem
 					return;
 
 				if (Config.RankSettings.ScoreboardRanks)
-					player.Clan = $"[{newRank}]";
+					player.Clan = $"{clanTag ?? newRank}";
 
 				PlayerSummaries[player].Rank = newRank;
 				PlayerSummaries[player].RankPoints = setRank.Exp;
@@ -193,7 +202,7 @@ namespace K4ryuuSystem
 					}
 				}
 
-				PlayerSummaries[player].RankColor = modifiedValue;
+				PlayerSummaries[player].RankObject!.Color = modifiedValue;
 			}
 		}
 
@@ -263,6 +272,7 @@ namespace K4ryuuSystem
 				player.Score = PlayerSummaries[player].Points;
 
 			string newRank = noneRank;
+			string clanTag = string.Empty;
 			Rank? setRank = null;
 
 			foreach (var kvp in ranks)
@@ -274,6 +284,7 @@ namespace K4ryuuSystem
 				{
 					setRank = rank;
 					newRank = level;
+					clanTag = rank.Tag ?? level;
 				}
 				else
 					break;
@@ -283,7 +294,7 @@ namespace K4ryuuSystem
 				return;
 
 			if (Config.RankSettings.ScoreboardRanks)
-				player.Clan = $"[{newRank}]";
+				player.Clan = $"{clanTag ?? newRank}";
 
 			Server.PrintToChatAll($" {ChatColors.Red}{Config.GeneralSettings.Prefix} {ChatColors.Gold}{player.PlayerName} has been {(setRank.Exp > PlayerSummaries[player].RankPoints ? "promoted" : "demoted")} to {newRank}.");
 
@@ -300,7 +311,7 @@ namespace K4ryuuSystem
 				}
 			}
 
-			PlayerSummaries[player].RankColor = modifiedValue;
+			PlayerSummaries[player].RankObject!.Color = modifiedValue;
 		}
 
 		public void CheckNewRank(CCSPlayerController player)
@@ -312,6 +323,7 @@ namespace K4ryuuSystem
 				player.Score = PlayerSummaries[player].Points;
 
 			string newRank = noneRank;
+			string clanTag = string.Empty;
 			Rank? setRank = null;
 
 			foreach (var kvp in ranks)
@@ -323,6 +335,7 @@ namespace K4ryuuSystem
 				{
 					setRank = rank;
 					newRank = level;
+					clanTag = rank.Tag ?? level;
 				}
 				else
 					break;
@@ -332,12 +345,12 @@ namespace K4ryuuSystem
 			{
 				PlayerSummaries[player].Rank = noneRank;
 				PlayerSummaries[player].RankPoints = 0;
-				PlayerSummaries[player].RankColor = $"{ChatColors.Default}";
+				PlayerSummaries[player].RankObject!.Color = $"{ChatColors.Default}";
 				return;
 			}
 
 			if (Config.RankSettings.ScoreboardRanks)
-				player.Clan = $"[{newRank}]";
+				player.Clan = $"{clanTag ?? newRank}";
 
 			PlayerSummaries[player].Rank = newRank;
 			PlayerSummaries[player].RankPoints = setRank.Exp;
@@ -352,7 +365,7 @@ namespace K4ryuuSystem
 				}
 			}
 
-			PlayerSummaries[player].RankColor = modifiedValue;
+			PlayerSummaries[player].RankObject!.Color = modifiedValue;
 		}
 
 		public bool IsPointsAllowed()

@@ -6,15 +6,16 @@ namespace K4ryuuSystem
 {
 	public class Rank
 	{
-		public int Exp { get; set; }
-		public string Color { get; set; } = "Default";
+		public string? Tag { get; set; }
+		public required int Exp { get; set; }
+		public required string Color { get; set; } = "Default";
 	}
 
 	public class User
 	{
 		public int Points { get; set; }
 		public string Rank { get; set; } = "None";
-		public string RankColor { get; set; } = $"{ChatColors.Default}";
+		public Rank? RankObject { get; set; }
 		public int RankPoints { get; set; } = 0;
 		public bool SpawnedThisRound { get; set; } = false;
 		public Dictionary<string, DateTime> Times { get; set; } = new Dictionary<string, DateTime>();
