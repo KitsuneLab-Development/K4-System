@@ -14,7 +14,7 @@ namespace K4ryuuSystem
 				List<CCSPlayerController> players = Utilities.GetPlayers();
 				foreach (CCSPlayerController player in players)
 				{
-					if (player.IsBot)
+					if (player.IsBot || player.IsHLTV)
 						continue;
 
 					if (PlayerSummaries.ContainsPlayer(player!))
@@ -136,7 +136,7 @@ namespace K4ryuuSystem
 				List<CCSPlayerController> players = Utilities.GetPlayers();
 				foreach (CCSPlayerController player in players)
 				{
-					if (player.IsBot)
+					if (player.IsBot || player.IsHLTV)
 						continue;
 
 					if (!PlayerSummaries.ContainsPlayer(player!))
@@ -159,7 +159,13 @@ namespace K4ryuuSystem
 				List<CCSPlayerController> players = Utilities.GetPlayers();
 				foreach (CCSPlayerController player in players)
 				{
-					if (player.IsBot || !PlayerSummaries[player].SpawnedThisRound)
+					if (player.IsBot || player.IsHLTV)
+						continue;
+
+					if (!PlayerSummaries.ContainsPlayer(player))
+						LoadPlayerData(player!);
+
+					if (!PlayerSummaries[player].SpawnedThisRound)
 						continue;
 
 					CsTeam playerTeam = (CsTeam)player.TeamNum;
@@ -195,7 +201,7 @@ namespace K4ryuuSystem
 					return HookResult.Continue;
 
 				CCSPlayerController player = @event.Userid;
-				if (player == null || !player.IsValid || player.IsBot)
+				if (player == null || !player.IsValid || player.IsBot || player.IsHLTV)
 					return HookResult.Continue;
 
 				if (!PlayerSummaries.ContainsPlayer(player))
