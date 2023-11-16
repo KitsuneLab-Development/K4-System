@@ -38,13 +38,13 @@ namespace K4ryuuSystem
 
 				foreach (CCSPlayerController player in players)
 				{
-					if (player.IsBot)
+					if (player.IsBot || player.IsHLTV)
 						continue;
 
 					if (!AdminManager.PlayerHasPermissions(player, "@css/config"))
 						continue;
 
-					Server.PrintToChatAll($" {ChatColors.Gold}[{logLevelString}] {ChatColors.Yellow}{message}");
+					player.PrintToChat($" {ChatColors.Gold}[{logLevelString}] {ChatColors.Yellow}{message}");
 				}
 			}
 
