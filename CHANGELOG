@@ -2,6 +2,8 @@
 
 - Added customization option to rank scoreboard tags
 - Added save mechanism toplist to show actual data for all online players
+- Added full debug log for the code to let you guys find bugs easier
+- Added option to print summary of point changes in round ends
 - Fixed multiple harmless error log for dictionary
 
 -- 2023.10.13 - V1.2.0

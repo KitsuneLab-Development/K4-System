@@ -21,6 +21,8 @@ namespace K4ryuuSystem
 
 					if (PlayerSummaries.ContainsPlayer(player!))
 					{
+						PlayerSummaries[player].PointsChanged = 0;
+
 						if (Config.GeneralSettings.ModuleTimes)
 						{
 							SaveClientTime(player);
@@ -280,6 +282,23 @@ namespace K4ryuuSystem
 
 					if (!PlayerSummaries[player].SpawnedThisRound)
 						continue;
+
+					if (Config.RankSettings.RoundEndPoints)
+					{
+						if (PlayerSummaries[player].PointsChanged > 0)
+						{
+							player.PrintToChat($" {Config.GeneralSettings.Prefix} {ChatColors.White}Points: {ChatColors.Green}+{PlayerSummaries[player].PointsChanged} Round Summary");
+						}
+						else if (PlayerSummaries[player].PointsChanged < 0)
+						{
+							int absPointsChanged = Math.Abs(PlayerSummaries[player].PointsChanged);
+							player.PrintToChat($" {Config.GeneralSettings.Prefix} {ChatColors.White}Points: {ChatColors.Red}-{PlayerSummaries[player].PointsChanged} Round Summary");
+						}
+						else
+							player.PrintToChat($" {Config.GeneralSettings.Prefix} {ChatColors.White}Points: No changes in this round");
+
+						PlayerSummaries[player].PointsChanged = 0;
+					}
 
 					CsTeam playerTeam = (CsTeam)player.TeamNum;
 					if (playerTeam != CsTeam.None && playerTeam != CsTeam.Spectator)

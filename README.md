@@ -156,7 +156,7 @@ The addon provides several commands and console variables (convars) to customize
 
 If you set a loglevel only THAT or ABOVE logs will be printed and saved.
 
-- **Debug (-1)** Print debug logs to people's chat with @css/config permission and into console/log files
+- **Debug (-1)** Print debug logs to people's chat with @css/config permission and into console/log files (RESOURCE EXPENSIVE)
 - **Info (0)** Informational log/console messages
 - **Warning (1)** Warning log/console messages
 - **Error (2)** Error log/console messages
@@ -167,9 +167,9 @@ If you set a loglevel only THAT or ABOVE logs will be printed and saved.
 
 ## Roadmap
 
+- [x] Config to disable modules fully
 - [ ] Automated Moderation System
 - [ ] VIP Clan Tag
-- [ ] Config to disable modules fully
 - [ ] Daily Rewards
 - [ ] More VIP perks
 - [ ] Point For Playtime

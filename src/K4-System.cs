@@ -12,9 +12,9 @@ namespace K4ryuuSystem
 	public partial class K4System : BasePlugin, IPluginConfig<MyConfig>
 	{
 		public override string ModuleName => "K4-System";
-		public override string ModuleVersion => "v1.2.0";
+		public override string ModuleVersion => "v1.3.0";
 		public override string ModuleAuthor => "K4ryuu";
-		public int ModuleConfigVersion => 1;
+		public int ModuleConfigVersion => 2;
 
 		public override void Load(bool hotReload)
 		{

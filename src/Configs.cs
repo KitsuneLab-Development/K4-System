@@ -69,6 +69,9 @@ public class RankSettings
 	[JsonPropertyName("ffa-mode")]
 	public bool FFAMode { get; set; } = false;
 
+	[JsonPropertyName("round-end-points")]
+	public bool RoundEndPoints { get; set; } = false;
+
 	[JsonPropertyName("minimum-players")]
 	public int MinPlayers { get; set; } = 4;
 

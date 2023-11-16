@@ -18,6 +18,7 @@ namespace K4ryuuSystem
 		public Rank? RankObject { get; set; }
 		public int RankPoints { get; set; } = 0;
 		public bool SpawnedThisRound { get; set; } = false;
+		public int PointsChanged { get; set; } = 0;
 		public Dictionary<string, DateTime> Times { get; set; } = new Dictionary<string, DateTime>();
 		public Dictionary<string, int> StatFields { get; set; } = new Dictionary<string, int>();
 		public Dictionary<string, int> TimeFields { get; set; } = new Dictionary<string, int>();

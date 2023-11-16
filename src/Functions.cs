@@ -311,7 +311,12 @@ namespace K4ryuuSystem
 					}
 				case CHANGE_MODE.GIVE:
 					{
-						player.PrintToChat($" {Config.GeneralSettings.Prefix} {ChatColors.White}Points: {ChatColors.Green}{PlayerSummaries[player].Points} [+{amount} {reason}]");
+						if (!Config.RankSettings.RoundEndPoints)
+						{
+							player.PrintToChat($" {Config.GeneralSettings.Prefix} {ChatColors.White}Points: {ChatColors.Green}{PlayerSummaries[player].Points} [+{amount} {reason}]");
+						}
+						else PlayerSummaries[player].PointsChanged += amount;
+
 						PlayerSummaries[player].Points += amount;
 
 						// Log points give operation
@@ -320,7 +325,12 @@ namespace K4ryuuSystem
 					}
 				case CHANGE_MODE.REMOVE:
 					{
-						player.PrintToChat($" {Config.GeneralSettings.Prefix} {ChatColors.White}Points: {ChatColors.Red}{PlayerSummaries[player].Points} [-{amount} {reason}]");
+						if (!Config.RankSettings.RoundEndPoints)
+						{
+							player.PrintToChat($" {Config.GeneralSettings.Prefix} {ChatColors.White}Points: {ChatColors.Red}{PlayerSummaries[player].Points} [-{amount} {reason}]");
+						}
+						else PlayerSummaries[player].PointsChanged -= amount;
+
 						PlayerSummaries[player].Points -= amount;
 
 						if (PlayerSummaries[player].Points < 0)
