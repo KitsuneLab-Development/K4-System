@@ -80,7 +80,12 @@ namespace K4ryuuSystem
 			});
 			RegisterEventHandler<EventBombDropped>((@event, info) =>
 			{
-				ModifyClientPoints(@event.Userid, CHANGE_MODE.REMOVE, Config.PointSettings.BombDrop, "Bomb Dropped");
+				CCSPlayerController savePlayer = @event.Userid;
+				Server.NextFrame(() =>
+				{
+					ModifyClientPoints(savePlayer, CHANGE_MODE.REMOVE, Config.PointSettings.BombDrop, "Bomb Dropped");
+				});
+
 				return HookResult.Continue;
 			});
 			RegisterEventHandler<EventBombPickup>((@event, info) =>
@@ -163,16 +168,15 @@ namespace K4ryuuSystem
 						continue;
 
 					if (!PlayerSummaries.ContainsPlayer(player))
-						LoadPlayerData(player!);
+						LoadPlayerData(player);
 
 					if (!PlayerSummaries[player].SpawnedThisRound)
 						continue;
 
 					CsTeam playerTeam = (CsTeam)player.TeamNum;
-
 					if (playerTeam != CsTeam.None && playerTeam != CsTeam.Spectator)
 					{
-						if (playerTeam == winnerTeam)
+						if (winnerTeam == playerTeam)
 						{
 							if (IsStatsAllowed())
 								PlayerSummaries[player].StatFields["round_win"]++;
