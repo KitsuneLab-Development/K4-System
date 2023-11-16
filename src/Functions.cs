@@ -24,12 +24,20 @@ namespace K4ryuuSystem
 		""Color"": ""Default""
 	},
 	""Silver"": {
+<<<<<<< HEAD
 		""Tag"": ""S"", // Clan tag (scoreboard) of the rank. If not set, it uses the key instead, which is currently ""Silver""
+=======
+		""Tag"": ""[S]"", // Clan tag (scoreboard) of the rank. If not set, it uses the key instead, which is currently ""Silver""
+>>>>>>> 29d51d9 (feat: Custom tag for ranks (#13))
 		""Exp"": 250, // From this amount of experience, the player is Silver
 		""Color"": ""LightBlue"" // Color code for the rank. Find color names here: https://github.com/roflmuffin/CounterStrikeSharp/blob/main/managed/CounterStrikeSharp.API/Modules/Utils/ChatColors.cs
 	},
 	""Gold"": {
+<<<<<<< HEAD
 		""Tag"": ""G"",
+=======
+		""Tag"": ""[G]"",
+>>>>>>> 29d51d9 (feat: Custom tag for ranks (#13))
 		""Exp"": 1000,
 		""Color"": ""Red""
 	}
@@ -187,7 +195,7 @@ namespace K4ryuuSystem
 					return;
 
 				if (Config.RankSettings.ScoreboardRanks)
-					player.Clan = $"{clanTag ?? newRank}";
+					player.Clan = $"{clanTag ?? $"[{newRank}]"}";
 
 				PlayerSummaries[player].Rank = newRank;
 				PlayerSummaries[player].RankPoints = setRank.Exp;
@@ -294,7 +302,7 @@ namespace K4ryuuSystem
 				return;
 
 			if (Config.RankSettings.ScoreboardRanks)
-				player.Clan = $"{clanTag ?? newRank}";
+				player.Clan = $"{clanTag ?? $"[{newRank}]"}";
 
 			Server.PrintToChatAll($" {ChatColors.Red}{Config.GeneralSettings.Prefix} {ChatColors.Gold}{player.PlayerName} has been {(setRank.Exp > PlayerSummaries[player].RankPoints ? "promoted" : "demoted")} to {newRank}.");
 
@@ -350,7 +358,7 @@ namespace K4ryuuSystem
 			}
 
 			if (Config.RankSettings.ScoreboardRanks)
-				player.Clan = $"{clanTag ?? newRank}";
+				player.Clan = $"{clanTag ?? $"[{newRank}]"}";
 
 			PlayerSummaries[player].Rank = newRank;
 			PlayerSummaries[player].RankPoints = setRank.Exp;
