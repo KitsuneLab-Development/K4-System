@@ -24,20 +24,12 @@ namespace K4ryuuSystem
 		""Color"": ""Default""
 	},
 	""Silver"": {
-<<<<<<< HEAD
-		""Tag"": ""S"", // Clan tag (scoreboard) of the rank. If not set, it uses the key instead, which is currently ""Silver""
-=======
 		""Tag"": ""[S]"", // Clan tag (scoreboard) of the rank. If not set, it uses the key instead, which is currently ""Silver""
->>>>>>> 29d51d9 (feat: Custom tag for ranks (#13))
 		""Exp"": 250, // From this amount of experience, the player is Silver
 		""Color"": ""LightBlue"" // Color code for the rank. Find color names here: https://github.com/roflmuffin/CounterStrikeSharp/blob/main/managed/CounterStrikeSharp.API/Modules/Utils/ChatColors.cs
 	},
 	""Gold"": {
-<<<<<<< HEAD
-		""Tag"": ""G"",
-=======
 		""Tag"": ""[G]"",
->>>>>>> 29d51d9 (feat: Custom tag for ranks (#13))
 		""Exp"": 1000,
 		""Color"": ""Red""
 	}
@@ -75,6 +67,15 @@ namespace K4ryuuSystem
 
 		public async void PrintTopXPlayers(CCSPlayerController player, int number)
 		{
+			List<CCSPlayerController> players = Utilities.GetPlayers();
+			foreach (CCSPlayerController savePlayer in players)
+			{
+				if (savePlayer.IsBot || savePlayer.IsHLTV)
+					continue;
+
+				SaveClientRank(savePlayer);
+			}
+
 			MySqlQueryResult result = await MySql!.Table($"{TablePrefix}k4ranks").ExecuteQueryAsync($"SELECT `points`, `name` FROM `k4ranks` ORDER BY `points` DESC LIMIT {number};");
 
 			if (result.Count > 0)
