@@ -217,6 +217,9 @@ public class MyConfig : BasePluginConfig
 
 	[JsonPropertyName("point-settings")]
 	public PointSettings PointSettings { get; set; } = new PointSettings();
+
+	[JsonPropertyName("ConfigVersion")]
+	public override int Version { get; set; } = 2;
 }
 
 namespace K4ryuuSystem
@@ -231,11 +234,11 @@ namespace K4ryuuSystem
 		{
 			if (config.Version < ModuleConfigVersion)
 			{
-				Log($"{config.GeneralSettings.Prefix} A new config file version is available. Your version ({config.Version}), new version: ({ModuleConfigVersion})", LogLevel.Warning);
+				Log($"[K4-System] A new config file version is available. Your version ({config.Version}), new version: ({ModuleConfigVersion})", LogLevel.Warning);
 			}
 
 			if (config.DatabaseSettings.TablePrefix.Length > 0)
-				TablePrefix = $"{Config.DatabaseSettings.TablePrefix}_";
+				TablePrefix = $"{config.DatabaseSettings.TablePrefix}_";
 
 			config.GeneralSettings.Prefix = ModifyColorValue(config.GeneralSettings.Prefix);
 
