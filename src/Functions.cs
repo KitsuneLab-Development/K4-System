@@ -100,6 +100,7 @@ namespace K4ryuuSystem
 				{
 					int pointCheck = result.Get<int>(i, "points");
 					string playerRank = noneRank;
+					string rankColor = $"{ChatColors.Default}";
 
 					foreach (var kvp in ranks)
 					{
@@ -118,7 +119,7 @@ namespace K4ryuuSystem
 
 					Log($"Printing player {i + 1} - Name: {result.Get<string>(i, "name")}, Points: {result.Get<int>(i, "points")}, Rank: {playerRank}", LogLevel.Debug);
 
-					player.PrintToChat($" {ChatColors.Gold}{i + 1}. {ChatColors.Blue}[{playerRank}] {ChatColors.Gold}{result.Get<string>(i, "name")} - {ChatColors.Blue}{result.Get<int>(i, "points")} points");
+					player.PrintToChat($" {ChatColors.Gold}{i + 1}. {rankColor}[{playerRank}] {ChatColors.Gold}{result.Get<string>(i, "name")} - {ChatColors.Blue}{result.Get<int>(i, "points")} points");
 				}
 			}
 			else
