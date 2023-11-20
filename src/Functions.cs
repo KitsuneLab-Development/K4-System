@@ -110,6 +110,7 @@ namespace K4ryuuSystem
 						if (pointCheck >= rank.Exp)
 						{
 							playerRank = level;
+							rankColor = rank.Color;
 						}
 						else
 						{
