@@ -244,7 +244,7 @@ namespace K4ryuuSystem
 		{
 			Log("GetPlayerPlaceAndCount method is starting.", LogLevel.Debug);
 
-			MySqlQueryResult result = MySql!.Table($"{TablePrefix}k4ranks").ExecuteQuery($"SELECT (SELECT COUNT(*) FROM `{TablePrefix}k4ranks` WHERE `points` > (SELECT `points` FROM `{TablePrefix}k4ranks` WHERE `steam_id` = '{steamID}')) AS playerCount, COUNT(*) AS totalPlayers FROM `{TablePrefix}k4ranks`")!;
+			MySqlQueryResult result = MySql!.Table($"{TablePrefix}k4ranks").ExecuteQuery($"SELECT (SELECT COUNT(*) FROM `{TablePrefix}k4ranks` WHERE `points` > (SELECT `points` FROM `{TablePrefix}k4ranks` WHERE `steam_id` = '{steamID}')) AS playerCount, COUNT(*) AS totalPlayers FROM `{TablePrefix}k4ranks`;")!;
 
 			Log("Executed MySQL query to get player place and count.", LogLevel.Debug);
 

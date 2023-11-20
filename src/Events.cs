@@ -393,6 +393,12 @@ namespace K4ryuuSystem
 				{
 					PlayerSummaries[player].StatFields["hits"]++;
 					Log($"EventPlayerHurt: Player hurt recorded for player: {player.PlayerName}", LogLevel.Debug);
+
+					if (@event.Hitgroup == 1)
+					{
+						PlayerSummaries[player].StatFields["headshots"]++;
+						Log($"EventPlayerHurt: Headshit recorded for player: {player.PlayerName}", LogLevel.Debug);
+					}
 				}
 
 				return HookResult.Continue;
