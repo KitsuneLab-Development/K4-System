@@ -271,6 +271,7 @@ namespace K4ryuuSystem
 				CsTeam winnerTeam = (CsTeam)@event.Winner;
 
 				List<CCSPlayerController> players = Utilities.GetPlayers();
+
 				foreach (CCSPlayerController player in players)
 				{
 					if (player.IsBot || player.IsHLTV)
@@ -282,53 +283,43 @@ namespace K4ryuuSystem
 					if (!PlayerSummaries[player].SpawnedThisRound)
 						continue;
 
+					string prefix = Config.GeneralSettings.Prefix;
+					string playerName = player.PlayerName;
+					int pointsChanged = PlayerSummaries[player].PointsChanged;
+
 					if (Config.RankSettings.RoundEndPoints)
 					{
-						if (PlayerSummaries[player].PointsChanged > 0)
-						{
-							player.PrintToChat($" {Config.GeneralSettings.Prefix} {ChatColors.White}Points: {ChatColors.Green}+{PlayerSummaries[player].PointsChanged} Round Summary");
-						}
-						else if (PlayerSummaries[player].PointsChanged < 0)
-						{
-							int absPointsChanged = Math.Abs(PlayerSummaries[player].PointsChanged);
-							player.PrintToChat($" {Config.GeneralSettings.Prefix} {ChatColors.White}Points: {ChatColors.Red}-{PlayerSummaries[player].PointsChanged} Round Summary");
-						}
+						string message = $"{prefix} {ChatColors.White}Points: ";
+
+						if (pointsChanged > 0)
+							player.PrintToChat($"{message}{ChatColors.Green}+{pointsChanged} Round Summary");
+						else if (pointsChanged < 0)
+							player.PrintToChat($"{message}{ChatColors.Red}-{Math.Abs(pointsChanged)} Round Summary");
 						else
-							player.PrintToChat($" {Config.GeneralSettings.Prefix} {ChatColors.White}Points: No changes in this round");
+							player.PrintToChat($"{message}No changes in this round");
 
 						PlayerSummaries[player].PointsChanged = 0;
 					}
 
 					CsTeam playerTeam = (CsTeam)player.TeamNum;
+
 					if (playerTeam != CsTeam.None && playerTeam != CsTeam.Spectator)
 					{
-						if (winnerTeam == playerTeam)
-						{
-							if (IsStatsAllowed())
-							{
-								PlayerSummaries[player].StatFields["round_win"]++;
-								Log($"EventRoundEnd: Recorded round win for player: {player.PlayerName}", LogLevel.Debug);
-							}
+						bool isWinner = winnerTeam == playerTeam;
 
-							if (IsPointsAllowed())
-							{
-								ModifyClientPoints(player, CHANGE_MODE.GIVE, Config.PointSettings.RoundWin, "Round Win");
-								Log($"EventRoundEnd: Modified points (round win) for player: {player.PlayerName}", LogLevel.Debug);
-							}
+						if (IsStatsAllowed())
+						{
+							string statType = isWinner ? "round_win" : "round_lose";
+							PlayerSummaries[player].StatFields[statType]++;
+							Log($"EventRoundEnd: Recorded {statType} for player: {playerName}", LogLevel.Debug);
 						}
-						else
-						{
-							if (IsStatsAllowed())
-							{
-								PlayerSummaries[player].StatFields["round_lose"]++;
-								Log($"EventRoundEnd: Recorded round lose for player: {player.PlayerName}", LogLevel.Debug);
-							}
 
-							if (IsPointsAllowed())
-							{
-								ModifyClientPoints(player, CHANGE_MODE.REMOVE, Config.PointSettings.RoundLose, "Round Lose");
-								Log($"EventRoundEnd: Modified points (round lose) for player: {player.PlayerName}", LogLevel.Debug);
-							}
+						if (IsPointsAllowed())
+						{
+							CHANGE_MODE changeMode = isWinner ? CHANGE_MODE.GIVE : CHANGE_MODE.REMOVE;
+							int pointsChange = isWinner ? Config.PointSettings.RoundWin : Config.PointSettings.RoundLose;
+							ModifyClientPoints(player, changeMode, pointsChange, isWinner ? "Round Win" : "Round Lose");
+							Log($"EventRoundEnd: Modified points ({(isWinner ? "round win" : "round lose")}) for player: {playerName}", LogLevel.Debug);
 						}
 					}
 
