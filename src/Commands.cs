@@ -27,8 +27,7 @@ namespace K4ryuuSystem
 			if (!PlayerSummaries.ContainsPlayer(player!))
 				LoadPlayerData(player!);
 
-			string playerName = player!.PlayerName;
-			int playerPoints = PlayerSummaries[player].Points;
+			int playerPoints = PlayerSummaries[player!].Points;
 
 			string nextRank = noneRank;
 			string nextRankColor = "";
@@ -59,12 +58,12 @@ namespace K4ryuuSystem
 			}
 
 			// Find the player's place in the top list
-			(int playerPlace, int totalPlayers) = GetPlayerPlaceAndCount(playerName);
+			(int playerPlace, int totalPlayers) = GetPlayerPlaceAndCount(player!.SteamID.ToString());
 
 			// Count higher ranks
 			int higherRanksCount = ranks.Count(kv => kv.Value.Exp > playerPoints);
 
-			player.PrintToChat($" {Config.GeneralSettings.Prefix} {PlayerSummaries[player].RankObject!.Color}{playerName}");
+			player.PrintToChat($" {Config.GeneralSettings.Prefix} {PlayerSummaries[player].RankObject!.Color}{player!.PlayerName}");
 			player.PrintToChat($" {ChatColors.Blue}You have {ChatColors.Gold}{playerPoints} {ChatColors.Blue}points and are currently {PlayerSummaries[player].RankObject!.Color}{PlayerSummaries[player].Rank} ({ranks.Count - higherRanksCount} out of {ranks.Count})");
 			player.PrintToChat($" {ChatColors.Blue}Next rank: {modifiedValue}{nextRank}");
 			player.PrintToChat($" {ChatColors.Blue}Points until next rank: {ChatColors.Gold}{pointsUntilNextRank}");

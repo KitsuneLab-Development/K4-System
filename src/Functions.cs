@@ -88,7 +88,7 @@ namespace K4ryuuSystem
 				SaveClientRank(savePlayer);
 			}
 
-			MySqlQueryResult result = await MySql!.Table($"{TablePrefix}k4ranks").ExecuteQueryAsync($"SELECT `points`, `name` FROM `k4ranks` ORDER BY `points` DESC LIMIT {number};");
+			MySqlQueryResult result = await MySql!.Table($"{TablePrefix}k4ranks").ExecuteQueryAsync($"SELECT `points`, `name` FROM `{TablePrefix}k4ranks` ORDER BY `points` DESC LIMIT {number};");
 
 			Log($"Executed MySQL query to retrieve top {number} players.", LogLevel.Debug);
 
@@ -239,11 +239,11 @@ namespace K4ryuuSystem
 			Log("LoadPlayerData method has completed.", LogLevel.Debug);
 		}
 
-		private (int playerPlace, int totalPlayers) GetPlayerPlaceAndCount(string playerName)
+		private (int playerPlace, int totalPlayers) GetPlayerPlaceAndCount(string steamID)
 		{
 			Log("GetPlayerPlaceAndCount method is starting.", LogLevel.Debug);
 
-			MySqlQueryResult result = MySql!.Table($"{TablePrefix}k4ranks").ExecuteQuery($"SELECT (SELECT COUNT(*) FROM `k4ranks` WHERE `points` > (SELECT `points` FROM `k4ranks` WHERE `name` = '{playerName}')) AS playerCount, COUNT(*) AS totalPlayers FROM `k4ranks`")!;
+			MySqlQueryResult result = MySql!.Table($"{TablePrefix}k4ranks").ExecuteQuery($"SELECT (SELECT COUNT(*) FROM `k4ranks` WHERE `points` > (SELECT `points` FROM `k4ranks` WHERE `steam_id` = '{steamID}')) AS playerCount, COUNT(*) AS totalPlayers FROM `k4ranks`")!;
 
 			Log("Executed MySQL query to get player place and count.", LogLevel.Debug);
 
