@@ -354,6 +354,14 @@ namespace K4ryuuSystem
 			});
 			RegisterEventHandler<EventBombPlanted>((@event, info) =>
 			{
+				CCSPlayerController player = @event.Userid;
+
+				if (!player.IsValidPlayer())
+				{
+					Log("Bomb Planted: Player is not valid.", LogLevel.Debug);
+					return HookResult.Continue;
+				}
+
 				ModifyClientPoints(@event.Userid, CHANGE_MODE.GIVE, Config.PointSettings.Plant, "Bomb Plant");
 				Log($"EventBombPlanted: Modified points (bomb plant) for player: {@event.Userid.PlayerName}", LogLevel.Debug);
 				return HookResult.Continue;
