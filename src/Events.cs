@@ -408,7 +408,7 @@ namespace K4ryuuSystem
 				CCSPlayerController killerController = @event.Attacker;
 				CCSPlayerController assisterController = @event.Assister;
 
-				if (!victimController.IsValid || victimController.UserId <= 0)
+				if (!victimController.IsValid)
 					return HookResult.Continue;
 
 				if (!victimController.IsBot)
@@ -429,7 +429,7 @@ namespace K4ryuuSystem
 							ModifyClientPoints(victimController, CHANGE_MODE.REMOVE, Config.PointSettings.Suicide, "Suicide");
 							Log($"EventPlayerDeath: Suicide recorded for player: {victimController.PlayerName}", LogLevel.Debug);
 						}
-						else if (!killerController.IsBot)
+						else if (Config.RankSettings.PointsForBots || !killerController.IsBot)
 						{
 							ModifyClientPoints(victimController, CHANGE_MODE.REMOVE, Config.PointSettings.Death, "Dying");
 							Log($"EventPlayerDeath: Death recorded for player: {victimController.PlayerName}", LogLevel.Debug);
@@ -437,10 +437,7 @@ namespace K4ryuuSystem
 					}
 				}
 
-				if (victimController.UserId == killerController.UserId)
-					return HookResult.Continue;
-
-				if (killerController.IsValidPlayer())
+				if (killerController.IsValidPlayer() && victimController.UserId != killerController.UserId)
 				{
 					if (!PlayerSummaries.ContainsPlayer(killerController))
 						LoadPlayerData(killerController);
@@ -525,15 +522,18 @@ namespace K4ryuuSystem
 									}
 							}
 
-							int attackerIndex = (int)killerController.UserId!;
-							if (playerKillStreaks.ContainsKey(attackerIndex))
-							{
-								if (playerKillStreaks[attackerIndex].killStreak > 0 && DateTime.Now - playerKillStreaks[attackerIndex].lastKillTime <= TimeSpan.FromSeconds(Config.PointSettings.SecondsBetweenKills))
-								{
-									playerKillStreaks[attackerIndex] = (playerKillStreaks[attackerIndex].killStreak + 1, DateTime.Now);
-									int killStreak = playerKillStreaks[attackerIndex].killStreak;
+							int attackerIndex = (killerController.UserId != null) ? (int)killerController.UserId : -1;
 
-									Dictionary<int, (int points, string message)> killStreakMap = new Dictionary<int, (int points, string message)>
+							if (attackerIndex != -1)
+							{
+								if (playerKillStreaks.ContainsKey(attackerIndex))
+								{
+									if (playerKillStreaks[attackerIndex].killStreak > 0 && DateTime.Now - playerKillStreaks[attackerIndex].lastKillTime <= TimeSpan.FromSeconds(Config.PointSettings.SecondsBetweenKills))
+									{
+										playerKillStreaks[attackerIndex] = (playerKillStreaks[attackerIndex].killStreak + 1, DateTime.Now);
+										int killStreak = playerKillStreaks[attackerIndex].killStreak;
+
+										Dictionary<int, (int points, string message)> killStreakMap = new Dictionary<int, (int points, string message)>
 									{
 										{ 2, (Config.PointSettings.DoubleKill, "Double Kill") },
 										{ 3, (Config.PointSettings.TripleKill, "Triple Kill") },
@@ -548,10 +548,13 @@ namespace K4ryuuSystem
 										{ 12, (Config.PointSettings.GodLike, "God Like") }
 									};
 
-									if (killStreakMap.TryGetValue(killStreak, out var killStreakInfo))
-									{
-										ModifyClientPoints(killerController, CHANGE_MODE.GIVE, killStreakInfo.points, killStreakInfo.message);
-										Log($"EventPlayerDeath: {killStreakInfo.message} recorded for player: {killerController.PlayerName}", LogLevel.Debug);
+										if (killStreakMap.TryGetValue(killStreak, out var killStreakInfo))
+										{
+											ModifyClientPoints(killerController, CHANGE_MODE.GIVE, killStreakInfo.points, killStreakInfo.message);
+											Log($"EventPlayerDeath: {killStreakInfo.message} recorded for player: {killerController.PlayerName}", LogLevel.Debug);
+										}
+										else
+											ResetKillStreak(attackerIndex);
 									}
 									else
 										ResetKillStreak(attackerIndex);
