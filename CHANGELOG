@@ -1,3 +1,23 @@
+-- 2023.10.20 - V1.3.2
+
+- fix: Retake bomb plant incompatibility bug (#31,#25)
+- fix: Toplist rank colors (#32, #34)
+
+-- 2023.10.20 - V1.3.2
+
+- refactor: Optimise EventRoundEnd
+- fix: Headshot not recorded (#23)
+- fix: Some more table prefix fixes
+- fix: Rank top indicates wrong rank colors (#29)
+- fix: Targeting problems (spotted by @skaen)
+
+-- 2023.10.17 - V1.3.1
+
+- Added rank colors to toplist (#22)
+- Fixed loading bug with no config file existing
+- Fixed debug log crash on startup (#21)
+- Fixed config file versioning
+
 -- 2023.10.13 - V1.3.0
 
 - Added customization option to rank scoreboard tags

@@ -113,14 +113,22 @@ namespace K4ryuuSystem
 							rankColor = rank.Color;
 						}
 						else
-						{
 							break;
+					}
+
+					string modifiedValue = rankColor;
+					foreach (FieldInfo field in typeof(ChatColors).GetFields())
+					{
+						string pattern = $"{field.Name}";
+						if (rankColor.Contains(pattern, StringComparison.OrdinalIgnoreCase))
+						{
+							modifiedValue = modifiedValue.Replace(pattern, field.GetValue(null)!.ToString(), StringComparison.OrdinalIgnoreCase);
 						}
 					}
 
 					Log($"Printing player {i + 1} - Name: {result.Get<string>(i, "name")}, Points: {result.Get<int>(i, "points")}, Rank: {playerRank}", LogLevel.Debug);
 
-					player.PrintToChat($" {ChatColors.Gold}{i + 1}. {rankColor}[{playerRank}] {ChatColors.Gold}{result.Get<string>(i, "name")} - {ChatColors.Blue}{result.Get<int>(i, "points")} points");
+					player.PrintToChat($" {ChatColors.Gold}{i + 1}. {modifiedValue}[{playerRank}] {ChatColors.Gold}{result.Get<string>(i, "name")} - {ChatColors.Blue}{result.Get<int>(i, "points")} points");
 				}
 			}
 			else
