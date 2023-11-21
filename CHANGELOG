@@ -1,5 +1,6 @@
 -- 2023.10.20 - V1.3.2
 
+- feat: Last seen value to statistics (#37)
 - fix: Retake bomb plant incompatibility bug (#31,#25)
 - fix: Toplist rank colors (#32, #34)
 

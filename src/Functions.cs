@@ -159,7 +159,7 @@ namespace K4ryuuSystem
 				.Add("steam_id", player.SteamID.ToString());
 
 			MySql!.Table($"{TablePrefix}k4times").InsertIfNotExist(values, $"`name` = '{escapedName}'");
-			MySql!.Table($"{TablePrefix}k4stats").InsertIfNotExist(values, $"`name` = '{escapedName}'");
+			MySql!.Table($"{TablePrefix}k4stats").InsertIfNotExist(values, $"`name` = '{escapedName}', `lastseen` = CURRENT_TIMESTAMP");
 			MySql!.Table($"{TablePrefix}k4ranks").InsertIfNotExist(values.Add("`rank`", MySqlHelper.EscapeString(noneRank)), $"`name` = '{escapedName}'");
 
 			if (Config.GeneralSettings.ModuleTimes)
