@@ -206,7 +206,7 @@ Distributed under the GPL-3.0 License. See `LICENSE.md` for more information.
 
 ## Contact
 
-- **Discord:** k4ryuu
+- **Discord:** [Discord Server](https://discord.gg/peBZpwgMHb)
 - **Email:** k4ryuu@icloud.com
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
