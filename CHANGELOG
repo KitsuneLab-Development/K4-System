@@ -1,6 +1,7 @@
 -- 2023.10.24 - V1.3.4
 
 - fix: Visual bugs (#43)
+- fix: Disconnect lag spike (#46)
 
 -- 2023.10.21 - V1.3.3
 

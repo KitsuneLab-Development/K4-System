@@ -69,13 +69,13 @@ namespace K4ryuuSystem
 					if (PlayerSummaries.ContainsPlayer(player))
 					{
 						if (Config.GeneralSettings.ModuleTimes)
-							SaveClientTime(player);
+							_ = SaveClientTime(player);
 
 						if (Config.GeneralSettings.ModuleStats)
-							SaveClientStats(player);
+							_ = SaveClientStats(player);
 
 						if (Config.GeneralSettings.ModuleRanks)
-							SaveClientRank(player);
+							_ = SaveClientRank(player);
 
 						PlayerSummaries.RemovePlayer(player);
 					}

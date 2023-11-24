@@ -82,10 +82,8 @@ namespace K4ryuuSystem
 				if (savePlayer.IsBot || savePlayer.IsHLTV)
 					continue;
 
-				if (!PlayerSummaries.ContainsPlayer(savePlayer))
-					LoadPlayerData(savePlayer);
-
-				SaveClientRank(savePlayer);
+				if (PlayerSummaries.ContainsPlayer(savePlayer))
+					await SaveClientRank(savePlayer);
 			}
 
 			MySqlQueryResult result = await MySql!.Table($"{TablePrefix}k4ranks").ExecuteQueryAsync($"SELECT `points`, `name` FROM `{TablePrefix}k4ranks` ORDER BY `points` DESC LIMIT {number};");
@@ -556,7 +554,7 @@ namespace K4ryuuSystem
 			return formattedTime.ToString().TrimEnd(' ', ',');
 		}
 
-		public void SaveClientRank(CCSPlayerController player)
+		public async Task SaveClientRank(CCSPlayerController player)
 		{
 			// Log that the SaveClientRank method is starting
 			Log("SaveClientRank method is starting.", LogLevel.Debug);
@@ -571,13 +569,13 @@ namespace K4ryuuSystem
                             `rank` = '{PlayerSummaries[player].Rank}',
                             `points` = {PlayerSummaries[player].Points};";
 
-			MySql!.ExecuteNonQueryAsync(updateQuery);
+			await MySql!.ExecuteNonQueryAsync(updateQuery);
 
 			// Log that client rank has been saved
 			Log($"Client rank saved for {player.PlayerName}.", LogLevel.Info);
 		}
 
-		public void SaveClientStats(CCSPlayerController player)
+		public async Task SaveClientStats(CCSPlayerController player)
 		{
 			// Log that the SaveClientStats method is starting
 			Log("SaveClientStats method is starting.", LogLevel.Debug);
@@ -598,13 +596,13 @@ namespace K4ryuuSystem
                             `round_win` = {PlayerSummaries[player].StatFields["round_win"]},
                             `round_lose` = {PlayerSummaries[player].StatFields["round_lose"]};";
 
-			MySql!.ExecuteNonQueryAsync(updateQuery);
+			await MySql!.ExecuteNonQueryAsync(updateQuery);
 
 			// Log that client stats have been saved
 			Log($"Client stats saved for {player.PlayerName}.", LogLevel.Info);
 		}
 
-		public void SaveClientTime(CCSPlayerController player)
+		public async Task SaveClientTime(CCSPlayerController player)
 		{
 			// Log that the SaveClientTime method is starting
 			Log("SaveClientTime method is starting.", LogLevel.Debug);
@@ -629,7 +627,7 @@ namespace K4ryuuSystem
                             `dead` = {PlayerSummaries[player].TimeFields["dead"]},
                             `alive` = {PlayerSummaries[player].TimeFields["alive"]};";
 
-			MySql!.ExecuteNonQueryAsync(updateQuery);
+			await MySql!.ExecuteNonQueryAsync(updateQuery);
 
 			// Log that client time has been saved
 			Log($"Client time saved for {player.PlayerName}.", LogLevel.Info);

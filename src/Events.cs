@@ -24,19 +24,19 @@ namespace K4ryuuSystem
 
 						if (Config.GeneralSettings.ModuleTimes)
 						{
-							SaveClientTime(player);
+							_ = SaveClientTime(player);
 							Log($"Saved time data for player: {player.PlayerName}", LogLevel.Debug);
 						}
 
 						if (Config.GeneralSettings.ModuleStats)
 						{
-							SaveClientStats(player);
+							_ = SaveClientStats(player);
 							Log($"Saved stats data for player: {player.PlayerName}", LogLevel.Debug);
 						}
 
 						if (Config.GeneralSettings.ModuleRanks)
 						{
-							SaveClientRank(player);
+							_ = SaveClientRank(player);
 							Log($"Saved rank data for player: {player.PlayerName}", LogLevel.Debug);
 						}
 					}
@@ -56,19 +56,19 @@ namespace K4ryuuSystem
 
 				if (Config.GeneralSettings.ModuleTimes)
 				{
-					SaveClientTime(player);
+					_ = SaveClientTime(player);
 					Log($"Saved time data for disconnected player: {player.PlayerName}", LogLevel.Debug);
 				}
 
 				if (Config.GeneralSettings.ModuleStats)
 				{
-					SaveClientStats(player);
+					_ = SaveClientStats(player);
 					Log($"Saved stats data for disconnected player: {player.PlayerName}", LogLevel.Debug);
 				}
 
 				if (Config.GeneralSettings.ModuleRanks)
 				{
-					SaveClientRank(player);
+					_ = SaveClientRank(player);
 					Log($"Saved rank data for disconnected player: {player.PlayerName}", LogLevel.Debug);
 				}
 
