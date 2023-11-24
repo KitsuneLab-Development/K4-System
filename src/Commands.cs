@@ -13,7 +13,7 @@ namespace K4ryuuSystem
 	{
 		[ConsoleCommand("rank", "Check the current rank and points")]
 		[CommandHelper(whoCanExecute: CommandUsage.CLIENT_ONLY)]
-		public void OnCommandCheckRank(CCSPlayerController? player, CommandInfo command)
+		public async void OnCommandCheckRank(CCSPlayerController? player, CommandInfo command)
 		{
 			// Log that the OnCommandCheckRank method is starting
 			Log("OnCommandCheckRank method is starting.", LogLevel.Debug);
@@ -25,7 +25,7 @@ namespace K4ryuuSystem
 				return;
 
 			if (!PlayerSummaries.ContainsPlayer(player!))
-				LoadPlayerData(player!);
+				await LoadPlayerData(player!);
 
 			int playerPoints = PlayerSummaries[player!].Points;
 
@@ -80,7 +80,7 @@ namespace K4ryuuSystem
 
 		[ConsoleCommand("resetmyrank", "Resets the player's own points to zero")]
 		[CommandHelper(whoCanExecute: CommandUsage.CLIENT_ONLY)]
-		public void OnCommandResetMyRank(CCSPlayerController? player, CommandInfo command)
+		public async void OnCommandResetMyRank(CCSPlayerController? player, CommandInfo command)
 		{
 			// Log that the OnCommandResetMyRank method is starting
 			Log("OnCommandResetMyRank method is starting.", LogLevel.Debug);
@@ -92,7 +92,7 @@ namespace K4ryuuSystem
 				return;
 
 			if (!PlayerSummaries.ContainsPlayer(player!))
-				LoadPlayerData(player!);
+				await LoadPlayerData(player!);
 
 			// Log the player's name before resetting their rank
 			Log($"Resetting rank and points for player: {player!.PlayerName}", LogLevel.Info);
@@ -109,7 +109,7 @@ namespace K4ryuuSystem
 		[ConsoleCommand("top5", "Check the top 5 players by points")]
 		[ConsoleCommand("ranktop", "Check the top 5 players by points")]
 		[CommandHelper(whoCanExecute: CommandUsage.CLIENT_ONLY)]
-		public void OnCommandCheckRankTopFive(CCSPlayerController? player, CommandInfo command)
+		public async void OnCommandCheckRankTopFive(CCSPlayerController? player, CommandInfo command)
 		{
 			if (!player.IsValidPlayer())
 				return;
@@ -118,14 +118,14 @@ namespace K4ryuuSystem
 				return;
 
 			if (!PlayerSummaries.ContainsPlayer(player!))
-				LoadPlayerData(player!);
+				await LoadPlayerData(player!);
 
 			PrintTopXPlayers(player!, 5);
 		}
 
 		[ConsoleCommand("top10", "Check the top 10 players by points")]
 		[CommandHelper(whoCanExecute: CommandUsage.CLIENT_ONLY)]
-		public void OnCommandCheckRankTopTen(CCSPlayerController? player, CommandInfo command)
+		public async void OnCommandCheckRankTopTen(CCSPlayerController? player, CommandInfo command)
 		{
 			if (!player.IsValidPlayer())
 				return;
@@ -134,7 +134,7 @@ namespace K4ryuuSystem
 				return;
 
 			if (!PlayerSummaries.ContainsPlayer(player!))
-				LoadPlayerData(player!);
+				await LoadPlayerData(player!);
 
 			PrintTopXPlayers(player!, 10);
 		}
@@ -166,7 +166,7 @@ namespace K4ryuuSystem
 		[ConsoleCommand("resetrank", "Resets the targeted player's points to zero")]
 		[CommandHelper(minArgs: 1, usage: "[SteamID64]", whoCanExecute: CommandUsage.CLIENT_AND_SERVER)]
 		[RequiresPermissions("@k4system/admin")]
-		public void OnCommandResetOtherRank(CCSPlayerController? player, CommandInfo command)
+		public async void OnCommandResetOtherRank(CCSPlayerController? player, CommandInfo command)
 		{
 			// Log that the OnCommandResetOtherRank method is starting
 			Log("OnCommandResetOtherRank method is starting.", LogLevel.Debug);
@@ -183,7 +183,7 @@ namespace K4ryuuSystem
 				if (!target.IsBot && target.SteamID.ToString() == Regex.Replace(command.ArgByIndex(1), @"['"",\s]", ""))
 				{
 					if (!PlayerSummaries.ContainsPlayer(target))
-						LoadPlayerData(target);
+						await LoadPlayerData(target);
 
 					// Log the reset action
 					Log($"{player!.PlayerName} has reset {target.PlayerName}'s points.", LogLevel.Warning);
@@ -204,7 +204,7 @@ namespace K4ryuuSystem
 		[ConsoleCommand("setpoints", "Sets the targeted player's points to the given value")]
 		[CommandHelper(minArgs: 2, usage: "[SteamID64] <amount>", whoCanExecute: CommandUsage.CLIENT_AND_SERVER)]
 		[RequiresPermissions("@k4system/admin")]
-		public void OnCommandSetPoints(CCSPlayerController? player, CommandInfo command)
+		public async void OnCommandSetPoints(CCSPlayerController? player, CommandInfo command)
 		{
 			// Log that the OnCommandSetPoints method is starting
 			Log("OnCommandSetPoints method is starting.", LogLevel.Debug);
@@ -223,7 +223,7 @@ namespace K4ryuuSystem
 					if (!target.IsBot && target.SteamID.ToString() == Regex.Replace(command.ArgByIndex(1), @"['"",\s]", ""))
 					{
 						if (!PlayerSummaries.ContainsPlayer(target))
-							LoadPlayerData(target);
+							await LoadPlayerData(target);
 
 						// Log the points set action
 						Log($"{player!.PlayerName} has set {target.PlayerName}'s points to {parsedInt}.", LogLevel.Warning);
@@ -249,7 +249,7 @@ namespace K4ryuuSystem
 		[ConsoleCommand("givepoints", "Gives points to the targeted player")]
 		[CommandHelper(minArgs: 2, usage: "[SteamID64] <amount>", whoCanExecute: CommandUsage.CLIENT_AND_SERVER)]
 		[RequiresPermissions("@k4system/admin")]
-		public void OnCommandGivePoints(CCSPlayerController? player, CommandInfo command)
+		public async void OnCommandGivePoints(CCSPlayerController? player, CommandInfo command)
 		{
 			// Log that the OnCommandGivePoints method is starting
 			Log("OnCommandGivePoints method is starting.", LogLevel.Debug);
@@ -268,7 +268,7 @@ namespace K4ryuuSystem
 					if (!target.IsBot && target.SteamID.ToString() == Regex.Replace(command.ArgByIndex(1), @"['"",\s]", ""))
 					{
 						if (!PlayerSummaries.ContainsPlayer(target))
-							LoadPlayerData(target);
+							await LoadPlayerData(target);
 
 						// Log the points given action
 						Log($"{player!.PlayerName} has given {parsedInt} points to {target.PlayerName}.", LogLevel.Warning);
@@ -294,7 +294,7 @@ namespace K4ryuuSystem
 		[ConsoleCommand("removepoints", "Removes points from the targeted player")]
 		[CommandHelper(minArgs: 2, usage: "[SteamID64] <amount>", whoCanExecute: CommandUsage.CLIENT_AND_SERVER)]
 		[RequiresPermissions("@k4system/admin")]
-		public void OnCommandRemovePoints(CCSPlayerController? player, CommandInfo command)
+		public async void OnCommandRemovePoints(CCSPlayerController? player, CommandInfo command)
 		{
 			// Log that the OnCommandRemovePoints method is starting
 			Log("OnCommandRemovePoints method is starting.", LogLevel.Debug);
@@ -313,7 +313,7 @@ namespace K4ryuuSystem
 					if (!target.IsBot && target.SteamID.ToString() == Regex.Replace(command.ArgByIndex(1), @"['"",\s]", ""))
 					{
 						if (!PlayerSummaries.ContainsPlayer(target))
-							LoadPlayerData(target);
+							await LoadPlayerData(target);
 
 						// Log the points removal action
 						Log($"{player!.PlayerName} has removed {parsedInt} points from {target.PlayerName}.", LogLevel.Warning);
@@ -344,7 +344,7 @@ namespace K4ryuuSystem
 		[ConsoleCommand("time", "Check the current playtime")]
 		[ConsoleCommand("mytime", "Check the current playtime")]
 		[CommandHelper(whoCanExecute: CommandUsage.CLIENT_ONLY)]
-		public void OnCommandCheckPlaytime(CCSPlayerController? player, CommandInfo command)
+		public async void OnCommandCheckPlaytime(CCSPlayerController? player, CommandInfo command)
 		{
 			// Log that the OnCommandCheckPlaytime method is starting
 			Log("OnCommandCheckPlaytime method is starting.", LogLevel.Debug);
@@ -356,7 +356,7 @@ namespace K4ryuuSystem
 				return;
 
 			if (!PlayerSummaries.ContainsPlayer(player))
-				LoadPlayerData(player);
+				await LoadPlayerData(player);
 
 			DateTime now = DateTime.UtcNow;
 

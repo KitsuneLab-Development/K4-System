@@ -39,7 +39,7 @@ namespace K4ryuuSystem
 						if (player.IsBot)
 							continue;
 
-						LoadPlayerData(player);
+						_ = LoadPlayerData(player);
 					}
 				}
 

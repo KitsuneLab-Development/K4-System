@@ -85,7 +85,7 @@ namespace K4ryuuSystem
 					playerKillStreaks[player.UserId ?? 0] = (0, DateTime.MinValue);
 
 				if (player.IsValidPlayer())
-					LoadPlayerData(player);
+					_ = LoadPlayerData(player);
 
 				return HookResult.Continue;
 			});
@@ -199,17 +199,19 @@ namespace K4ryuuSystem
 					return HookResult.Continue;
 				}
 
-				if (!PlayerSummaries.ContainsPlayer(player!))
-					LoadPlayerData(player!);
-
 				DateTime now = DateTime.UtcNow;
-				double seconds = (now - PlayerSummaries[player].Times["Team"]).TotalSeconds;
 
-				PlayerSummaries[player].TimeFields[GetFieldForTeam((CsTeam)@event.Oldteam)] += (int)seconds;
+				if (!PlayerSummaries.ContainsPlayer(player!))
+				{
+					double seconds = (now - PlayerSummaries[player].Times["Team"]).TotalSeconds;
 
-				PlayerSummaries[player].Times["Team"] = now;
+					PlayerSummaries[player].TimeFields[GetFieldForTeam((CsTeam)@event.Oldteam)] += (int)seconds;
 
-				Log($"EventPlayerTeam: Team switch recorded for player: {player.PlayerName}", LogLevel.Debug);
+					PlayerSummaries[player].Times["Team"] = now;
+
+					Log($"EventPlayerTeam: Team switch recorded for player: {player.PlayerName}", LogLevel.Debug);
+				}
+				else _ = LoadPlayerData(player!);
 
 				return HookResult.Continue;
 			});
@@ -251,16 +253,18 @@ namespace K4ryuuSystem
 					if (player.IsBot || player.IsHLTV)
 						continue;
 
-					if (!PlayerSummaries.ContainsPlayer(player!))
-						LoadPlayerData(player!);
+					if (PlayerSummaries.ContainsPlayer(player!))
+					{
+						if (!Config.GeneralSettings.SpawnMessage || PlayerSummaries[player].SpawnedThisRound)
+							continue;
 
-					if (!Config.GeneralSettings.SpawnMessage || PlayerSummaries[player].SpawnedThisRound)
-						continue;
+						player.PrintToChat($" {Config.GeneralSettings.Prefix} {ChatColors.Green}The server is using the {ChatColors.Gold}K4-System {ChatColors.Green}plugin. Type {ChatColors.Red}!k4 {ChatColors.Green}to get more information!");
 
-					player.PrintToChat($" {Config.GeneralSettings.Prefix} {ChatColors.Green}The server is using the {ChatColors.Gold}K4-System {ChatColors.Green}plugin. Type {ChatColors.Red}!k4 {ChatColors.Green}to get more information!");
+						PlayerSummaries[player].SpawnedThisRound = true;
 
-					PlayerSummaries[player].SpawnedThisRound = true;
-					Log($"EventRoundStart: Spawn message sent to player: {player.PlayerName}", LogLevel.Debug);
+						Log($"EventRoundStart: Spawn message sent to player: {player.PlayerName}", LogLevel.Debug);
+					}
+					else _ = LoadPlayerData(player!);
 				}
 
 				return HookResult.Continue;
@@ -276,53 +280,54 @@ namespace K4ryuuSystem
 					if (player.IsBot || player.IsHLTV)
 						continue;
 
-					if (!PlayerSummaries.ContainsPlayer(player))
-						LoadPlayerData(player);
-
-					if (!PlayerSummaries[player].SpawnedThisRound)
-						continue;
-
-					string prefix = Config.GeneralSettings.Prefix;
-					string playerName = player.PlayerName;
-					int pointsChanged = PlayerSummaries[player].PointsChanged;
-
-					if (Config.RankSettings.RoundEndPoints)
+					if (PlayerSummaries.ContainsPlayer(player))
 					{
-						string message = $"{prefix} {ChatColors.White}Points: ";
+						if (!PlayerSummaries[player].SpawnedThisRound)
+							continue;
 
-						if (pointsChanged > 0)
-							player.PrintToChat($"{message}{ChatColors.Green}+{pointsChanged} Round Summary");
-						else if (pointsChanged < 0)
-							player.PrintToChat($"{message}{ChatColors.Red}-{Math.Abs(pointsChanged)} Round Summary");
-						else
-							player.PrintToChat($"{message}No changes in this round");
+						string prefix = Config.GeneralSettings.Prefix;
+						string playerName = player.PlayerName;
+						int pointsChanged = PlayerSummaries[player].PointsChanged;
 
-						PlayerSummaries[player].PointsChanged = 0;
-					}
-
-					CsTeam playerTeam = (CsTeam)player.TeamNum;
-
-					if (playerTeam != CsTeam.None && playerTeam != CsTeam.Spectator)
-					{
-						bool isWinner = winnerTeam == playerTeam;
-
-						if (IsStatsAllowed())
+						if (Config.RankSettings.RoundEndPoints)
 						{
-							string statType = isWinner ? "round_win" : "round_lose";
-							PlayerSummaries[player].StatFields[statType]++;
-							Log($"EventRoundEnd: Recorded {statType} for player: {playerName}", LogLevel.Debug);
+							string message = $"{prefix} {ChatColors.White}Points: ";
+
+							if (pointsChanged > 0)
+								player.PrintToChat($"{message}{ChatColors.Green}+{pointsChanged} Round Summary");
+							else if (pointsChanged < 0)
+								player.PrintToChat($"{message}{ChatColors.Red}-{Math.Abs(pointsChanged)} Round Summary");
+							else
+								player.PrintToChat($"{message}No changes in this round");
+
+							PlayerSummaries[player].PointsChanged = 0;
 						}
 
-						if (IsPointsAllowed())
-						{
-							CHANGE_MODE changeMode = isWinner ? CHANGE_MODE.GIVE : CHANGE_MODE.REMOVE;
-							int pointsChange = isWinner ? Config.PointSettings.RoundWin : Config.PointSettings.RoundLose;
-							ModifyClientPoints(player, changeMode, pointsChange, isWinner ? "Round Win" : "Round Lose");
-							Log($"EventRoundEnd: Modified points ({(isWinner ? "round win" : "round lose")}) for player: {playerName}", LogLevel.Debug);
-						}
-					}
+						CsTeam playerTeam = (CsTeam)player.TeamNum;
 
-					PlayerSummaries[player].SpawnedThisRound = false;
+						if (playerTeam != CsTeam.None && playerTeam != CsTeam.Spectator)
+						{
+							bool isWinner = winnerTeam == playerTeam;
+
+							if (IsStatsAllowed())
+							{
+								string statType = isWinner ? "round_win" : "round_lose";
+								PlayerSummaries[player].StatFields[statType]++;
+								Log($"EventRoundEnd: Recorded {statType} for player: {playerName}", LogLevel.Debug);
+							}
+
+							if (IsPointsAllowed())
+							{
+								CHANGE_MODE changeMode = isWinner ? CHANGE_MODE.GIVE : CHANGE_MODE.REMOVE;
+								int pointsChange = isWinner ? Config.PointSettings.RoundWin : Config.PointSettings.RoundLose;
+								ModifyClientPoints(player, changeMode, pointsChange, isWinner ? "Round Win" : "Round Lose");
+								Log($"EventRoundEnd: Modified points ({(isWinner ? "round win" : "round lose")}) for player: {playerName}", LogLevel.Debug);
+							}
+						}
+
+						PlayerSummaries[player].SpawnedThisRound = false;
+					}
+					else _ = LoadPlayerData(player);
 				}
 
 				return HookResult.Continue;
@@ -336,18 +341,19 @@ namespace K4ryuuSystem
 				if (player == null || !player.IsValid || player.IsBot || player.IsHLTV)
 					return HookResult.Continue;
 
-				if (!PlayerSummaries.ContainsPlayer(player))
-					LoadPlayerData(player);
-
-				var playerData = PlayerSummaries[player].Times;
-				if (playerData != null && playerData.ContainsKey("Death"))
+				if (PlayerSummaries.ContainsPlayer(player))
 				{
-					PlayerSummaries[player].TimeFields["dead"] += (int)(DateTime.UtcNow - playerData["Death"]).TotalSeconds;
-					Log($"EventPlayerSpawn: Updated dead time for player: {player.PlayerName}", LogLevel.Debug);
-				}
+					var playerData = PlayerSummaries[player].Times;
+					if (playerData != null && playerData.ContainsKey("Death"))
+					{
+						PlayerSummaries[player].TimeFields["dead"] += (int)(DateTime.UtcNow - playerData["Death"]).TotalSeconds;
+						Log($"EventPlayerSpawn: Updated dead time for player: {player.PlayerName}", LogLevel.Debug);
+					}
 
-				PlayerSummaries[player].Times["Death"] = DateTime.UtcNow;
-				Log($"EventPlayerSpawn: Recorded spawn for player: {player.PlayerName}", LogLevel.Debug);
+					PlayerSummaries[player].Times["Death"] = DateTime.UtcNow;
+					Log($"EventPlayerSpawn: Recorded spawn for player: {player.PlayerName}", LogLevel.Debug);
+				}
+				else _ = LoadPlayerData(player);
 
 				return HookResult.Continue;
 			});
@@ -412,9 +418,6 @@ namespace K4ryuuSystem
 
 				if (!victimController.IsBot)
 				{
-					if (!PlayerSummaries.ContainsPlayer(killerController))
-						LoadPlayerData(killerController);
-
 					if (IsStatsAllowed() && (Config.StatisticSettings.StatsForBots || !killerController.IsBot))
 					{
 						PlayerSummaries[victimController].StatFields["deaths"]++;
@@ -438,9 +441,6 @@ namespace K4ryuuSystem
 
 				if (killerController.IsValidPlayer() && victimController.UserId != killerController.UserId)
 				{
-					if (!PlayerSummaries.ContainsPlayer(killerController))
-						LoadPlayerData(killerController);
-
 					if (IsStatsAllowed() && (Config.StatisticSettings.StatsForBots || !victimController.IsBot))
 					{
 						PlayerSummaries[killerController].StatFields["kills"]++;
@@ -567,9 +567,6 @@ namespace K4ryuuSystem
 
 				if (assisterController.IsValidPlayer() && IsPointsAllowed())
 				{
-					if (!PlayerSummaries.ContainsPlayer(assisterController))
-						LoadPlayerData(assisterController);
-
 					ModifyClientPoints(assisterController, CHANGE_MODE.GIVE, Config.PointSettings.Assist, "Assist");
 					Log($"EventPlayerDeath: Assist recorded for player: {assisterController.PlayerName}", LogLevel.Debug);
 

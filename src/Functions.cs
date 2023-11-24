@@ -140,9 +140,9 @@ namespace K4ryuuSystem
 			Log("PrintTopXPlayers method has completed.", LogLevel.Debug);
 		}
 
-		public void LoadPlayerData(CCSPlayerController player)
+		public async Task LoadPlayerData(CCSPlayerController player)
 		{
-			if (player == null || !player.IsValid || player.IsBot || player.IsHLTV)
+			if (player == null || !player.IsValid || player.IsBot || player.IsHLTV || player.SteamID.ToString() == "0")
 				return;
 
 			Log("LoadPlayerData method is starting.", LogLevel.Debug);
@@ -162,13 +162,13 @@ namespace K4ryuuSystem
 				.Add("name", escapedName)
 				.Add("steam_id", player.SteamID.ToString());
 
-			MySql!.Table($"{TablePrefix}k4times").InsertIfNotExist(values, $"`name` = '{escapedName}'");
-			MySql!.Table($"{TablePrefix}k4stats").InsertIfNotExist(values, $"`name` = '{escapedName}', `lastseen` = CURRENT_TIMESTAMP");
-			MySql!.Table($"{TablePrefix}k4ranks").InsertIfNotExist(values.Add("`rank`", MySqlHelper.EscapeString(noneRank)), $"`name` = '{escapedName}'");
+			await MySql!.Table($"{TablePrefix}k4times").InsertIfNotExistAsync(values, $"`name` = '{escapedName}'");
+			await MySql!.Table($"{TablePrefix}k4stats").InsertIfNotExistAsync(values, $"`name` = '{escapedName}', `lastseen` = CURRENT_TIMESTAMP");
+			await MySql!.Table($"{TablePrefix}k4ranks").InsertIfNotExistAsync(values.Add("`rank`", MySqlHelper.EscapeString(noneRank)), $"`name` = '{escapedName}'");
 
 			if (Config.GeneralSettings.ModuleTimes)
 			{
-				MySqlQueryResult result = MySql!.Table($"{TablePrefix}k4times").Where(MySqlQueryCondition.New("steam_id", "=", player.SteamID.ToString())).Select();
+				MySqlQueryResult result = await MySql!.Table($"{TablePrefix}k4times").Where(MySqlQueryCondition.New("steam_id", "=", player.SteamID.ToString())).SelectAsync();
 
 				string[] timeFieldNames = { "all", "ct", "t", "spec", "alive", "dead" };
 
@@ -183,7 +183,7 @@ namespace K4ryuuSystem
 
 			if (Config.GeneralSettings.ModuleStats)
 			{
-				MySqlQueryResult result = MySql!.Table($"{TablePrefix}k4stats").Where(MySqlQueryCondition.New("steam_id", "=", player.SteamID.ToString())).Select();
+				MySqlQueryResult result = await MySql!.Table($"{TablePrefix}k4stats").Where(MySqlQueryCondition.New("steam_id", "=", player.SteamID.ToString())).SelectAsync();
 
 				string[] statFieldNames = { "kills", "deaths", "hits", "headshots", "grenades", "mvp", "round_win", "round_lose" };
 
@@ -201,7 +201,7 @@ namespace K4ryuuSystem
 					Color = $"{ChatColors.Default}"
 				};
 
-				MySqlQueryResult result = MySql!.Table($"{TablePrefix}k4ranks").Where(MySqlQueryCondition.New("steam_id", "=", player.SteamID.ToString())).Select("points");
+				MySqlQueryResult result = await MySql!.Table($"{TablePrefix}k4ranks").Where(MySqlQueryCondition.New("steam_id", "=", player.SteamID.ToString())).SelectAsync("points");
 
 				PlayerSummaries[player].Points = result.Rows > 0 ? result.Get<int>(0, "points") : 0;
 
@@ -277,7 +277,7 @@ namespace K4ryuuSystem
 		}
 
 
-		public void ModifyClientPoints(CCSPlayerController player, CHANGE_MODE mode, int amount, string reason)
+		public async void ModifyClientPoints(CCSPlayerController player, CHANGE_MODE mode, int amount, string reason)
 		{
 			// Log that the ModifyClientPoints method is starting
 			Log("ModifyClientPoints method is starting.", LogLevel.Debug);
@@ -298,7 +298,7 @@ namespace K4ryuuSystem
 
 			if (!PlayerSummaries.ContainsPlayer(player))
 			{
-				LoadPlayerData(player);
+				await LoadPlayerData(player);
 
 				// Log that player data is loaded
 				Log($"Player data loaded for {player.PlayerName}.", LogLevel.Debug);
