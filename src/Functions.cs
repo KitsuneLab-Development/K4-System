@@ -98,7 +98,7 @@ namespace K4ryuuSystem
 				{
 					int pointCheck = result.Get<int>(i, "points");
 					string playerRank = noneRank;
-					string rankColor = $"{ChatColors.Default}";
+					string rankColor = "{Default}";
 
 					foreach (var kvp in ranks)
 					{
@@ -108,7 +108,7 @@ namespace K4ryuuSystem
 						if (pointCheck >= rank.Exp)
 						{
 							playerRank = level;
-							rankColor = rank.Color;
+							rankColor = $"{{{rank.Color}}}";
 						}
 						else
 							break;
