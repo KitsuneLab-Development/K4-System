@@ -2,6 +2,7 @@
 
 - fix: Visual bugs (#43)
 - fix: Disconnect lag spike (#46)
+- fix: Bots being loaded into DB rarely (#45)
 
 -- 2023.10.21 - V1.3.3
 

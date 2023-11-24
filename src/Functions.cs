@@ -142,6 +142,9 @@ namespace K4ryuuSystem
 
 		public void LoadPlayerData(CCSPlayerController player)
 		{
+			if (player == null || !player.IsValid || player.IsBot || player.IsHLTV)
+				return;
+
 			Log("LoadPlayerData method is starting.", LogLevel.Debug);
 
 			User newUser = new User
