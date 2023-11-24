@@ -620,7 +620,7 @@ namespace K4ryuuSystem
 
 			PlayerSummaries[player].TimeFields["all"] += (int)Math.Round((now - PlayerSummaries[player].Times["Connect"]).TotalSeconds);
 			PlayerSummaries[player].TimeFields[GetFieldForTeam((CsTeam)player.TeamNum)] += (int)Math.Round((now - PlayerSummaries[player].Times["Team"]).TotalSeconds);
-			PlayerSummaries[player].TimeFields[player.PawnIsAlive ? "alive" : "dead"] = (int)Math.Round((now - PlayerSummaries[player].Times["Death"]).TotalSeconds);
+			PlayerSummaries[player].TimeFields[player.PawnIsAlive ? "alive" : "dead"] += (int)Math.Round((now - PlayerSummaries[player].Times["Death"]).TotalSeconds);
 
 			string escapedName = MySqlHelper.EscapeString(player.PlayerName);
 

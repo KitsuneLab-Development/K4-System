@@ -362,7 +362,7 @@ namespace K4ryuuSystem
 
 			PlayerSummaries[player].TimeFields["all"] += (int)Math.Round((now - PlayerSummaries[player].Times["Connect"]).TotalSeconds);
 			PlayerSummaries[player].TimeFields[GetFieldForTeam((CsTeam)player.TeamNum)] += (int)Math.Round((now - PlayerSummaries[player].Times["Team"]).TotalSeconds);
-			PlayerSummaries[player].TimeFields[player.PawnIsAlive ? "alive" : "dead"] = (int)Math.Round((now - PlayerSummaries[player].Times["Death"]).TotalSeconds);
+			PlayerSummaries[player].TimeFields[player.PawnIsAlive ? "alive" : "dead"] += (int)Math.Round((now - PlayerSummaries[player].Times["Death"]).TotalSeconds);
 
 			// Log that the playtime statistics are being retrieved and updated
 			Log($"{player.PlayerName}'s playtime statistics are being retrieved and updated.", LogLevel.Debug);

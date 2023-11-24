@@ -355,7 +355,7 @@ namespace K4ryuuSystem
 				if (PlayerSummaries.ContainsPlayer(player))
 				{
 					var playerData = PlayerSummaries[player].Times;
-					if (playerData != null && playerData.ContainsKey("Death"))
+					if (playerData != null && PlayerSummaries[player].TimeFields.ContainsKey("dead") && playerData.ContainsKey("Death"))
 					{
 						PlayerSummaries[player].TimeFields["dead"] += (int)(DateTime.UtcNow - playerData["Death"]).TotalSeconds;
 						Log($"EventPlayerSpawn: Updated dead time for player: {player.PlayerName}", LogLevel.Debug);
@@ -429,6 +429,15 @@ namespace K4ryuuSystem
 
 				if (!victimController.IsBot)
 				{
+					var playerData = PlayerSummaries[victimController].Times;
+					if (playerData != null && playerData.ContainsKey("Death"))
+					{
+						PlayerSummaries[victimController].TimeFields["alive"] += (int)(DateTime.UtcNow - playerData["Death"]).TotalSeconds;
+						Log($"EventPlayerSpawn: Updated alive time for player: {victimController.PlayerName}", LogLevel.Debug);
+					}
+
+					PlayerSummaries[victimController].Times["Death"] = DateTime.UtcNow;
+
 					if (IsStatsAllowed() && (Config.StatisticSettings.StatsForBots || !killerController.IsBot))
 					{
 						PlayerSummaries[victimController].StatFields["deaths"]++;

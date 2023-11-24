@@ -6,6 +6,8 @@
 - fix: Bots being loaded into DB rarely (#45)
 - fix: Data load lag spikes
 - fix: 161 Segmentation fault
+- fix: Time updates on !time command
+- fix: Alive time not saved properly
 
 - -- 2023.10.21 - V1.3.3
 
