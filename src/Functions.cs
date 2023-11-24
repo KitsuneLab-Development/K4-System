@@ -117,12 +117,15 @@ namespace K4ryuuSystem
 					}
 
 					string modifiedValue = rankColor;
-					foreach (FieldInfo field in typeof(ChatColors).GetFields())
+					if (rankColor.Contains('{'))
 					{
-						string pattern = $"{field.Name}";
-						if (rankColor.Contains(pattern, StringComparison.OrdinalIgnoreCase))
+						foreach (FieldInfo field in typeof(ChatColors).GetFields())
 						{
-							modifiedValue = modifiedValue.Replace(pattern, field.GetValue(null)!.ToString(), StringComparison.OrdinalIgnoreCase);
+							string pattern = $"{{{field.Name}}}";
+							if (rankColor.Contains(pattern, StringComparison.OrdinalIgnoreCase))
+							{
+								modifiedValue = modifiedValue.Replace(pattern, field.GetValue(null)!.ToString(), StringComparison.OrdinalIgnoreCase);
+							}
 						}
 					}
 
@@ -379,11 +382,14 @@ namespace K4ryuuSystem
 					break;
 			}
 
-			if (setRank == null || newRank == noneRank || newRank == PlayerSummaries[player].Rank)
+			if (setRank == null)
 				return;
 
 			if (Config.RankSettings.ScoreboardRanks)
 				player.Clan = $"{clanTag ?? $"[{newRank}]"}";
+
+			if (newRank == noneRank || newRank == PlayerSummaries[player].Rank)
+				return;
 
 			Server.PrintToChatAll($" {ChatColors.Red}{Config.GeneralSettings.Prefix} {ChatColors.Gold}{player.PlayerName} has been {(setRank.Exp > PlayerSummaries[player].RankPoints ? "promoted" : "demoted")} to {newRank}.");
 

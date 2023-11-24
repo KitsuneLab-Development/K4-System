@@ -90,21 +90,20 @@ namespace K4ryuuSystem
 				return HookResult.Continue;
 			});
 			RegisterEventHandler<EventHostageRescued>((@event, info) =>
-{
-	CCSPlayerController player = @event.Userid;
+			{
+				CCSPlayerController player = @event.Userid;
 
-	if (!player.IsValidPlayer())
-	{
-		Log("Hostage Rescued: Player is not valid.", LogLevel.Debug);
-		return HookResult.Continue;
-	}
+				if (!player.IsValidPlayer())
+				{
+					Log("Hostage Rescued: Player is not valid.", LogLevel.Debug);
+					return HookResult.Continue;
+				}
 
-	ModifyClientPoints(player, CHANGE_MODE.GIVE, Config.PointSettings.HostageRescue, "Hostage Rescued");
-	Log($"Hostage Rescued: Modified points for player: {player.PlayerName}", LogLevel.Debug);
+				ModifyClientPoints(player, CHANGE_MODE.GIVE, Config.PointSettings.HostageRescue, "Hostage Rescued");
+				Log($"Hostage Rescued: Modified points for player: {player.PlayerName}", LogLevel.Debug);
 
-	return HookResult.Continue;
-});
-
+				return HookResult.Continue;
+			});
 			RegisterEventHandler<EventHostageKilled>((@event, info) =>
 			{
 				CCSPlayerController player = @event.Userid;

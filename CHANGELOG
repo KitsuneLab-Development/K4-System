@@ -1,4 +1,8 @@
--- 2023.10.20 - V1.3.3
+-- 2023.10.24 - V1.3.4
+
+- fix: Visual bugs (#43)
+
+-- 2023.10.21 - V1.3.3
 
 - feat: Last seen value to statistics (#37)
 - fix: Retake bomb plant incompatibility bug (#31,#25)

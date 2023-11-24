@@ -10,7 +10,7 @@ namespace K4ryuuSystem
 	public partial class K4System : BasePlugin, IPluginConfig<MyConfig>
 	{
 		public override string ModuleName => "K4-System";
-		public override string ModuleVersion => "v1.3.3";
+		public override string ModuleVersion => "v1.3.4";
 		public override string ModuleAuthor => "K4ryuu";
 		public int ModuleConfigVersion => 2;
 
