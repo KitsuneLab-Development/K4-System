@@ -486,7 +486,10 @@ namespace K4ryuuSystem
 			List<CCSPlayerController> players = Utilities.GetPlayers();
 			int notBots = players.Count(player => !player.IsBot);
 
-			bool isAllowed = Config.GeneralSettings.ModuleRanks && (!K4ryuu.GameRules().WarmupPeriod || Config.RankSettings.WarmupPoints) && (Config.RankSettings.MinPlayers <= notBots);
+			if (globalGameRules == null)
+				globalGameRules = K4ryuu.GameRules();
+
+			bool isAllowed = Config.GeneralSettings.ModuleRanks && (!globalGameRules.WarmupPeriod || Config.RankSettings.WarmupPoints) && (Config.RankSettings.MinPlayers <= notBots);
 
 			Log($"Points are {(isAllowed ? "allowed" : "not allowed")}.", LogLevel.Info);
 
@@ -500,7 +503,10 @@ namespace K4ryuuSystem
 			List<CCSPlayerController> players = Utilities.GetPlayers();
 			int notBots = players.Count(player => !player.IsBot);
 
-			bool isAllowed = Config.GeneralSettings.ModuleStats && (!K4ryuu.GameRules().WarmupPeriod || Config.StatisticSettings.WarmupStats) && (Config.StatisticSettings.MinPlayers <= notBots);
+			if (globalGameRules == null)
+				globalGameRules = K4ryuu.GameRules();
+
+			bool isAllowed = Config.GeneralSettings.ModuleStats && (!globalGameRules.WarmupPeriod || Config.StatisticSettings.WarmupStats) && (Config.StatisticSettings.MinPlayers <= notBots);
 
 			Log($"Stats are {(isAllowed ? "allowed" : "not allowed")}.", LogLevel.Info);
 

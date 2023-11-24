@@ -61,5 +61,6 @@ namespace K4ryuuSystem
 		private Dictionary<string, Rank> ranks = new Dictionary<string, Rank>();
 		internal static PlayerCache<User> PlayerSummaries = new PlayerCache<User>();
 		internal string noneRank = "None";
+		internal CCSGameRules? globalGameRules;
 	}
 }

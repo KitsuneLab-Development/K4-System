@@ -8,6 +8,17 @@ namespace K4ryuuSystem
 	{
 		private void SetupGameEvents()
 		{
+			RegisterListener<Listeners.OnMapStart>((mapName) =>
+			{
+				Log("Processing start of map", LogLevel.Debug);
+
+				AddTimer(0.5f, () =>
+				{
+					globalGameRules = K4ryuu.GameRules();
+				});
+
+				Log("Start of map processing completed", LogLevel.Debug);
+			});
 			RegisterListener<Listeners.OnMapEnd>(() =>
 			{
 				Log("Processing end of map for all players", LogLevel.Debug);
