@@ -41,6 +41,11 @@ namespace K4ryuuSystem
 
 						_ = LoadPlayerData(player);
 					}
+
+					AddTimer(0.5f, () =>
+					{
+						globalGameRules = K4ryuu.GameRules();
+					});
 				}
 
 				SetupGameEvents();

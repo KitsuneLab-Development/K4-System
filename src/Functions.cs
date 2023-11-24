@@ -62,7 +62,7 @@ namespace K4ryuuSystem
 					{
 						noneRank = ranks.FirstOrDefault(pair => pair.Value == searchNoneRank).Key;
 
-						Log($"Default rank is set to: {noneRank}", LogLevel.Debug);
+						Log($"Default rank is set to: {noneRank}", LogLevel.Debug, false);
 					}
 				}
 			}

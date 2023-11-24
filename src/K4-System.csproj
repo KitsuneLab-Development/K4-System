@@ -6,7 +6,7 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="CounterStrikeSharp.API" Version="1.0.65" />
+    <PackageReference Include="CounterStrikeSharp.API" Version="1.0.71" />
     <PackageReference Include="Nexd.MySQL" Version="1.0.1" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
   </ItemGroup>
