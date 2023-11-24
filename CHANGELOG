@@ -8,6 +8,7 @@
 - fix: 161 Segmentation fault
 - fix: Time updates on !time command
 - fix: Alive time not saved properly
+- fix: Random errors on client disconnect
 
 - -- 2023.10.21 - V1.3.3
 

@@ -196,6 +196,9 @@ namespace K4ryuuSystem
 			});
 			RegisterEventHandler<EventPlayerTeam>((@event, info) =>
 			{
+				if ((CsTeam)@event.Team == CsTeam.None)
+					return HookResult.Continue;
+
 				if (!Config.GeneralSettings.ModuleTimes)
 				{
 					Log("EventPlayerTeam: ModuleTimes is not enabled.", LogLevel.Debug);
@@ -424,7 +427,7 @@ namespace K4ryuuSystem
 				CCSPlayerController killerController = @event.Attacker;
 				CCSPlayerController assisterController = @event.Assister;
 
-				if (!victimController.IsValid)
+				if (victimController == null || !victimController.IsValid || victimController.UserId <= 0)
 					return HookResult.Continue;
 
 				if (!victimController.IsBot)
