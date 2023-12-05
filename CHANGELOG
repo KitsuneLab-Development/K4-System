@@ -1,4 +1,4 @@
--- 2023.10.24 - V2.0.0
+-- 2023.12.05 - V2.0.0
 
 - feat: Dynamic death points based on the killer and victim points (new config)
 - feat: Configurable commands
