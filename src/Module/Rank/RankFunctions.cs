@@ -95,10 +95,12 @@ namespace K4System
 			return rankDictionary.LastOrDefault(kv => points >= kv.Value.Point).Value ?? noneRank;
 		}
 
-		public void ModifyPlayerPoints(CCSPlayerController player, int amount, string reason)
+		public void ModifyPlayerPoints(CCSPlayerController tempPlayer, int amount, string reason)
 		{
 			if (!IsPointsAllowed())
 				return;
+
+			CCSPlayerController player = tempPlayer;
 
 			if (player is null || !player.IsValid || !player.PlayerPawn.IsValid)
 			{
@@ -128,61 +130,67 @@ namespace K4System
 				amount = (int)Math.Round(amount * Config.RankSettings.VipMultiplier);
 			}
 
+			int oldPoints = playerData.Points;
 			Server.NextFrame(() =>
 			{
 				if (!Config.RankSettings.RoundEndPoints)
 				{
 					if (amount > 0)
 					{
-						player.PrintToChat($" {Config.GeneralSettings.Prefix} {ChatColors.Silver}Points: {ChatColors.Green}{playerData.Points} [+{amount} {reason}]");
+						player.PrintToChat($" {Config.GeneralSettings.Prefix} {ChatColors.Silver}Points: {ChatColors.Green}{oldPoints} [+{amount} {reason}]");
 					}
 					else if (amount < 0)
 					{
-						player.PrintToChat($" {Config.GeneralSettings.Prefix} {ChatColors.Silver}Points: {ChatColors.Red}{playerData.Points} [-{Math.Abs(amount)} {reason}]");
+						player.PrintToChat($" {Config.GeneralSettings.Prefix} {ChatColors.Silver}Points: {ChatColors.Red}{oldPoints} [-{Math.Abs(amount)} {reason}]");
 					}
 				}
-
-				playerData.Points += amount;
-
-				if (playerData.Points < 0)
-					playerData.Points = 0;
-
-				if (Config.RankSettings.ScoreboardScoreSync)
-					player.Score = playerData.Points;
-
-				playerData.RoundPoints += amount;
-
-				playerData.Rank = GetPlayerRank(playerData.Points);
-
-				if (Config.RankSettings.ScoreboardRanks)
-					player.Clan = $"{playerData.Rank.Tag ?? $"[{playerData.Rank.Name}]"}";
 			});
+
+			playerData.Points += amount;
+
+			if (playerData.Points < 0)
+				playerData.Points = 0;
+
+			if (Config.RankSettings.ScoreboardScoreSync)
+				player.Score = playerData.Points;
+
+			playerData.RoundPoints += amount;
+
+			playerData.Rank = GetPlayerRank(playerData.Points);
+
+			if (Config.RankSettings.ScoreboardRanks)
+				player.Clan = $"{playerData.Rank.Tag ?? $"[{playerData.Rank.Name}]"}";
+
 		}
 
 		public async Task SavePlayerRankCache(CCSPlayerController player, bool remove)
 		{
-			if (player is null || !player.IsValid || !player.PlayerPawn.IsValid)
+			CCSPlayerController savedPlayer = player;
+
+			if (savedPlayer is null || !savedPlayer.IsValid || !savedPlayer.PlayerPawn.IsValid)
 			{
 				Logger.LogWarning("SavePlayerRankCache > Invalid player controller");
 				return;
 			}
 
-			if (player.IsBot || player.IsHLTV)
+			if (savedPlayer.IsBot || savedPlayer.IsHLTV)
 			{
 				Logger.LogWarning($"SavePlayerRankCache > Player controller is BOT or HLTV");
 				return;
 			}
 
-			if (!rankCache.ContainsPlayer(player))
+			if (!rankCache.ContainsPlayer(savedPlayer))
 			{
-				Logger.LogWarning($"SavePlayerRankCache > Player is not loaded to the cache ({player.PlayerName})");
+				Logger.LogWarning($"SavePlayerRankCache > Player is not loaded to the cache ({savedPlayer.PlayerName})");
 				return;
 			}
 
-			RankData playerData = rankCache[player];
+			RankData playerData = rankCache[savedPlayer];
 
-			string escapedName = MySqlHelper.EscapeString(player.PlayerName);
-			string steamID = player.SteamID.ToString();
+			string escapedName = MySqlHelper.EscapeString(savedPlayer.PlayerName);
+			string steamID = savedPlayer.SteamID.ToString();
+
+			int setPoints = playerData.RoundPoints;
 
 			await Database.ExecuteNonQueryAsync($@"
 				INSERT INTO `{Config.DatabaseSettings.TablePrefix}k4ranks`
@@ -190,16 +198,16 @@ namespace K4System
 				VALUES
 				('{steamID}', '{escapedName}', '{playerData.Rank.Name}',
 				CASE
-					WHEN (`points` + {playerData.RoundPoints}) < 0 THEN 0
-					ELSE (`points` + {playerData.RoundPoints})
+					WHEN (`points` + {setPoints}) < 0 THEN 0
+					ELSE (`points` + {setPoints})
 				END)
 				ON DUPLICATE KEY UPDATE
 				`name` = '{escapedName}',
 				`rank` = '{playerData.Rank.Name}',
 				`points` =
 				CASE
-					WHEN (`points` + {playerData.RoundPoints}) < 0 THEN 0
-					ELSE (`points` + {playerData.RoundPoints})
+					WHEN (`points` + {setPoints}) < 0 THEN 0
+					ELSE (`points` + {setPoints})
 				END;
 			");
 
@@ -212,15 +220,17 @@ namespace K4System
 				");
 
 				playerData.Points = selectResult.Rows > 0 ? selectResult.Get<int>(0, "points") : 0;
-				playerData.RoundPoints = 0;
+
+				playerData.RoundPoints -= setPoints;
 				playerData.Rank = GetPlayerRank(playerData.Points);
 
 				if (Config.RankSettings.ScoreboardRanks)
-					player.Clan = $"{playerData.Rank.Tag ?? $"[{playerData.Rank.Name}]"}";
+					savedPlayer.Clan = $"{playerData.Rank.Tag ?? $"[{playerData.Rank.Name}]"}";
+
 			}
 			else
 			{
-				rankCache.RemovePlayer(player);
+				rankCache.RemovePlayer(savedPlayer);
 			}
 		}
 
