@@ -206,10 +206,10 @@ namespace K4System
 			if (!remove)
 			{
 				MySqlQueryResult selectResult = await Database.ExecuteQueryAsync($@"
-					SELECT `points`
-					FROM `{Config.DatabaseSettings.TablePrefix}k4ranks`
-					WHERE `steam_id` = '{steamID}';
-				");
+						SELECT `points`
+						FROM `{Config.DatabaseSettings.TablePrefix}k4ranks`
+						WHERE `steam_id` = '{steamID}';
+					");
 
 				playerData.Points = selectResult.Rows > 0 ? selectResult.Get<int>(0, "points") : 0;
 				playerData.RoundPoints = 0;
