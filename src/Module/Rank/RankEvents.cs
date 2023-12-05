@@ -221,11 +221,11 @@ namespace K4System
 
 				if (!victim.IsBot)
 				{
-					if (victim.UserId == killer.UserId)
+					if (killer is null || !killer.IsValid || victim.UserId == killer.UserId)
 					{
 						ModifyPlayerPoints(victim, Config.PointSettings.Suicide, "Suicide");
 					}
-					else if (Config.RankSettings.PointsForBots || !killer.IsBot)
+					else if (killer != null && killer.IsValid && (Config.RankSettings.PointsForBots || !killer.IsBot))
 					{
 						ModifyPlayerPoints(victim, CalculateDynamicPoints(victim, killer, Config.PointSettings.Death), "Dying");
 					}
