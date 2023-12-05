@@ -1,0 +1,46 @@
+namespace K4System
+{
+	using CounterStrikeSharp.API.Core;
+	using CounterStrikeSharp.API.Core.Plugin;
+
+	using Microsoft.Extensions.Logging;
+	using Nexd.MySQL;
+
+	public partial class ModuleRank : IModuleRank
+	{
+		public class Rank
+		{
+			public required string Name { get; set; }
+			public string? Tag { get; set; }
+			public required int Point { get; set; }
+			public required string Color { get; set; }
+		}
+
+		public class RankData
+		{
+			public required int Points { get; set; }
+			public required Rank Rank { get; set; }
+			public required bool PlayedRound { get; set; }
+			public required int RoundPoints { get; set; }
+		}
+
+		public readonly PluginContext PluginContext;
+		public readonly ILogger<ModuleRank> Logger;
+
+		public required PluginConfig Config { get; set; }
+		public required MySqlDb Database { get; set; }
+		public required string ModuleDirectory { get; set; }
+
+		public Dictionary<string, Rank> rankDictionary = new Dictionary<string, Rank>();
+		internal static PlayerCache<RankData> rankCache = new PlayerCache<RankData>();
+		public CCSGameRules? globalGameRules = null;
+		public Dictionary<int, (int killStreak, DateTime lastKillTime)> playerKillStreaks = new Dictionary<int, (int, DateTime)>();
+
+		internal Rank noneRank = new Rank
+		{
+			Name = "None",
+			Point = -1,
+			Color = "Default"
+		};
+	}
+}

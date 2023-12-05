@@ -1,3 +1,21 @@
+-- 2023.10.24 - V2.0.0
+
+- feat: Dynamic death points based on the killer and victim points (new config)
+- feat: Configurable commands
+- feat: New Statistics: KDA, Hits Taken, Hits Given, Assists
+- feat: Adding commands top5, top10 will always show that much player u set as number in the end
+- refactor: New visual appearance
+- refactor: Totally remade the plugin from zero
+
+-- 2023.10.24 - V1.3.5
+
+- fix: Disconnect error in some cases
+- fix: Database resets for undefined players (#58)
+- fix: Commands target the user not the target
+- fix: SpawnMessage config bug
+- fix: Suicide count problems
+- fix: Death player checks (#56, #52)
+
 -- 2023.10.24 - V1.3.4
 
 - refactor: Optimise gamerule based functions (#39)
