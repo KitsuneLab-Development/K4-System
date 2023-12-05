@@ -130,17 +130,7 @@ The addon provides several commands and console variables (convars) to customize
 
 ### Commands
 
-- **!rank** - Check the current rank and points
-- **!ranktop, !top, !top5** - Check the top 5 players by points
-- **!top10** - Check the top 10 players by points
-- **!resetmyrank** - Reset the players self rank and points
-- **!resetrank "SteamID64"** - Reset the rank of the target if its used by admin
-- **!setpoints "SteamID64" 100** - Sets the targeted player's points to the given value if its used by admin
-- **!givepoints "SteamID64" 100** - Gives points to the targeted player if its used by admin
-- **!removepoints "SteamID64" 100** - Removes points from the targeted player if its used by admin
-- **!stat, !statistics** - Check your statistics
-- **!time, !mytime, !playtime** - Check the current playtime
-- **!k4** - K4-System informational panel
+- Can be customized in the config file.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -148,32 +138,18 @@ The addon provides several commands and console variables (convars) to customize
 
 - **@k4system/vip/points-multiplier** VIP Point Multiplier Permission
 - **@k4system/admin** All K4 Admin Commands
-- **@css/config** See debug prints in chat
 
-- <p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-### Log Levels
-
-If you set a loglevel only THAT or ABOVE logs will be printed and saved.
-
-- **Debug (-1)** Print debug logs to people's chat with @css/config permission and into console/log files (RESOURCE EXPENSIVE)
-- **Info (0)** Informational log/console messages
-- **Warning (1)** Warning log/console messages
-- **Error (2)** Error log/console messages
-
-- <p align="right">(<a href="#readme-top">back to top</a>)</p>
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- ROADMAP -->
 
 ## Roadmap
 
-- [x] Config to disable modules fully
-- [ ] Automated Moderation System
+- [x] Complete remake with modular dependency injection
 - [ ] VIP Clan Tag
-- [ ] Daily Rewards
 - [ ] More VIP perks
 - [ ] Point For Playtime
-- [ ] WebPanel (under development)
+- [ ] Create FAQ
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
