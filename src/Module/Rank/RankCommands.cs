@@ -27,7 +27,9 @@ namespace K4System
 						return;
 					}
 
-					string steamID = player.SteamID.ToString();
+					CCSPlayerController savedPlayer = player;
+					string steamID = savedPlayer.SteamID.ToString();
+					string name = savedPlayer.PlayerName;
 
 					using (var syncContext = new SyncContextScope())
 					{
@@ -35,11 +37,11 @@ namespace K4System
 						{
 							(int playerPlace, int totalPlayers) = await GetPlayerPlaceAndCount(steamID);
 
-							RankData playerData = rankCache[player];
+							RankData playerData = rankCache[savedPlayer];
 
 							int higherRanksCount = rankDictionary.Count(kv => kv.Value.Point > playerData.Points);
 
-							info.ReplyToCommand($" {Config.GeneralSettings.Prefix} {ChatColors.Lime}{player.PlayerName}'s Rank:");
+							info.ReplyToCommand($" {Config.GeneralSettings.Prefix} {ChatColors.Lime}{name}'s Rank:");
 							info.ReplyToCommand($"--- {ChatColors.Silver}You have {ChatColors.Lime}{playerData.Points} {ChatColors.Silver}points and are currently {playerData.Rank.Color}{playerData.Rank.Name} {ChatColors.Silver}({rankDictionary.Count - higherRanksCount} out of {rankDictionary.Count})");
 
 							var nextRankEntry = rankDictionary
