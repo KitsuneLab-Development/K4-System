@@ -58,12 +58,13 @@ namespace K4System
 			}
 
 			string escapedName = MySqlHelper.EscapeString(player.PlayerName);
+			string steamID = player.SteamID.ToString();
 
 			await Database.ExecuteNonQueryAsync($@"
 				INSERT INTO `{Config.DatabaseSettings.TablePrefix}k4ranks` (`name`, `steam_id`, `rank`)
 				VALUES (
 					'{escapedName}',
-					'{player.SteamID}',
+					'{steamID}',
 					'{noneRank.Name}'
 				)
 				ON DUPLICATE KEY UPDATE
@@ -73,7 +74,7 @@ namespace K4System
 			MySqlQueryResult result = await Database.ExecuteQueryAsync($@"
 				SELECT `points`
 				FROM `{Config.DatabaseSettings.TablePrefix}k4ranks`
-				WHERE `steam_id` = '{player.SteamID}';
+				WHERE `steam_id` = '{steamID}';
 			");
 
 			int points = result.Rows > 0 ? result.Get<int>(0, "points") : 0;
@@ -181,12 +182,13 @@ namespace K4System
 			RankData playerData = rankCache[player];
 
 			string escapedName = MySqlHelper.EscapeString(player.PlayerName);
+			string steamID = player.SteamID.ToString();
 
 			await Database.ExecuteNonQueryAsync($@"
 				INSERT INTO `{Config.DatabaseSettings.TablePrefix}k4ranks`
 				(`steam_id`, `name`, `rank`, `points`)
 				VALUES
-				('{player.SteamID}', '{escapedName}', '{playerData.Rank.Name}',
+				('{steamID}', '{escapedName}', '{playerData.Rank.Name}',
 				CASE
 					WHEN (`points` + {playerData.RoundPoints}) < 0 THEN 0
 					ELSE (`points` + {playerData.RoundPoints})
@@ -206,7 +208,7 @@ namespace K4System
 				MySqlQueryResult selectResult = await Database.ExecuteQueryAsync($@"
 					SELECT `points`
 					FROM `{Config.DatabaseSettings.TablePrefix}k4ranks`
-					WHERE `steam_id` = '{player.SteamID}';
+					WHERE `steam_id` = '{steamID}';
 				");
 
 				playerData.Points = selectResult.Rows > 0 ? selectResult.Get<int>(0, "points") : 0;

@@ -46,12 +46,13 @@ namespace K4System
 			}
 
 			string escapedName = MySqlHelper.EscapeString(player.PlayerName);
+			string steamID = player.SteamID.ToString();
 
 			await Database.ExecuteNonQueryAsync($@"
 				INSERT INTO `{Config.DatabaseSettings.TablePrefix}k4stats` (`name`, `steam_id`, `lastseen`)
 				VALUES (
 					'{escapedName}',
-					'{player.SteamID}',
+					'{steamID}',
 					CURRENT_TIMESTAMP
 				)
 				ON DUPLICATE KEY UPDATE
@@ -62,7 +63,7 @@ namespace K4System
 			MySqlQueryResult result = await Database.ExecuteQueryAsync($@"
 				SELECT *
 				FROM `{Config.DatabaseSettings.TablePrefix}k4stats`
-				WHERE `steam_id` = '{player.SteamID}';
+				WHERE `steam_id` = '{steamID}';
 			");
 
 			Dictionary<string, int> NewStatFields = new Dictionary<string, int>();
@@ -106,6 +107,7 @@ namespace K4System
 			StatData playerData = statCache[player];
 
 			string escapedName = MySqlHelper.EscapeString(player.PlayerName);
+			string steamID = player.SteamID.ToString();
 
 			StringBuilder queryBuilder = new StringBuilder();
 			queryBuilder.Append($@"
@@ -117,7 +119,7 @@ namespace K4System
 			}
 
 			queryBuilder.Append($@")
-				VALUES ('{player.SteamID}', '{escapedName}', CURRENT_TIMESTAMP");
+				VALUES ('{steamID}', '{escapedName}', CURRENT_TIMESTAMP");
 
 			foreach (var field in playerData.StatFields)
 			{
@@ -139,7 +141,7 @@ namespace K4System
 				queryBuilder.Append($@"
 
 				SELECT * FROM `{Config.DatabaseSettings.TablePrefix}k4stats`
-				WHERE `steam_id` = '{player.SteamID}';");
+				WHERE `steam_id` = '{steamID}';");
 			}
 
 			string insertOrUpdateQuery = queryBuilder.ToString();

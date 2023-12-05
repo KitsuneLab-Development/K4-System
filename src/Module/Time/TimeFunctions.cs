@@ -26,12 +26,13 @@ namespace K4System
 			}
 
 			string escapedName = MySqlHelper.EscapeString(player.PlayerName);
+			string steamID = player.SteamID.ToString();
 
 			await Database.ExecuteNonQueryAsync($@"
 				INSERT INTO `{Config.DatabaseSettings.TablePrefix}k4times` (`name`, `steam_id`)
 				VALUES (
 					'{escapedName}',
-					'{player.SteamID}'
+					'{steamID}'
 				)
 				ON DUPLICATE KEY UPDATE
 					`name` = '{escapedName}';
@@ -40,7 +41,7 @@ namespace K4System
 			MySqlQueryResult result = await Database.ExecuteQueryAsync($@"
 				SELECT *
 				FROM `{Config.DatabaseSettings.TablePrefix}k4times`
-				WHERE `steam_id` = '{player.SteamID}';
+				WHERE `steam_id` = '{steamID}';
 			");
 
 
@@ -92,6 +93,7 @@ namespace K4System
 			TimeData playerData = timeCache[player];
 
 			string escapedName = MySqlHelper.EscapeString(player.PlayerName);
+			string steamID = player.SteamID.ToString();
 
 			StringBuilder queryBuilder = new StringBuilder();
 			queryBuilder.Append($@"
@@ -103,7 +105,7 @@ namespace K4System
 			}
 
 			queryBuilder.Append($@")
-				VALUES ('{player.SteamID}', '{escapedName}'");
+				VALUES ('{steamID}', '{escapedName}'");
 
 			foreach (var field in playerData.TimeFields)
 			{
@@ -132,7 +134,7 @@ namespace K4System
 				queryBuilder.Append($@"
 
 				SELECT * FROM `{Config.DatabaseSettings.TablePrefix}k4times`
-				WHERE `steam_id` = '{player.SteamID}';");
+				WHERE `steam_id` = '{steamID}';");
 			}
 
 			string insertOrUpdateQuery = queryBuilder.ToString();

@@ -27,11 +27,13 @@ namespace K4System
 						return;
 					}
 
+					string steamID = player.SteamID.ToString();
+
 					using (var syncContext = new SyncContextScope())
 					{
 						Server.NextFrame(async () =>
 						{
-							(int playerPlace, int totalPlayers) = await GetPlayerPlaceAndCount(player.SteamID.ToString());
+							(int playerPlace, int totalPlayers) = await GetPlayerPlaceAndCount(steamID);
 
 							RankData playerData = rankCache[player];
 
@@ -100,11 +102,13 @@ namespace K4System
 
 					int printCount = int.TryParse(new string(info.ArgByIndex(0).Reverse().TakeWhile(char.IsDigit).Reverse().ToArray()), out int result) ? result : 5;
 
+					CCSPlayerController savedPlayer = player;
+
 					using (var syncContext = new SyncContextScope())
 					{
 						Server.NextFrame(async () =>
 						{
-							await PrintTopXPlayers(player, printCount);
+							await PrintTopXPlayers(savedPlayer, printCount);
 						});
 					}
 				});
