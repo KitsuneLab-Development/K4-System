@@ -26,11 +26,6 @@ namespace K4System
 			return (!GameRules().WarmupPeriod || Config.StatisticSettings.WarmupStats) && (Config.StatisticSettings.MinPlayers <= notBots);
 		}
 
-		public void EnsurePlayerLoaded(CCSPlayerController player)
-		{
-
-		}
-
 		public async Task LoadStatData(CCSPlayerController player)
 		{
 			if (player is null || !player.IsValid)
@@ -111,7 +106,7 @@ namespace K4System
 
 			StringBuilder queryBuilder = new StringBuilder();
 			queryBuilder.Append($@"
-				INSERT INTO `{Config.DatabaseSettings.TablePrefix}k4stats` (`steam_id`, `name`, `lastseen`");
+				INSERT INTO `{Config.DatabaseSettings.TablePrefix}k4stats` (`steam_id`, `name`, `lastseen`, `kda`");
 
 			foreach (var field in playerData.StatFields)
 			{
@@ -119,7 +114,7 @@ namespace K4System
 			}
 
 			queryBuilder.Append($@")
-				VALUES ('{steamID}', '{escapedName}', CURRENT_TIMESTAMP");
+				VALUES ('{steamID}', '{escapedName}', CURRENT_TIMESTAMP, {playerData.KDA}");
 
 			foreach (var field in playerData.StatFields)
 			{

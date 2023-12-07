@@ -156,7 +156,19 @@ namespace K4System
 
 			playerData.RoundPoints += amount;
 
-			playerData.Rank = GetPlayerRank(playerData.Points);
+			Rank newRank = GetPlayerRank(playerData.Points);
+
+			if (playerData.Rank.Name != newRank.Name)
+			{
+				if (playerData.Rank.Point > newRank.Point)
+				{
+					player.PrintToChat($" {Config.GeneralSettings.Prefix} {ChatColors.Silver}You have been {ChatColors.LightRed}demoted {ChatColors.Silver}to {newRank.Color}{newRank.Name}");
+				}
+				else
+				{
+					player.PrintToChat($" {Config.GeneralSettings.Prefix} {ChatColors.Silver}You have been {ChatColors.Lime}promoted {ChatColors.Silver}to {newRank.Color}{newRank.Name}");
+				}
+			}
 
 			if (Config.RankSettings.ScoreboardRanks)
 				player.Clan = $"{playerData.Rank.Tag ?? $"[{playerData.Rank.Name}]"}";
@@ -293,7 +305,7 @@ namespace K4System
 
 		public int CalculateDynamicPoints(CCSPlayerController modifyFor, CCSPlayerController modifyFrom, int amount)
 		{
-			if (Config.RankSettings.DynamicDeathPoints && !modifyFor.IsBot && !modifyFrom.IsBot)
+			if (Config.RankSettings.DynamicDeathPoints && !modifyFor.IsBot && !modifyFrom.IsBot && rankCache[modifyFor].Points > 0 && rankCache[modifyFrom].Points > 0)
 			{
 				double result = rankCache[modifyFrom].Points / rankCache[modifyFor].Points * amount;
 				return (int)Math.Round(result);

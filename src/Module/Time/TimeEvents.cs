@@ -110,6 +110,9 @@ namespace K4System
 				if (player.IsBot || player.IsHLTV)
 					return HookResult.Continue;
 
+				if (!timeCache.ContainsPlayer(player))
+					return HookResult.Continue;
+
 				DateTime now = DateTime.UtcNow;
 
 				TimeData playerData = timeCache[player];

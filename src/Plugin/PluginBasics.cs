@@ -94,7 +94,7 @@ namespace K4System
 
 	class SourceSynchronizationContext : SynchronizationContext
 	{
-		public override void Post(SendOrPostCallback d, object state)
+		public override void Post(SendOrPostCallback d, object? state)
 		{
 			Server.NextWorldUpdate(() => d(state));
 		}
