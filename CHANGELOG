@@ -1,4 +1,12 @@
--- 2023.12.05 - V2.0.1
+-- 2023.12.07 - V2.0.2
+
+- feat: Promote/Demote messages
+- fix: Time module disconnect error
+- fix: Kills shown as Knife Kill, but its not
+- fix: DynamicDeathPoints divide by zero problems
+- refactor: Optimised Grenade and Knife kill detection
+
+--- 2023.12.05 - V2.0.1
 
 - fix: Thread Safety modifications
 - fix: Bomb kill bug
