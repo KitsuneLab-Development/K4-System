@@ -26,28 +26,15 @@ namespace K4System
 			return (!GameRules().WarmupPeriod || Config.StatisticSettings.WarmupStats) && (Config.StatisticSettings.MinPlayers <= notBots);
 		}
 
-		public async Task LoadStatData(CCSPlayerController player)
+		public async Task LoadStatData(int slot, string name, string steamid)
 		{
-			if (player is null || !player.IsValid)
-			{
-				Logger.LogWarning("LoadStatData > Invalid player controller");
-				return;
-			}
-
-			if (player.IsBot || player.IsHLTV)
-			{
-				Logger.LogWarning($"LoadStatData > Player controller is BOT or HLTV");
-				return;
-			}
-
-			string escapedName = MySqlHelper.EscapeString(player.PlayerName);
-			string steamID = player.SteamID.ToString();
+			string escapedName = MySqlHelper.EscapeString(name);
 
 			await Database.ExecuteNonQueryAsync($@"
 				INSERT INTO `{Config.DatabaseSettings.TablePrefix}k4stats` (`name`, `steam_id`, `lastseen`)
 				VALUES (
 					'{escapedName}',
-					'{steamID}',
+					'{steamid}',
 					CURRENT_TIMESTAMP
 				)
 				ON DUPLICATE KEY UPDATE
@@ -58,7 +45,7 @@ namespace K4System
 			MySqlQueryResult result = await Database.ExecuteQueryAsync($@"
 				SELECT *
 				FROM `{Config.DatabaseSettings.TablePrefix}k4stats`
-				WHERE `steam_id` = '{steamID}';
+				WHERE `steam_id` = '{steamid}';
 			");
 
 			Dictionary<string, int> NewStatFields = new Dictionary<string, int>();
@@ -76,33 +63,31 @@ namespace K4System
 				KDA = result.Rows > 0 ? result.Get<decimal>(0, "kda") : 0
 			};
 
-			statCache[player] = playerData;
+			statCache[slot] = playerData;
 		}
 
-		public async Task SavePlayerStatCache(CCSPlayerController player, bool remove)
+		public void SavePlayerStatCache(CCSPlayerController player, bool remove)
 		{
-			if (player is null || !player.IsValid || !player.PlayerPawn.IsValid)
+			var savedSlot = player.Slot;
+			var savedStat = statCache[player];
+			var savedName = player.PlayerName;
+			var savedSteam = player.SteamID.ToString();
+
+			Task.Run(async () =>
 			{
-				Logger.LogWarning("SavePlayerStatCache > Invalid player controller");
+				await SavePlayerStatCacheAsync(savedSlot, savedStat, savedName, savedSteam, remove);
+			});
+		}
+
+		public async Task SavePlayerStatCacheAsync(int slot, StatData playerData, string name, string steamid, bool remove)
+		{
+			if (!statCache.ContainsKey(slot))
+			{
+				Logger.LogWarning($"SavePlayerStatCache > Player is not loaded to the cache ({name})");
 				return;
 			}
 
-			if (player.IsBot || player.IsHLTV)
-			{
-				Logger.LogWarning($"SavePlayerStatCache > Player controller is BOT or HLTV");
-				return;
-			}
-
-			if (!statCache.ContainsPlayer(player))
-			{
-				Logger.LogWarning($"SavePlayerStatCache > Player is not loaded to the cache ({player.PlayerName})");
-				return;
-			}
-
-			StatData playerData = statCache[player];
-
-			string escapedName = MySqlHelper.EscapeString(player.PlayerName);
-			string steamID = player.SteamID.ToString();
+			string escapedName = MySqlHelper.EscapeString(name);
 
 			StringBuilder queryBuilder = new StringBuilder();
 			queryBuilder.Append($@"
@@ -114,7 +99,7 @@ namespace K4System
 			}
 
 			queryBuilder.Append($@")
-				VALUES ('{steamID}', '{escapedName}', CURRENT_TIMESTAMP, {playerData.KDA}");
+				VALUES ('{steamid}', '{escapedName}', CURRENT_TIMESTAMP, {playerData.KDA}");
 
 			foreach (var field in playerData.StatFields)
 			{
@@ -136,7 +121,7 @@ namespace K4System
 				queryBuilder.Append($@"
 
 				SELECT * FROM `{Config.DatabaseSettings.TablePrefix}k4stats`
-				WHERE `steam_id` = '{steamID}';");
+				WHERE `steam_id` = '{steamid}';");
 			}
 
 			string insertOrUpdateQuery = queryBuilder.ToString();
@@ -154,25 +139,28 @@ namespace K4System
 					NewStatFields[statField] = result.Rows > 0 ? result.Get<int>(0, statField) : 0;
 				}
 
-				statCache[player].StatFields = NewStatFields;
-				statCache[player].KDA = result.Rows > 0 ? result.Get<decimal>(0, "kda") : 0;
+				statCache[slot].StatFields = NewStatFields;
+				statCache[slot].KDA = result.Rows > 0 ? result.Get<decimal>(0, "kda") : 0;
 			}
 			else
 			{
-				statCache.RemovePlayer(player);
+				statCache.Remove(slot);
 			}
 		}
 
-		public async Task SaveAllPlayerCache(bool clear)
+		public void SaveAllPlayerCache(bool clear)
 		{
 			List<CCSPlayerController> players = Utilities.GetPlayers();
 
 			var saveTasks = players
 				.Where(player => player != null && player.IsValid && player.PlayerPawn.IsValid && !player.IsBot && !player.IsHLTV && statCache.ContainsPlayer(player))
-				.Select(player => SavePlayerStatCache(player, clear))
+				.Select(player => SavePlayerStatCacheAsync(player.Slot, statCache[player], player.PlayerName, player.SteamID.ToString(), clear))
 				.ToList();
 
-			await Task.WhenAll(saveTasks);
+			Task.Run(async () =>
+			{
+				await Task.WhenAll(saveTasks);
+			});
 
 			if (clear)
 				statCache.Clear();

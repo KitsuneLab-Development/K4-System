@@ -11,28 +11,15 @@ namespace K4System
 
 	public partial class ModuleTime : IModuleTime
 	{
-		public async Task LoadTimeData(CCSPlayerController player)
+		public async Task LoadTimeData(int slot, string name, string steamid)
 		{
-			if (player is null || !player.IsValid)
-			{
-				Logger.LogWarning("LoadTimeData > Invalid player controller");
-				return;
-			}
-
-			if (player.IsBot || player.IsHLTV)
-			{
-				Logger.LogWarning($"LoadTimeData > Player controller is BOT or HLTV");
-				return;
-			}
-
-			string escapedName = MySqlHelper.EscapeString(player.PlayerName);
-			string steamID = player.SteamID.ToString();
+			string escapedName = MySqlHelper.EscapeString(name);
 
 			await Database.ExecuteNonQueryAsync($@"
 				INSERT INTO `{Config.DatabaseSettings.TablePrefix}k4times` (`name`, `steam_id`)
 				VALUES (
 					'{escapedName}',
-					'{steamID}'
+					'{steamid}'
 				)
 				ON DUPLICATE KEY UPDATE
 					`name` = '{escapedName}';
@@ -41,9 +28,8 @@ namespace K4System
 			MySqlQueryResult result = await Database.ExecuteQueryAsync($@"
 				SELECT *
 				FROM `{Config.DatabaseSettings.TablePrefix}k4times`
-				WHERE `steam_id` = '{steamID}';
+				WHERE `steam_id` = '{steamid}';
 			");
-
 
 			Dictionary<string, int> NewTimeFields = new Dictionary<string, int>();
 
@@ -67,33 +53,31 @@ namespace K4System
 				}
 			};
 
-			timeCache[player] = playerData;
+			timeCache[slot] = playerData;
 		}
 
-		public async Task SavePlayerTimeCache(CCSPlayerController player, bool remove)
+		public void SavePlayerTimeCache(CCSPlayerController player, bool remove)
 		{
-			if (player is null || !player.IsValid || !player.PlayerPawn.IsValid)
+			var savedSlot = player.Slot;
+			var savedStat = timeCache[player];
+			var savedName = player.PlayerName;
+			var savedSteam = player.SteamID.ToString();
+
+			Task.Run(async () =>
 			{
-				Logger.LogWarning("SavePlayerTimeCache > Invalid player controller");
+				await SavePlayerTimeCacheAsync(savedSlot, savedStat, savedName, savedSteam, remove);
+			});
+		}
+
+		public async Task SavePlayerTimeCacheAsync(int slot, TimeData playerData, string name, string steamid, bool remove)
+		{
+			if (!timeCache.ContainsKey(slot))
+			{
+				Logger.LogWarning($"SavePlayerTimeCache > Player is not loaded to the cache ({name})");
 				return;
 			}
 
-			if (player.IsBot || player.IsHLTV)
-			{
-				Logger.LogWarning($"SavePlayerTimeCache > Player controller is BOT or HLTV");
-				return;
-			}
-
-			if (!timeCache.ContainsPlayer(player))
-			{
-				Logger.LogWarning($"SavePlayerTimeCache > Player is not loaded to the cache ({player.PlayerName})");
-				return;
-			}
-
-			TimeData playerData = timeCache[player];
-
-			string escapedName = MySqlHelper.EscapeString(player.PlayerName);
-			string steamID = player.SteamID.ToString();
+			string escapedName = MySqlHelper.EscapeString(name);
 
 			StringBuilder queryBuilder = new StringBuilder();
 			queryBuilder.Append($@"
@@ -105,7 +89,7 @@ namespace K4System
 			}
 
 			queryBuilder.Append($@")
-				VALUES ('{steamID}', '{escapedName}'");
+				VALUES ('{steamid}', '{escapedName}'");
 
 			foreach (var field in playerData.TimeFields)
 			{
@@ -134,7 +118,7 @@ namespace K4System
 				queryBuilder.Append($@"
 
 				SELECT * FROM `{Config.DatabaseSettings.TablePrefix}k4times`
-				WHERE `steam_id` = '{steamID}';");
+				WHERE `steam_id` = '{steamid}';");
 			}
 
 			string insertOrUpdateQuery = queryBuilder.ToString();
@@ -152,24 +136,27 @@ namespace K4System
 					NewStatFields[statField] = result.Rows > 0 ? result.Get<int>(0, statField) : 0;
 				}
 
-				timeCache[player].TimeFields = NewStatFields;
+				timeCache[slot].TimeFields = NewStatFields;
 			}
 			else
 			{
-				timeCache.RemovePlayer(player);
+				timeCache.Remove(slot);
 			}
 		}
 
-		public async Task SaveAllPlayerCache(bool clear)
+		public void SaveAllPlayerCache(bool clear)
 		{
 			List<CCSPlayerController> players = Utilities.GetPlayers();
 
 			var saveTasks = players
 				.Where(player => player != null && player.IsValid && player.PlayerPawn.IsValid && !player.IsBot && !player.IsHLTV && timeCache.ContainsPlayer(player))
-				.Select(player => SavePlayerTimeCache(player, clear))
+				.Select(player => SavePlayerTimeCacheAsync(player.Slot, timeCache[player], player.PlayerName, player.SteamID.ToString(), clear))
 				.ToList();
 
-			await Task.WhenAll(saveTasks);
+			Task.Run(async () =>
+			{
+				await Task.WhenAll(saveTasks);
+			});
 
 			if (clear)
 				timeCache.Clear();

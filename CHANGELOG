@@ -1,3 +1,12 @@
+-- 2023.12.07 - V2.0.3
+
+- fix: Threading problems
+- fix: Player cant join to server
+- fix: Player cant join to team
+- fix: Watchdog crashes
+- fix: Dynamic-Death-Point unfair changes
+- fix: Dependency Injection problems
+
 -- 2023.12.07 - V2.0.2
 
 - feat: Promote/Demote messages

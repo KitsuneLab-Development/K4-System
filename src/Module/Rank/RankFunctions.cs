@@ -43,28 +43,15 @@ namespace K4System
 			return color;
 		}
 
-		public async Task LoadRankData(CCSPlayerController player)
+		public async Task LoadRankData(int slot, string name, string steamid)
 		{
-			if (player is null || !player.IsValid)
-			{
-				Logger.LogWarning("LoadRankData > Invalid player controller");
-				return;
-			}
-
-			if (player.IsBot || player.IsHLTV)
-			{
-				Logger.LogWarning($"LoadRankData > Player controller is BOT or HLTV");
-				return;
-			}
-
-			string escapedName = MySqlHelper.EscapeString(player.PlayerName);
-			string steamID = player.SteamID.ToString();
+			string escapedName = MySqlHelper.EscapeString(name);
 
 			await Database.ExecuteNonQueryAsync($@"
 				INSERT INTO `{Config.DatabaseSettings.TablePrefix}k4ranks` (`name`, `steam_id`, `rank`)
 				VALUES (
 					'{escapedName}',
-					'{steamID}',
+					'{steamid}',
 					'{noneRank.Name}'
 				)
 				ON DUPLICATE KEY UPDATE
@@ -74,7 +61,7 @@ namespace K4System
 			MySqlQueryResult result = await Database.ExecuteQueryAsync($@"
 				SELECT `points`
 				FROM `{Config.DatabaseSettings.TablePrefix}k4ranks`
-				WHERE `steam_id` = '{steamID}';
+				WHERE `steam_id` = '{steamid}';
 			");
 
 			int points = result.Rows > 0 ? result.Get<int>(0, "points") : 0;
@@ -87,7 +74,7 @@ namespace K4System
 				RoundPoints = 0
 			};
 
-			rankCache[player] = playerData;
+			rankCache[slot] = playerData;
 		}
 
 		public Rank GetPlayerRank(int points)
@@ -172,35 +159,30 @@ namespace K4System
 
 			if (Config.RankSettings.ScoreboardRanks)
 				player.Clan = $"{playerData.Rank.Tag ?? $"[{playerData.Rank.Name}]"}";
-
 		}
 
-		public async Task SavePlayerRankCache(CCSPlayerController player, bool remove)
+		public void SavePlayerRankCache(CCSPlayerController player, bool remove)
 		{
-			CCSPlayerController savedPlayer = player;
+			var savedSlot = player.Slot;
+			var savedRank = rankCache[player];
+			var savedName = player.PlayerName;
+			var savedSteam = player.SteamID.ToString();
 
-			if (savedPlayer is null || !savedPlayer.IsValid || !savedPlayer.PlayerPawn.IsValid)
+			Task.Run(async () =>
 			{
-				Logger.LogWarning("SavePlayerRankCache > Invalid player controller");
+				await SavePlayerRankCacheAsync(savedSlot, savedRank, savedName, savedSteam, remove);
+			});
+		}
+
+		public async Task SavePlayerRankCacheAsync(int slot, RankData playerData, string name, string steamid, bool remove)
+		{
+			if (!rankCache.ContainsKey(slot))
+			{
+				Logger.LogWarning($"SavePlayerRankCache > Player is not loaded to the cache ({name})");
 				return;
 			}
 
-			if (savedPlayer.IsBot || savedPlayer.IsHLTV)
-			{
-				Logger.LogWarning($"SavePlayerRankCache > Player controller is BOT or HLTV");
-				return;
-			}
-
-			if (!rankCache.ContainsPlayer(savedPlayer))
-			{
-				Logger.LogWarning($"SavePlayerRankCache > Player is not loaded to the cache ({savedPlayer.PlayerName})");
-				return;
-			}
-
-			RankData playerData = rankCache[savedPlayer];
-
-			string escapedName = MySqlHelper.EscapeString(savedPlayer.PlayerName);
-			string steamID = savedPlayer.SteamID.ToString();
+			string escapedName = MySqlHelper.EscapeString(name);
 
 			int setPoints = playerData.RoundPoints;
 
@@ -208,7 +190,7 @@ namespace K4System
 				INSERT INTO `{Config.DatabaseSettings.TablePrefix}k4ranks`
 				(`steam_id`, `name`, `rank`, `points`)
 				VALUES
-				('{steamID}', '{escapedName}', '{playerData.Rank.Name}',
+				('{steamid}', '{escapedName}', '{playerData.Rank.Name}',
 				CASE
 					WHEN (`points` + {setPoints}) < 0 THEN 0
 					ELSE (`points` + {setPoints})
@@ -225,37 +207,36 @@ namespace K4System
 
 			if (!remove)
 			{
-				MySqlQueryResult selectResult = await Database.ExecuteQueryAsync($@"
+				MySqlQueryResult result = await Database.ExecuteQueryAsync($@"
 					SELECT `points`
 					FROM `{Config.DatabaseSettings.TablePrefix}k4ranks`
-					WHERE `steam_id` = '{steamID}';
+					WHERE `steam_id` = '{steamid}';
 				");
 
-				playerData.Points = selectResult.Rows > 0 ? selectResult.Get<int>(0, "points") : 0;
+				playerData.Points = result.Rows > 0 ? result.Get<int>(0, "points") : 0;
 
 				playerData.RoundPoints -= setPoints;
 				playerData.Rank = GetPlayerRank(playerData.Points);
-
-				if (Config.RankSettings.ScoreboardRanks)
-					savedPlayer.Clan = $"{playerData.Rank.Tag ?? $"[{playerData.Rank.Name}]"}";
-
 			}
 			else
 			{
-				rankCache.RemovePlayer(savedPlayer);
+				rankCache.Remove(slot);
 			}
 		}
 
-		public async Task SaveAllPlayerCache(bool clear)
+		public void SaveAllPlayerCache(bool clear)
 		{
 			List<CCSPlayerController> players = Utilities.GetPlayers();
 
 			var saveTasks = players
 				.Where(player => player != null && player.IsValid && player.PlayerPawn.IsValid && !player.IsBot && !player.IsHLTV && rankCache.ContainsPlayer(player))
-				.Select(player => SavePlayerRankCache(player, clear))
+				.Select(player => SavePlayerRankCacheAsync(player.Slot, rankCache[player], player.PlayerName, player.SteamID.ToString(), clear))
 				.ToList();
 
-			await Task.WhenAll(saveTasks);
+			Task.Run(async () =>
+			{
+				await Task.WhenAll(saveTasks);
+			});
 
 			if (clear)
 				rankCache.Clear();
@@ -277,41 +258,16 @@ namespace K4System
 			return (0, 0);
 		}
 
-		public async Task PrintTopXPlayers(CCSPlayerController player, int number)
-		{
-			await SaveAllPlayerCache(false);
-
-			MySqlQueryResult result = await Database.Table($"{Config.DatabaseSettings.TablePrefix}k4ranks")
-			.ExecuteQueryAsync($"SELECT `points`, `name` FROM `{Config.DatabaseSettings.TablePrefix}k4ranks` ORDER BY `points` DESC LIMIT {number};");
-
-			if (result.Count > 0)
-			{
-				player.PrintToChat($" {Config.GeneralSettings.Prefix} Top {number} Players:");
-
-				for (int i = 0; i < result.Count; i++)
-				{
-					int points = result.Get<int>(i, "points");
-
-					Rank rank = GetPlayerRank(points);
-
-					player.PrintToChat($" {ChatColors.Gold}{i + 1}. {rank.Color}[{rank.Name}] {ChatColors.Gold}{result.Get<string>(i, "name")} - {ChatColors.Blue}{points} points");
-				}
-			}
-			else
-			{
-				player!.PrintToChat($" {Config.GeneralSettings.Prefix} No players found in the top {number}.");
-			}
-		}
-
 		public int CalculateDynamicPoints(CCSPlayerController modifyFor, CCSPlayerController modifyFrom, int amount)
 		{
-			if (Config.RankSettings.DynamicDeathPoints && !modifyFor.IsBot && !modifyFrom.IsBot && rankCache[modifyFor].Points > 0 && rankCache[modifyFrom].Points > 0)
+			if (!Config.RankSettings.DynamicDeathPoints || modifyFor.IsBot || modifyFrom.IsBot || rankCache[modifyFor].Points <= 0 || rankCache[modifyFrom].Points <= 0)
 			{
-				double result = rankCache[modifyFrom].Points / rankCache[modifyFor].Points * amount;
-				return (int)Math.Round(result);
+				return amount;
 			}
 
-			return amount;
+			double pointsRatio = Math.Max(Config.RankSettings.DynamicDeathPointsMinMultiplier, Math.Min(rankCache[modifyFrom].Points / rankCache[modifyFor].Points, Config.RankSettings.DynamicDeathPointsMaxMultiplier));
+			double result = pointsRatio * amount;
+			return (int)Math.Round(result);
 		}
 	}
 }

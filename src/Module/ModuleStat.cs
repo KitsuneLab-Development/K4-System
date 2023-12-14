@@ -8,10 +8,10 @@ namespace K4System
 
 	public partial class ModuleStat : IModuleStat
 	{
-		public ModuleStat(ILogger<ModuleStat> logger, PluginContext pluginContext)
+		public ModuleStat(ILogger<ModuleStat> logger, IPluginContext pluginContext)
 		{
 			this.Logger = logger;
-			this.PluginContext = pluginContext;
+			this.PluginContext = (pluginContext as PluginContext)!;
 		}
 
 		public void Initialize(bool hotReload)
@@ -59,10 +59,13 @@ namespace K4System
 
 				var loadTasks = players
 					.Where(player => player != null && player.IsValid && player.PlayerPawn.IsValid && !player.IsBot && !player.IsHLTV)
-					.Select(LoadStatData)
+					.Select(player => LoadStatData(player.Slot, player.PlayerName, player.SteamID.ToString()))
 					.ToList();
 
-				_ = Task.WhenAll(loadTasks);
+				Task.Run(async () =>
+				{
+					await Task.WhenAll(loadTasks);
+				});
 			}
 		}
 
@@ -72,7 +75,7 @@ namespace K4System
 
 			//** ? Save Player Caches */
 
-			_ = SaveAllPlayerCache(true);
+			SaveAllPlayerCache(true);
 		}
 	}
 }

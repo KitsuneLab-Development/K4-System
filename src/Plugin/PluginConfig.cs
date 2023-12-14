@@ -126,6 +126,12 @@ namespace K4System
 
 		[JsonPropertyName("dynamic-death-points")]
 		public bool DynamicDeathPoints { get; set; } = true;
+
+		[JsonPropertyName("dynamic-death-points-max-multiplier")]
+		public double DynamicDeathPointsMaxMultiplier { get; set; } = 5.00;
+
+		[JsonPropertyName("dynamic-death-points-min-multiplier")]
+		public double DynamicDeathPointsMinMultiplier { get; set; } = 0.5;
 	}
 
 	public sealed class PointSettings
@@ -269,6 +275,6 @@ namespace K4System
 		public PointSettings PointSettings { get; set; } = new PointSettings();
 
 		[JsonPropertyName("ConfigVersion")]
-		public override int Version { get; set; } = 3;
+		public override int Version { get; set; } = 4;
 	}
 }

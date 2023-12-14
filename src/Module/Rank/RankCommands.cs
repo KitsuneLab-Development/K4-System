@@ -6,6 +6,7 @@ namespace K4System
 	using CounterStrikeSharp.API.Modules.Admin;
 	using CounterStrikeSharp.API.Modules.Commands;
 	using CounterStrikeSharp.API.Modules.Utils;
+	using Nexd.MySQL;
 
 	public partial class ModuleRank : IModuleRank
 	{
@@ -30,36 +31,40 @@ namespace K4System
 					CCSPlayerController savedPlayer = player;
 					string steamID = savedPlayer.SteamID.ToString();
 					string name = savedPlayer.PlayerName;
+					RankData playerData = rankCache[savedPlayer];
 
-					using (var syncContext = new SyncContextScope())
+					int playersWithMorePoints = 0;
+					int totalPlayers = 0;
+
+					MySqlQueryResult result = Database.Table($"{Config.DatabaseSettings.TablePrefix}k4ranks")
+						.ExecuteQuery($"SELECT (SELECT COUNT(*) FROM `{Config.DatabaseSettings.TablePrefix}k4ranks` WHERE `points` > (SELECT `points` FROM `{Config.DatabaseSettings.TablePrefix}k4ranks` WHERE `steam_id` = '{steamID}')) AS playerCount, COUNT(*) AS totalPlayers FROM `{Config.DatabaseSettings.TablePrefix}k4ranks`;")!;
+
+					if (result.Count > 0)
 					{
-						Server.NextFrame(async () =>
-						{
-							(int playerPlace, int totalPlayers) = await GetPlayerPlaceAndCount(steamID);
-
-							RankData playerData = rankCache[savedPlayer];
-
-							int higherRanksCount = rankDictionary.Count(kv => kv.Value.Point > playerData.Points);
-
-							info.ReplyToCommand($" {Config.GeneralSettings.Prefix} {ChatColors.Lime}{name}'s Rank:");
-							info.ReplyToCommand($"--- {ChatColors.Silver}You have {ChatColors.Lime}{playerData.Points} {ChatColors.Silver}points and are currently {playerData.Rank.Color}{playerData.Rank.Name} {ChatColors.Silver}({rankDictionary.Count - higherRanksCount} out of {rankDictionary.Count})");
-
-							var nextRankEntry = rankDictionary
-									.Where(kv => kv.Value.Point > playerData.Rank.Point)
-									.OrderBy(kv => kv.Value.Point)
-									.FirstOrDefault();
-
-							if (nextRankEntry.Value != null)
-							{
-								Rank nextRank = nextRankEntry.Value;
-
-								info.ReplyToCommand($"--- {ChatColors.Silver}Next rank: {nextRank.Color}{nextRank.Name}");
-								info.ReplyToCommand($"--- {ChatColors.Silver}Points until next rank: {ChatColors.Lime}{nextRank.Point - playerData.Points}");
-							}
-
-							info.ReplyToCommand($"--- {ChatColors.Silver}Place in top list: {ChatColors.Lime}{playerPlace} out of {totalPlayers}");
-						});
+						playersWithMorePoints = result.Get<int>(0, "playerCount") + 1;
+						totalPlayers = result.Get<int>(0, "totalPlayers");
 					}
+
+					int higherRanksCount = rankDictionary.Count(kv => kv.Value.Point > playerData.Points);
+
+					info.ReplyToCommand($" {Config.GeneralSettings.Prefix} {ChatColors.Lime}{name}'s Rank:");
+					info.ReplyToCommand($"--- {ChatColors.Silver}You have {ChatColors.Lime}{playerData.Points} {ChatColors.Silver}points and are currently {playerData.Rank.Color}{playerData.Rank.Name} {ChatColors.Silver}({rankDictionary.Count - higherRanksCount} out of {rankDictionary.Count})");
+
+					var nextRankEntry = rankDictionary
+								.Where(kv => kv.Value.Point > playerData.Rank.Point)
+								.OrderBy(kv => kv.Value.Point)
+								.FirstOrDefault();
+
+					if (nextRankEntry.Value != null)
+					{
+						Rank nextRank = nextRankEntry.Value;
+
+						info.ReplyToCommand($"--- {ChatColors.Silver}Next rank: {nextRank.Color}{nextRank.Name}");
+						info.ReplyToCommand($"--- {ChatColors.Silver}Points until next rank: {ChatColors.Lime}{nextRank.Point - playerData.Points}");
+					}
+
+					info.ReplyToCommand($"--- {ChatColors.Silver}Place in top list: {ChatColors.Lime}{playersWithMorePoints} out of {totalPlayers}");
+
 				});
 			});
 
@@ -82,7 +87,7 @@ namespace K4System
 					playerData.RoundPoints -= playerData.Points;
 					playerData.Points = 0;
 
-					_ = SavePlayerRankCache(player, false);
+					SavePlayerRankCache(player, false);
 
 					Server.PrintToChatAll($" {Config.GeneralSettings.Prefix} {ChatColors.Lime}{player!.PlayerName} {ChatColors.Silver}has reset their rank and points.");
 				});
@@ -106,14 +111,30 @@ namespace K4System
 
 					CCSPlayerController savedPlayer = player;
 
-					using (var syncContext = new SyncContextScope())
+					SaveAllPlayerCache(false);
+
+					MySqlQueryResult getResult = Database.Table($"{Config.DatabaseSettings.TablePrefix}k4ranks")
+						.ExecuteQuery($"SELECT `points`, `name` FROM `{Config.DatabaseSettings.TablePrefix}k4ranks` ORDER BY `points` DESC LIMIT {printCount};");
+
+					if (getResult.Count > 0)
 					{
-						Server.NextFrame(async () =>
+						player.PrintToChat($" {Config.GeneralSettings.Prefix} Top {printCount} Players:");
+
+						for (int i = 0; i < getResult.Count; i++)
 						{
-							await PrintTopXPlayers(savedPlayer, printCount);
-						});
+							int points = getResult.Get<int>(i, "points");
+
+							Rank rank = GetPlayerRank(points);
+
+							player.PrintToChat($" {ChatColors.Gold}{i + 1}. {rank.Color}[{rank.Name}] {ChatColors.Gold}{getResult.Get<string>(i, "name")} - {ChatColors.Blue}{points} points");
+						}
+					}
+					else
+					{
+						player.PrintToChat($" {Config.GeneralSettings.Prefix} No players found in the top {printCount}.");
 					}
 				});
+
 			});
 
 			plugin.AddCommand("css_resetrank", "Resets the targeted player's points to zero",
@@ -141,7 +162,7 @@ namespace K4System
 					playerData.RoundPoints -= playerData.Points;
 					playerData.Points = 0;
 
-					_ = SavePlayerRankCache(target, false);
+					SavePlayerRankCache(target, false);
 
 					Server.PrintToChatAll($" {Config.GeneralSettings.Prefix} {ChatColors.Lime}{target.PlayerName}{ChatColors.Silver}'s rank and points have been reset by {ChatColors.Lime}{playerName}{ChatColors.Silver}.");
 
@@ -180,7 +201,7 @@ namespace K4System
 					playerData.RoundPoints = parsedInt;
 					playerData.Points = 0;
 
-					_ = SavePlayerRankCache(target, false);
+					SavePlayerRankCache(target, false);
 
 					Server.PrintToChatAll($" {Config.GeneralSettings.Prefix} {ChatColors.Lime}{target.PlayerName}{ChatColors.Silver}'s points has been set to {ChatColors.Lime}{parsedInt} {ChatColors.Silver}by {ChatColors.Lime}{playerName}{ChatColors.Silver}.");
 
@@ -192,8 +213,6 @@ namespace K4System
 				[CommandHelper(2, "<SteamID64> <amount>", whoCanExecute: CommandUsage.CLIENT_AND_SERVER)][RequiresPermissions("@k4system/admin")] (player, info) =>
 			{
 				string playerName = player != null && player.IsValid && player.PlayerPawn.Value != null ? player.PlayerName : "SERVER";
-
-				Server.PrintToChatAll(info.ArgByIndex(2));
 
 				if (!int.TryParse(info.ArgByIndex(2), out int parsedInt))
 				{
@@ -221,7 +240,7 @@ namespace K4System
 					playerData.RoundPoints += parsedInt;
 					playerData.Points += parsedInt;
 
-					_ = SavePlayerRankCache(target, false);
+					SavePlayerRankCache(target, false);
 
 					Server.PrintToChatAll($" {Config.GeneralSettings.Prefix} {ChatColors.Lime}{playerName} {ChatColors.Silver}has given {ChatColors.Lime}{parsedInt} {ChatColors.Silver}points to {ChatColors.Lime}{target.PlayerName}{ChatColors.Silver}.");
 
@@ -260,7 +279,7 @@ namespace K4System
 					playerData.RoundPoints -= parsedInt;
 					playerData.Points -= parsedInt;
 
-					_ = SavePlayerRankCache(target, false);
+					SavePlayerRankCache(target, false);
 
 					Server.PrintToChatAll($" {Config.GeneralSettings.Prefix} {ChatColors.Lime}{playerName} {ChatColors.Silver}has removed {ChatColors.Lime}{parsedInt} {ChatColors.Silver}points from {ChatColors.Lime}{target.PlayerName}{ChatColors.Silver}.");
 

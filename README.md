@@ -75,6 +75,19 @@ To use this server addon, you'll need the following dependencies installed:
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
+### Credits
+
+- [**KillStr3aK**](https://github.com/KillStr3aK): Guided me through tons of bugs and the dependency injection. A real hero...
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+### Third Party Addons
+
+- [**sdg12321**](https://github.com/sdg12321): [A simple website for the K4-System plugin that displays ranks, statistics, and time, currently](https://github.com/sdg12321/K4-System-Website)
+- [**PorcusorulMagic**](https://github.com/PorcusorulMagic): [A website which connects to mysql stats from K4-System plugin.](https://github.com/PorcusorulMagic/K4-System-Time-Played-Website)
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
 ### Support My Work
 
 I offer various ways to support my journey:

@@ -7,7 +7,7 @@
     using MySqlConnector;
     using Nexd.MySQL;
 
-    [MinimumApiVersion(112)]
+    [MinimumApiVersion(124)]
     public sealed partial class Plugin : BasePlugin, IPluginConfig<PluginConfig>
     {
         //** ? PLUGIN GLOBALS */

@@ -17,7 +17,14 @@ namespace K4System
 				if (player is null || !player.IsValid || player.IsBot || player.IsHLTV)
 					return HookResult.Continue;
 
-				_ = LoadStatData(player);
+				int slot = player.Slot;
+				string playerName = player.PlayerName;
+				string steamId = player.SteamID.ToString();
+
+				Task.Run(async () =>
+				{
+					await LoadStatData(slot, playerName, steamId);
+				});
 
 				return HookResult.Continue;
 			});
@@ -29,7 +36,7 @@ namespace K4System
 
 			plugin.RegisterListener<Listeners.OnMapEnd>(() =>
 			{
-				_ = SaveAllPlayerCache(true);
+				SaveAllPlayerCache(true);
 			});
 
 			plugin.RegisterEventHandler((EventPlayerDeath @event, GameEventInfo info) =>
@@ -142,7 +149,7 @@ namespace K4System
 					}
 				}
 
-				_ = SaveAllPlayerCache(false);
+				SaveAllPlayerCache(false);
 
 				return HookResult.Continue;
 			});
@@ -176,7 +183,7 @@ namespace K4System
 				if (player.IsBot || player.IsHLTV)
 					return HookResult.Continue;
 
-				_ = SavePlayerStatCache(player, true);
+				SavePlayerStatCache(player, true);
 
 				return HookResult.Continue;
 			});

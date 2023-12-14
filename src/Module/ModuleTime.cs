@@ -8,10 +8,10 @@ namespace K4System
 
 	public partial class ModuleTime : IModuleTime
 	{
-		public ModuleTime(ILogger<ModuleTime> logger, PluginContext pluginContext)
+		public ModuleTime(ILogger<ModuleTime> logger, IPluginContext pluginContext)
 		{
 			this.Logger = logger;
-			this.PluginContext = pluginContext;
+			this.PluginContext = (pluginContext as PluginContext)!;
 		}
 
 		public void Initialize(bool hotReload)
@@ -55,10 +55,13 @@ namespace K4System
 
 				var loadTasks = players
 					.Where(player => player != null && player.IsValid && player.PlayerPawn.IsValid && !player.IsBot && !player.IsHLTV)
-					.Select(LoadTimeData)
+					.Select(player => LoadTimeData(player.Slot, player.PlayerName, player.SteamID.ToString()))
 					.ToList();
 
-				_ = Task.WhenAll(loadTasks);
+				Task.Run(async () =>
+				{
+					await Task.WhenAll(loadTasks);
+				});
 			}
 		}
 
@@ -68,7 +71,7 @@ namespace K4System
 
 			//** ? Save Player Caches */
 
-			_ = SaveAllPlayerCache(true);
+			SaveAllPlayerCache(true);
 		}
 	}
 }
