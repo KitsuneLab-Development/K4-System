@@ -4,7 +4,7 @@
 - fix: Player cant join to server
 - fix: Player cant join to team
 - fix: Watchdog crashes
-- fix: Dynamic-Death-Point unfair changes
+- fix: Dynamic-Death-Point unfair changes (min and max added)
 - fix: Dependency Injection problems
 
 -- 2023.12.07 - V2.0.2
