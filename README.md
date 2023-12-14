@@ -77,7 +77,7 @@ To use this server addon, you'll need the following dependencies installed:
 
 ### Credits
 
-- [**KillStr3aK**](https://github.com/KillStr3aK): Guided me through tons of bugs and the dependency injection. A real hero...
+- [**KillStr3aK**](https://github.com/KillStr3aK): Guided me through tons of questions and the dependency injection. A real hero...
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
