@@ -26,10 +26,11 @@ namespace K4System
 					StatData playerData = statCache[player];
 
 					info.ReplyToCommand($" {Config.GeneralSettings.Prefix} {ChatColors.Lime}{player!.PlayerName}'s Statistics:");
-					info.ReplyToCommand($"--- {ChatColors.Silver}Kills: {ChatColors.Lime}{playerData.StatFields["kills"]} {ChatColors.Silver}| Deaths: {ChatColors.Lime}{playerData.StatFields["deaths"]} {ChatColors.Silver}| Assists: {ChatColors.Lime}{playerData.StatFields["assists"]}");
-					info.ReplyToCommand($"--- {ChatColors.Silver}Hits Given: {ChatColors.Lime}{playerData.StatFields["hits_given"]} {ChatColors.Silver}| Hits Taken: {ChatColors.Lime}{playerData.StatFields["hits_taken"]}");
+					info.ReplyToCommand($"--- {ChatColors.Silver}Kills: {ChatColors.Lime}{playerData.StatFields["kills"]} {ChatColors.Silver}| Firstblood: {ChatColors.Lime}{playerData.StatFields["firstblood"]} {ChatColors.Silver}| Assists: {ChatColors.Lime}{playerData.StatFields["assists"]}");
+					info.ReplyToCommand($"--- {ChatColors.Silver}Hits Given: {ChatColors.Lime}{playerData.StatFields["hits_given"]} {ChatColors.Silver}| Hits Taken: {ChatColors.Lime}{playerData.StatFields["hits_taken"]}| Deaths: {ChatColors.Lime}{playerData.StatFields["deaths"]} {ChatColors.Silver}");
 					info.ReplyToCommand($"--- {ChatColors.Silver}Headshots: {ChatColors.Lime}{playerData.StatFields["headshots"]} {ChatColors.Silver}| Grenades Thrown: {ChatColors.Lime}{playerData.StatFields["grenades"]}");
-					info.ReplyToCommand($"--- {ChatColors.Silver}Round Wins: {ChatColors.Lime}{playerData.StatFields["round_win"]} {ChatColors.Silver}| Round Loses: {ChatColors.Lime}{playerData.StatFields["round_lose"]}");
+					info.ReplyToCommand($"--- {ChatColors.Silver}Round Wins: {ChatColors.Lime}{playerData.StatFields["round_win"]} {ChatColors.Silver}| Round Loses: {ChatColors.Lime}{playerData.StatFields["round_lose"]} {ChatColors.Silver}| Chance: {ChatColors.Lime}{((playerData.StatFields["round_win"] + playerData.StatFields["round_lose"] > 0) ? playerData.StatFields["round_win"] / (playerData.StatFields["round_win"] + playerData.StatFields["round_lose"]) * 100 : 0)}");
+					info.ReplyToCommand($"--- {ChatColors.Silver}Game Wins: {ChatColors.Lime}{playerData.StatFields["game_win"]} {ChatColors.Silver}| Game Loses: {ChatColors.Lime}{playerData.StatFields["game_lose"]} {ChatColors.Silver}| Chance: {ChatColors.Lime}{((playerData.StatFields["game_win"] + playerData.StatFields["game_lose"] > 0) ? playerData.StatFields["game_win"] / (playerData.StatFields["game_win"] + playerData.StatFields["game_lose"]) * 100 : 0)}");
 					info.ReplyToCommand($"--- {ChatColors.Silver}KDA: {ChatColors.Lime}{playerData.KDA} {ChatColors.Silver}| MVPs: {ChatColors.Lime}{playerData.StatFields["mvp"]}");
 				});
 			});

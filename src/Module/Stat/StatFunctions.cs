@@ -50,7 +50,7 @@ namespace K4System
 
 			Dictionary<string, int> NewStatFields = new Dictionary<string, int>();
 
-			string[] statFieldNames = { "kills", "deaths", "hits_given", "hits_taken", "headshots", "grenades", "mvp", "round_win", "round_lose", "assists" };
+			string[] statFieldNames = { "kills", "firstblood", "deaths", "hits_given", "hits_taken", "headshots", "grenades", "mvp", "round_win", "round_lose", "game_win", "game_lose", "assists" };
 
 			foreach (string statField in statFieldNames)
 			{

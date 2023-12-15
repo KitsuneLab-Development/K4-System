@@ -82,12 +82,10 @@ namespace K4System
 			return rankDictionary.LastOrDefault(kv => points >= kv.Value.Point).Value ?? noneRank;
 		}
 
-		public void ModifyPlayerPoints(CCSPlayerController tempPlayer, int amount, string reason)
+		public void ModifyPlayerPoints(CCSPlayerController player, int amount, string reason)
 		{
 			if (!IsPointsAllowed())
 				return;
-
-			CCSPlayerController player = tempPlayer;
 
 			if (player is null || !player.IsValid || !player.PlayerPawn.IsValid)
 			{
@@ -155,6 +153,18 @@ namespace K4System
 				{
 					player.PrintToChat($" {Config.GeneralSettings.Prefix} {ChatColors.Silver}You have been {ChatColors.Lime}promoted {ChatColors.Silver}to {newRank.Color}{newRank.Name}");
 				}
+
+				if (playerData.Rank.Permissions != null)
+				{
+					AdminManager.RemovePlayerPermissions(Utilities.GetPlayerFromSlot(player.Slot), playerData.Rank.Permissions!.ToArray());
+				}
+
+				if (newRank.Permissions != null)
+				{
+					AdminManager.AddPlayerPermissions(Utilities.GetPlayerFromSlot(player.Slot), newRank.Permissions!.ToArray());
+				}
+
+				playerData.Rank = newRank;
 			}
 
 			if (Config.RankSettings.ScoreboardRanks)

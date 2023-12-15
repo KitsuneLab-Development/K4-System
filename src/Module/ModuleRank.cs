@@ -3,7 +3,7 @@ namespace K4System
 	using CounterStrikeSharp.API;
 	using CounterStrikeSharp.API.Core;
 	using CounterStrikeSharp.API.Core.Plugin;
-
+	using CounterStrikeSharp.API.Modules.Timers;
 	using Microsoft.Extensions.Logging;
 
 	public partial class ModuleRank : IModuleRank
@@ -60,6 +60,22 @@ namespace K4System
 				{
 					await Task.WhenAll(loadTasks);
 				});
+
+				plugin.AddTimer(Config.PointSettings.PlaytimeMinutes, () =>
+				{
+					List<CCSPlayerController> players = Utilities.GetPlayers();
+
+					foreach (CCSPlayerController player in players)
+					{
+						if (player is null || !player.IsValid || !player.PlayerPawn.IsValid || player.IsBot || player.IsHLTV)
+							continue;
+
+						if (!rankCache.ContainsPlayer(player))
+							continue;
+
+						ModifyPlayerPoints(player, Config.PointSettings.PlaytimePoints, "Playtime");
+					}
+				}, TimerFlags.STOP_ON_MAPCHANGE | TimerFlags.REPEAT);
 			}
 		}
 

@@ -33,6 +33,7 @@ namespace K4System
 				`name` VARCHAR(255) NOT NULL,
 				`lastseen` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
 				`kills` INT NOT NULL DEFAULT 0,
+				`firstblood` INT NOT NULL DEFAULT 0,
 				`deaths` INT NOT NULL DEFAULT 0,
 				`assists` INT NOT NULL DEFAULT 0,
 				`hits_taken` INT NOT NULL DEFAULT 0,
@@ -42,6 +43,8 @@ namespace K4System
 				`mvp` INT NOT NULL DEFAULT 0,
 				`round_win` INT NOT NULL DEFAULT 0,
 				`round_lose` INT NOT NULL DEFAULT 0,
+				`game_win` INT NOT NULL DEFAULT 0,
+				`game_lose` INT NOT NULL DEFAULT 0,
 				`kda` DECIMAL(5, 2) NOT NULL DEFAULT 0,
 				UNIQUE (`steam_id`)
 			);");

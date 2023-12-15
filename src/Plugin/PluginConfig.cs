@@ -128,7 +128,7 @@ namespace K4System
 		public bool DynamicDeathPoints { get; set; } = true;
 
 		[JsonPropertyName("dynamic-death-points-max-multiplier")]
-		public double DynamicDeathPointsMaxMultiplier { get; set; } = 5.00;
+		public double DynamicDeathPointsMaxMultiplier { get; set; } = 3.00;
 
 		[JsonPropertyName("dynamic-death-points-min-multiplier")]
 		public double DynamicDeathPointsMinMultiplier { get; set; } = 0.5;
@@ -140,7 +140,7 @@ namespace K4System
 		public int Death { get; set; } = -5;
 
 		[JsonPropertyName("kill")]
-		public int Kill { get; set; } = 10;
+		public int Kill { get; set; } = 8;
 
 		[JsonPropertyName("headshot")]
 		public int Headshot { get; set; } = 5;
@@ -252,6 +252,12 @@ namespace K4System
 
 		[JsonPropertyName("knife-kill")]
 		public int KnifeKill { get; set; } = 15;
+
+		[JsonPropertyName("playtime-points")]
+		public int PlaytimePoints { get; set; } = 10;
+
+		[JsonPropertyName("playtime-minutes")]
+		public float PlaytimeMinutes { get; set; } = 5.00f;
 	}
 
 	public sealed class PluginConfig : BasePluginConfig

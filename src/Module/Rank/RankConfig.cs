@@ -26,7 +26,8 @@ namespace K4System
 		""Name"": ""Gold"",
 		""Tag"": ""[G]"",
 		""Point"": 1000,
-		""Color"": ""Red""
+		""Color"": ""Red"",
+		""Permissions"": [""Permission1"", ""Permission2""] // You can add permissions for each rank. For example u can have a plugin, which giving +20 hp for permissions, and you add that permission here
 	}
 	// You can add as many as you want
 }";

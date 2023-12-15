@@ -61,6 +61,12 @@ namespace K4System
 				if (attacker != null && attacker.IsValid && attacker.PlayerPawn.IsValid && !attacker.IsBot && !attacker.IsHLTV)
 				{
 					ModifyPlayerStats(attacker, "kills", 1);
+
+					if (!FirstBlood)
+					{
+						FirstBlood = true;
+						ModifyPlayerStats(attacker, "firstblood", 1);
+					}
 				}
 
 				CCSPlayerController assister = @event.Assister;
@@ -116,6 +122,12 @@ namespace K4System
 					}
 				}
 
+				return HookResult.Continue;
+			});
+
+			plugin.RegisterEventHandler((EventRoundStart @event, GameEventInfo info) =>
+			{
+				FirstBlood = false;
 				return HookResult.Continue;
 			});
 
@@ -184,6 +196,41 @@ namespace K4System
 					return HookResult.Continue;
 
 				SavePlayerStatCache(player, true);
+
+				return HookResult.Continue;
+			});
+
+			plugin.RegisterEventHandler((EventGameEnd @event, GameEventInfo info) =>
+			{
+				if (!IsStatsAllowed())
+				{
+					return HookResult.Continue;
+				}
+
+				CsTeam winnerTeam = (CsTeam)@event.Winner;
+
+				if (winnerTeam < CsTeam.Spectator)
+				{
+					List<CCSPlayerController> players = Utilities.GetPlayers();
+
+					foreach (CCSPlayerController player in players)
+					{
+						if (player is null || !player.IsValid || !player.PlayerPawn.IsValid)
+							continue;
+
+						if (player.IsBot || player.IsHLTV)
+							continue;
+
+						CsTeam playerTeam = (CsTeam)player.TeamNum;
+
+						if (playerTeam <= CsTeam.Spectator)
+							continue;
+
+						ModifyPlayerStats(player, playerTeam == winnerTeam ? "game_win" : "game_lose", 1);
+					}
+				}
+
+				SaveAllPlayerCache(false);
 
 				return HookResult.Continue;
 			});

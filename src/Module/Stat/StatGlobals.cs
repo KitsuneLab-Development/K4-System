@@ -22,5 +22,6 @@ namespace K4System
 
 		public CCSGameRules? globalGameRules = null;
 		internal static PlayerCache<StatData> statCache = new PlayerCache<StatData>();
+		public bool FirstBlood = false;
 	}
 }
