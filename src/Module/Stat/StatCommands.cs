@@ -20,7 +20,7 @@ namespace K4System
 
 					if (!statCache.ContainsPlayer(player))
 					{
-						info.ReplyToCommand($" {Config.GeneralSettings.Prefix} Your data is not yet loaded. Please try again later...");
+						info.ReplyToCommand($" {Config.GeneralSettings.Prefix} {plugin.Localizer["k4.general.loading"]}");
 						return;
 					}
 
@@ -46,14 +46,14 @@ namespace K4System
 					float gameChance = (gameWin + gameLose) > 0 ? (float)Math.Round((float)gameWin / (gameWin + gameLose) * 100, 1) : 0;
 					float accuracy = shoots > 0 ? (float)Math.Round((float)hitsGiven / shoots * 100, 1) : 0;
 
-					info.ReplyToCommand($" {Config.GeneralSettings.Prefix} {ChatColors.Lime}{player!.PlayerName}'s Statistics:");
-					info.ReplyToCommand($"--- {ChatColors.Silver}Kills: {ChatColors.Lime}{kills} {ChatColors.Silver}| Firstblood: {ChatColors.Lime}{firstblood} {ChatColors.Silver}| Assists: {ChatColors.Lime}{assists}");
-					info.ReplyToCommand($"--- {ChatColors.Silver}Hits Given: {ChatColors.Lime}{hitsGiven} {ChatColors.Silver}| Hits Taken: {ChatColors.Lime}{hitsTaken} {ChatColors.Silver}| Deaths: {ChatColors.Lime}{deaths} {ChatColors.Silver}");
-					info.ReplyToCommand($"--- {ChatColors.Silver}Headshots: {ChatColors.Lime}{headshots} {ChatColors.Silver}| Headshot Percentage: {ChatColors.Lime}{roundedHeadshotPercentage}% {ChatColors.Silver}| Grenades Thrown: {ChatColors.Lime}{grenadesThrown}");
-					info.ReplyToCommand($"--- {ChatColors.Silver}Round Wins: {ChatColors.Lime}{roundWin} {ChatColors.Silver}| Round Loses: {ChatColors.Lime}{roundLose} {ChatColors.Silver}| Chance: {ChatColors.Lime}{roundChance}%");
-					info.ReplyToCommand($"--- {ChatColors.Silver}Game Wins: {ChatColors.Lime}{gameWin} {ChatColors.Silver}| Game Loses: {ChatColors.Lime}{gameLose} {ChatColors.Silver}| Chance: {ChatColors.Lime}{gameChance}%");
-					info.ReplyToCommand($"--- {ChatColors.Silver}Shoots: {ChatColors.Lime}{shoots} {ChatColors.Silver}| Accuracy: {ChatColors.Lime}{accuracy}%");
-					info.ReplyToCommand($"--- {ChatColors.Silver}KDA: {ChatColors.Lime}{playerData.KDA} {ChatColors.Silver}| MVPs: {ChatColors.Lime}{mvp}");
+					info.ReplyToCommand($" {Config.GeneralSettings.Prefix} {plugin.Localizer["k4.stats.title", player!.PlayerName]}");
+					info.ReplyToCommand(plugin.Localizer["k4.stats.line1", kills, firstblood, assists]);
+					info.ReplyToCommand(plugin.Localizer["k4.stats.line2", hitsGiven, hitsTaken, deaths]);
+					info.ReplyToCommand(plugin.Localizer["k4.stats.line3", headshots, roundedHeadshotPercentage, grenadesThrown]);
+					info.ReplyToCommand(plugin.Localizer["k4.stats.line4", roundWin, roundLose, roundChance]);
+					info.ReplyToCommand(plugin.Localizer["k4.stats.line5", gameWin, gameLose, gameChance]);
+					info.ReplyToCommand(plugin.Localizer["k4.stats.line6", shoots, accuracy]);
+					info.ReplyToCommand(plugin.Localizer["k4.stats.line7", playerData.KDA, mvp]);
 				});
 			});
 		}

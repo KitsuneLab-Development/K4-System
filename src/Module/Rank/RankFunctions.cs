@@ -28,21 +28,6 @@ namespace K4System
 			return (!GameRules().WarmupPeriod || Config.RankSettings.WarmupPoints) && (Config.RankSettings.MinPlayers <= notBots);
 		}
 
-		public string ApplyRankColors(string color)
-		{
-			foreach (FieldInfo field in typeof(ChatColors).GetFields())
-			{
-				if (color.Contains(field.Name, StringComparison.OrdinalIgnoreCase))
-				{
-					return color.Replace(field.Name, field.GetValue(null)!.ToString(), StringComparison.OrdinalIgnoreCase);
-				}
-			}
-
-			Logger.LogError($"ApplyRankColors > Invalid color is given in rank configs '{color}'");
-
-			return color;
-		}
-
 		public async Task LoadRankData(int slot, string name, string steamid)
 		{
 			string escapedName = MySqlHelper.EscapeString(name);
@@ -115,6 +100,8 @@ namespace K4System
 				amount = (int)Math.Round(amount * Config.RankSettings.VipMultiplier);
 			}
 
+			Plugin plugin = (this.PluginContext.Plugin as Plugin)!;
+
 			int oldPoints = playerData.Points;
 			Server.NextFrame(() =>
 			{
@@ -122,11 +109,11 @@ namespace K4System
 				{
 					if (amount > 0)
 					{
-						player.PrintToChat($" {Config.GeneralSettings.Prefix} {ChatColors.Silver}Points: {ChatColors.Green}{oldPoints} [+{amount} {reason}]");
+						player.PrintToChat($" {Config.GeneralSettings.Prefix} {plugin.Localizer["k4.ranks.points.gain", oldPoints, amount, plugin.Localizer[reason]]}");
 					}
 					else if (amount < 0)
 					{
-						player.PrintToChat($" {Config.GeneralSettings.Prefix} {ChatColors.Silver}Points: {ChatColors.Red}{oldPoints} [-{Math.Abs(amount)} {reason}]");
+						player.PrintToChat($" {Config.GeneralSettings.Prefix} {plugin.Localizer["k4.ranks.points.loss", oldPoints, Math.Abs(amount), plugin.Localizer[reason]]}");
 					}
 				}
 			});
@@ -145,14 +132,7 @@ namespace K4System
 
 			if (playerData.Rank.Name != newRank.Name)
 			{
-				if (playerData.Rank.Point > newRank.Point)
-				{
-					player.PrintToChat($" {Config.GeneralSettings.Prefix} {ChatColors.Silver}You have been {ChatColors.LightRed}demoted {ChatColors.Silver}to {newRank.Color}{newRank.Name}");
-				}
-				else
-				{
-					player.PrintToChat($" {Config.GeneralSettings.Prefix} {ChatColors.Silver}You have been {ChatColors.Lime}promoted {ChatColors.Silver}to {newRank.Color}{newRank.Name}");
-				}
+				player.PrintToChat($" {Config.GeneralSettings.Prefix} {plugin.Localizer[playerData.Rank.Point > newRank.Point ? "k4.ranks.demote" : "k4.ranks.promote", newRank.Color, newRank.Name]}");
 
 				if (playerData.Rank.Permissions != null)
 				{

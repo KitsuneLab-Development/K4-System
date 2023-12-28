@@ -1,11 +1,12 @@
 namespace K4System
 {
-	using System.Text.RegularExpressions;
 	using CounterStrikeSharp.API;
 	using CounterStrikeSharp.API.Core;
 	using CounterStrikeSharp.API.Modules.Admin;
 	using CounterStrikeSharp.API.Modules.Commands;
 	using CounterStrikeSharp.API.Modules.Utils;
+
+	using System.Text.RegularExpressions;
 	using Nexd.MySQL;
 
 	public partial class ModuleRank : IModuleRank
@@ -24,7 +25,7 @@ namespace K4System
 
 					if (!rankCache.ContainsPlayer(player))
 					{
-						info.ReplyToCommand($" {Config.GeneralSettings.Prefix} Your data is not yet loaded. Please try again later...");
+						info.ReplyToCommand($" {Config.GeneralSettings.Prefix} {plugin.Localizer["k4.general.loading"]}");
 						return;
 					}
 
@@ -47,8 +48,8 @@ namespace K4System
 
 					int higherRanksCount = rankDictionary.Count(kv => kv.Value.Point > playerData.Points);
 
-					info.ReplyToCommand($" {Config.GeneralSettings.Prefix} {ChatColors.Lime}{name}'s Rank:");
-					info.ReplyToCommand($"--- {ChatColors.Silver}You have {ChatColors.Lime}{playerData.Points} {ChatColors.Silver}points and are currently {playerData.Rank.Color}{playerData.Rank.Name} {ChatColors.Silver}({rankDictionary.Count - higherRanksCount} out of {rankDictionary.Count})");
+					info.ReplyToCommand($" {Config.GeneralSettings.Prefix} {plugin.Localizer["k4.ranks.rank.title", name]}");
+					info.ReplyToCommand(plugin.Localizer["k4.ranks.rank.line1", playerData.Points, playerData.Rank.Color, playerData.Rank.Name, rankDictionary.Count - higherRanksCount, rankDictionary.Count]);
 
 					var nextRankEntry = rankDictionary
 								.Where(kv => kv.Value.Point > playerData.Rank.Point)
@@ -59,12 +60,11 @@ namespace K4System
 					{
 						Rank nextRank = nextRankEntry.Value;
 
-						info.ReplyToCommand($"--- {ChatColors.Silver}Next rank: {nextRank.Color}{nextRank.Name}");
-						info.ReplyToCommand($"--- {ChatColors.Silver}Points until next rank: {ChatColors.Lime}{nextRank.Point - playerData.Points}");
+						info.ReplyToCommand(plugin.Localizer["k4.ranks.rank.line2", nextRank.Color, nextRank.Name]);
+						info.ReplyToCommand(plugin.Localizer["k4.ranks.rank.line3", nextRank.Point - playerData.Points]);
 					}
 
-					info.ReplyToCommand($"--- {ChatColors.Silver}Place in top list: {ChatColors.Lime}{playersWithMorePoints} out of {totalPlayers}");
-
+					info.ReplyToCommand(plugin.Localizer["k4.ranks.rank.line4", playersWithMorePoints, totalPlayers]);
 				});
 			});
 
@@ -78,7 +78,7 @@ namespace K4System
 
 					if (!rankCache.ContainsPlayer(player))
 					{
-						info.ReplyToCommand($" {Config.GeneralSettings.Prefix} Your data is not yet loaded. Please try again later...");
+						info.ReplyToCommand($" {Config.GeneralSettings.Prefix} {plugin.Localizer["k4.general.loading"]}");
 						return;
 					}
 
@@ -89,7 +89,7 @@ namespace K4System
 
 					SavePlayerRankCache(player, false);
 
-					Server.PrintToChatAll($" {Config.GeneralSettings.Prefix} {ChatColors.Lime}{player!.PlayerName} {ChatColors.Silver}has reset their rank and points.");
+					Server.PrintToChatAll($" {Config.GeneralSettings.Prefix} {plugin.Localizer["k4.ranks.resetmyrank", player.PlayerName]}");
 				});
 			});
 
@@ -103,7 +103,7 @@ namespace K4System
 
 					if (!rankCache.ContainsPlayer(player))
 					{
-						info.ReplyToCommand($" {Config.GeneralSettings.Prefix} Your data is not yet loaded. Please try again later...");
+						info.ReplyToCommand($" {Config.GeneralSettings.Prefix} {plugin.Localizer["k4.general.loading"]}");
 						return;
 					}
 
@@ -118,7 +118,7 @@ namespace K4System
 
 					if (getResult.Count > 0)
 					{
-						player.PrintToChat($" {Config.GeneralSettings.Prefix} Top {printCount} Players:");
+						player.PrintToChat($" {Config.GeneralSettings.Prefix} {plugin.Localizer["k4.ranks.top.title", printCount]}");
 
 						for (int i = 0; i < getResult.Count; i++)
 						{
@@ -126,12 +126,12 @@ namespace K4System
 
 							Rank rank = GetPlayerRank(points);
 
-							player.PrintToChat($" {ChatColors.Gold}{i + 1}. {rank.Color}[{rank.Name}] {ChatColors.Gold}{getResult.Get<string>(i, "name")} - {ChatColors.Blue}{points} points");
+							player.PrintToChat($" {plugin.Localizer["k4.ranks.top.line", i + 1, rank.Color, rank.Name, getResult.Get<string>(i, "name"), points]}");
 						}
 					}
 					else
 					{
-						player.PrintToChat($" {Config.GeneralSettings.Prefix} No players found in the top {printCount}.");
+						player.PrintToChat($" {Config.GeneralSettings.Prefix} {plugin.Localizer["k4.ranks.top.notfound", printCount]}");
 					}
 				});
 
@@ -153,7 +153,7 @@ namespace K4System
 
 					if (!rankCache.ContainsPlayer(target))
 					{
-						info.ReplyToCommand($" {Config.GeneralSettings.Prefix} The player's data is not yet loaded. Please try again later...");
+						info.ReplyToCommand($" {Config.GeneralSettings.Prefix} {plugin.Localizer["k4.general.targetloading"]}");
 						return;
 					}
 
@@ -164,7 +164,7 @@ namespace K4System
 
 					SavePlayerRankCache(target, false);
 
-					Server.PrintToChatAll($" {Config.GeneralSettings.Prefix} {ChatColors.Lime}{target.PlayerName}{ChatColors.Silver}'s rank and points have been reset by {ChatColors.Lime}{playerName}{ChatColors.Silver}.");
+					Server.PrintToChatAll($" {Config.GeneralSettings.Prefix} {plugin.Localizer["k4.ranks.resetrank", target.PlayerName, playerName]}");
 
 					return;
 				}
@@ -177,7 +177,7 @@ namespace K4System
 
 				if (!int.TryParse(info.ArgByIndex(2), out int parsedInt))
 				{
-					info.ReplyToCommand($" {Config.GeneralSettings.Prefix} {ChatColors.Red}The given amount is invalid.");
+					info.ReplyToCommand($" {Config.GeneralSettings.Prefix} {plugin.Localizer["k4.general.invalidamount"]}");
 					return;
 				}
 
@@ -192,7 +192,7 @@ namespace K4System
 
 					if (!rankCache.ContainsPlayer(target))
 					{
-						info.ReplyToCommand($" {Config.GeneralSettings.Prefix} The player's data is not yet loaded. Please try again later...");
+						info.ReplyToCommand($" {Config.GeneralSettings.Prefix} {plugin.Localizer["k4.general.targetloading"]}");
 						return;
 					}
 
@@ -203,7 +203,7 @@ namespace K4System
 
 					SavePlayerRankCache(target, false);
 
-					Server.PrintToChatAll($" {Config.GeneralSettings.Prefix} {ChatColors.Lime}{target.PlayerName}{ChatColors.Silver}'s points has been set to {ChatColors.Lime}{parsedInt} {ChatColors.Silver}by {ChatColors.Lime}{playerName}{ChatColors.Silver}.");
+					Server.PrintToChatAll($" {Config.GeneralSettings.Prefix} {plugin.Localizer["k4.ranks.setpoints", target.PlayerName, parsedInt, playerName]}");
 
 					return;
 				}
@@ -216,7 +216,7 @@ namespace K4System
 
 				if (!int.TryParse(info.ArgByIndex(2), out int parsedInt))
 				{
-					info.ReplyToCommand($" {Config.GeneralSettings.Prefix} {ChatColors.Red}The given amount is invalid.");
+					info.ReplyToCommand($" {Config.GeneralSettings.Prefix} {plugin.Localizer["k4.general.invalidamount"]}");
 					return;
 				}
 
@@ -231,7 +231,7 @@ namespace K4System
 
 					if (!rankCache.ContainsPlayer(target))
 					{
-						info.ReplyToCommand($" {Config.GeneralSettings.Prefix} The player's data is not yet loaded. Please try again later...");
+						info.ReplyToCommand($" {Config.GeneralSettings.Prefix} {plugin.Localizer["k4.general.targetloading"]}");
 						return;
 					}
 
@@ -242,7 +242,7 @@ namespace K4System
 
 					SavePlayerRankCache(target, false);
 
-					Server.PrintToChatAll($" {Config.GeneralSettings.Prefix} {ChatColors.Lime}{playerName} {ChatColors.Silver}has given {ChatColors.Lime}{parsedInt} {ChatColors.Silver}points to {ChatColors.Lime}{target.PlayerName}{ChatColors.Silver}.");
+					Server.PrintToChatAll($" {Config.GeneralSettings.Prefix} {plugin.Localizer["k4.ranks.givepoints", playerName, parsedInt, target.PlayerName]}");
 
 					return;
 				}
@@ -255,7 +255,7 @@ namespace K4System
 
 				if (!int.TryParse(info.ArgByIndex(2), out int parsedInt))
 				{
-					info.ReplyToCommand($" {Config.GeneralSettings.Prefix} {ChatColors.Red}The given amount is invalid.");
+					info.ReplyToCommand($" {Config.GeneralSettings.Prefix} {plugin.Localizer["k4.general.invalidamount"]}");
 					return;
 				}
 
@@ -270,7 +270,7 @@ namespace K4System
 
 					if (!rankCache.ContainsPlayer(target))
 					{
-						info.ReplyToCommand($" {Config.GeneralSettings.Prefix} The player's data is not yet loaded. Please try again later...");
+						info.ReplyToCommand($" {Config.GeneralSettings.Prefix} {plugin.Localizer["k4.general.targetloading"]}");
 						return;
 					}
 
@@ -281,7 +281,7 @@ namespace K4System
 
 					SavePlayerRankCache(target, false);
 
-					Server.PrintToChatAll($" {Config.GeneralSettings.Prefix} {ChatColors.Lime}{playerName} {ChatColors.Silver}has removed {ChatColors.Lime}{parsedInt} {ChatColors.Silver}points from {ChatColors.Lime}{target.PlayerName}{ChatColors.Silver}.");
+					Server.PrintToChatAll($" {Config.GeneralSettings.Prefix} {plugin.Localizer["k4.ranks.removepoints", playerName, parsedInt, target.PlayerName]}");
 
 					return;
 				}

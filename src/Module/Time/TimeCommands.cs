@@ -19,7 +19,7 @@ namespace K4System
 
 					if (!timeCache.ContainsPlayer(player))
 					{
-						info.ReplyToCommand($" {Config.GeneralSettings.Prefix} Your data is not yet loaded. Please try again later...");
+						info.ReplyToCommand($" {Config.GeneralSettings.Prefix} {plugin.Localizer["k4.general.loading"]}");
 						return;
 					}
 
@@ -33,12 +33,11 @@ namespace K4System
 					if ((CsTeam)player.TeamNum > CsTeam.Spectator)
 						playerData.TimeFields[player.PawnIsAlive ? "alive" : "dead"] += (int)Math.Round((now - playerData.Times["Death"]).TotalSeconds);
 
-					info.ReplyToCommand($" {Config.GeneralSettings.Prefix} {ChatColors.Lime}{player.PlayerName}'s PlayTime:");
-					info.ReplyToCommand($"--- {ChatColors.Silver}Total: {ChatColors.Lime}{FormatPlaytime(playerData.TimeFields["all"])}");
-					info.ReplyToCommand($"--- {ChatColors.Silver}CT: {ChatColors.Lime}{FormatPlaytime(playerData.TimeFields["ct"])} {ChatColors.Silver}| T: {ChatColors.Lime}{FormatPlaytime(playerData.TimeFields["t"])}");
-					info.ReplyToCommand($"--- {ChatColors.Silver}Spectator: {ChatColors.Lime}{FormatPlaytime(playerData.TimeFields["spec"])}");
-					info.ReplyToCommand($"--- {ChatColors.Silver}Alive: {ChatColors.Lime}{FormatPlaytime(playerData.TimeFields["alive"])} {ChatColors.Silver}| Dead: {ChatColors.Lime}{FormatPlaytime(playerData.TimeFields["dead"])}");
-
+					info.ReplyToCommand($" {Config.GeneralSettings.Prefix} {plugin.Localizer["k4.times.title", player.PlayerName]}");
+					info.ReplyToCommand($"--- {plugin.Localizer["k4.times.line1", FormatPlaytime(playerData.TimeFields["all"])]}");
+					info.ReplyToCommand($"--- {plugin.Localizer["k4.times.line2", FormatPlaytime(playerData.TimeFields["ct"]), FormatPlaytime(playerData.TimeFields["t"])]}");
+					info.ReplyToCommand($"--- {plugin.Localizer["k4.times.line3", FormatPlaytime(playerData.TimeFields["spec"])]}");
+					info.ReplyToCommand($"--- {plugin.Localizer["k4.times.line4", FormatPlaytime(playerData.TimeFields["alive"]), FormatPlaytime(playerData.TimeFields["dead"])]}");
 					playerData.Times = new Dictionary<string, DateTime>
 					{
 						{ "Connect", now },

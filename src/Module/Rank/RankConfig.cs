@@ -3,6 +3,7 @@ namespace K4System
 	using System.Text.RegularExpressions;
 	using Microsoft.Extensions.Logging;
 	using Newtonsoft.Json;
+	using System.Collections.Generic;
 
 	public partial class ModuleRank : IModuleRank
 	{
@@ -14,19 +15,19 @@ namespace K4System
 	""None"": { // Whatever you set here, be unique. Not read by plugin
 		""Name"": ""None"", // This name is set in MySQL and also if not Tag is preset, this is the Tag
 		""Point"": -1, // Whatever you set to -1 is the default rank
-		""Color"": ""Default""
+		""Color"": ""default""
 	},
 	""Silver"": {
 		""Name"": ""Silver"",
 		""Tag"": ""[S]"", // Clan tag (scoreboard) of the rank. If not set, it uses the key instead, which is currently ""Silver""
 		""Point"": 250, // From this amount of experience, the player is Silver
-		""Color"": ""LightBlue"" // Color code for the rank. Find color names here: https://github.com/roflmuffin/CounterStrikeSharp/blob/main/managed/CounterStrikeSharp.API/Modules/Utils/ChatColors.cs
+		""Color"": ""lightblue"" // Color code for the rank. Find color names here: https://github.com/roflmuffin/CounterStrikeSharp/blob/main/managed/CounterStrikeSharp.API/Modules/Utils/ChatColors.cs
 	},
 	""Gold"": {
 		""Name"": ""Gold"",
 		""Tag"": ""[G]"",
 		""Point"": 1000,
-		""Color"": ""Red"",
+		""Color"": ""red"",
 		""Permissions"": [""Permission1"", ""Permission2""] // You can add permissions for each rank. For example u can have a plugin, which giving +20 hp for permissions, and you add that permission here
 	}
 	// You can add as many as you want
@@ -45,7 +46,15 @@ namespace K4System
 
 				rankDictionary = rankDictionary.OrderBy(kv => kv.Value.Point).ToDictionary(kv => kv.Key, kv => kv.Value);
 
-				rankDictionary.Values.ToList().ForEach(rank => rank.Color = ApplyRankColors(rank.Color));
+				rankDictionary.Values.ToList().ForEach(rank =>
+				{
+					rank.Color = rank.Color.ToLower();
+
+					if (!Enum.TryParse(typeof(CounterStrikeSharp.API.Modules.Utils.ChatColors), rank.Color, true, out _))
+					{
+						Logger.LogWarning($"Invalid color '{rank.Color}' for rank '{rank.Name}'.");
+					}
+				});
 
 				if (!rankDictionary.Values.Any(rank => rank.Point == -1))
 				{

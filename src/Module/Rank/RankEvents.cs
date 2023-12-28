@@ -51,7 +51,7 @@ namespace K4System
 						if (!rankCache.ContainsPlayer(player))
 							continue;
 
-						ModifyPlayerPoints(player, Config.PointSettings.PlaytimePoints, "Playtime");
+						ModifyPlayerPoints(player, Config.PointSettings.PlaytimePoints, "k4.phrases.playtime");
 					}
 				}, TimerFlags.STOP_ON_MAPCHANGE | TimerFlags.REPEAT);
 			});
@@ -83,7 +83,7 @@ namespace K4System
 				if (player is null || !player.IsValid || !player.PlayerPawn.IsValid || player.IsBot || player.IsHLTV)
 					return HookResult.Continue;
 
-				ModifyPlayerPoints(player, Config.PointSettings.HostageRescue, "Hostage Rescued");
+				ModifyPlayerPoints(player, Config.PointSettings.HostageRescue, "k4.phrases.hostagerescued");
 
 				return HookResult.Continue;
 			});
@@ -95,7 +95,7 @@ namespace K4System
 				if (player is null || !player.IsValid || !player.PlayerPawn.IsValid || player.IsBot || player.IsHLTV)
 					return HookResult.Continue;
 
-				ModifyPlayerPoints(player, Config.PointSettings.HostageKill, "Hostage Killed");
+				ModifyPlayerPoints(player, Config.PointSettings.HostageKill, "k4.phrases.hostagekilled");
 
 				return HookResult.Continue;
 			});
@@ -107,7 +107,7 @@ namespace K4System
 				if (player is null || !player.IsValid || !player.PlayerPawn.IsValid || player.IsBot || player.IsHLTV)
 					return HookResult.Continue;
 
-				ModifyPlayerPoints(player, Config.PointSettings.HostageHurt, "Hostage Hurt");
+				ModifyPlayerPoints(player, Config.PointSettings.HostageHurt, "k4.phrases.hostagehurt");
 
 				return HookResult.Continue;
 			});
@@ -119,7 +119,7 @@ namespace K4System
 				if (player is null || !player.IsValid || !player.PlayerPawn.IsValid || player.IsBot || player.IsHLTV)
 					return HookResult.Continue;
 
-				ModifyPlayerPoints(player, Config.PointSettings.BombPickup, "Bomb Pickup");
+				ModifyPlayerPoints(player, Config.PointSettings.BombPickup, "k4.phrases.bombpickup");
 
 				return HookResult.Continue;
 			});
@@ -131,7 +131,7 @@ namespace K4System
 				if (player is null || !player.IsValid || !player.PlayerPawn.IsValid || player.IsBot || player.IsHLTV)
 					return HookResult.Continue;
 
-				ModifyPlayerPoints(player, Config.PointSettings.BombDefused, "Bomb Defused");
+				ModifyPlayerPoints(player, Config.PointSettings.BombDefused, "k4.phrases.bombdefused");
 
 				return HookResult.Continue;
 			});
@@ -143,7 +143,7 @@ namespace K4System
 				if (player is null || !player.IsValid || !player.PlayerPawn.IsValid || player.IsBot || player.IsHLTV)
 					return HookResult.Continue;
 
-				ModifyPlayerPoints(player, Config.PointSettings.BombDrop, "Bomb Dropped");
+				ModifyPlayerPoints(player, Config.PointSettings.BombDrop, "k4.phrases.bombdropped");
 
 				return HookResult.Continue;
 			});
@@ -155,7 +155,7 @@ namespace K4System
 				if (player is null || !player.IsValid || !player.PlayerPawn.IsValid || player.IsBot || player.IsHLTV)
 					return HookResult.Continue;
 
-				ModifyPlayerPoints(player, Config.PointSettings.BombExploded, "Bomb Exploded");
+				ModifyPlayerPoints(player, Config.PointSettings.BombExploded, "k4.phrases.bombexploded");
 
 				return HookResult.Continue;
 			});
@@ -167,7 +167,7 @@ namespace K4System
 				if (player is null || !player.IsValid || !player.PlayerPawn.IsValid || player.IsBot || player.IsHLTV)
 					return HookResult.Continue;
 
-				ModifyPlayerPoints(player, Config.PointSettings.MVP, "MVP");
+				ModifyPlayerPoints(player, Config.PointSettings.MVP, "k4.phrases.mvp");
 
 				return HookResult.Continue;
 			});
@@ -194,11 +194,11 @@ namespace K4System
 
 					if (winnerTeam == player.TeamNum)
 					{
-						ModifyPlayerPoints(player, Config.PointSettings.RoundWin, "Round Win");
+						ModifyPlayerPoints(player, Config.PointSettings.RoundWin, "k4.phrases.roundwin");
 					}
 					else
 					{
-						ModifyPlayerPoints(player, Config.PointSettings.RoundLose, "Round Lose");
+						ModifyPlayerPoints(player, Config.PointSettings.RoundLose, "k4.phrases.roundlose");
 					}
 
 					if (Config.RankSettings.RoundEndPoints)
@@ -207,14 +207,14 @@ namespace K4System
 
 						if (playerData.RoundPoints > 0)
 						{
-							player.PrintToChat($" {Config.GeneralSettings.Prefix} {ChatColors.Silver}Points: {ChatColors.Green}+{playerData.RoundPoints} Round Summary");
+							player.PrintToChat($" {Config.GeneralSettings.Prefix} {plugin.Localizer["k4.ranks.summarypoints.gain", playerData.RoundPoints]}");
 						}
 						else if (playerData.RoundPoints < 0)
 						{
-							player.PrintToChat($" {Config.GeneralSettings.Prefix} {ChatColors.Silver}Points: {ChatColors.Red}-{Math.Abs(playerData.RoundPoints)} Round Summary");
+							player.PrintToChat($" {Config.GeneralSettings.Prefix} {plugin.Localizer["k4.ranks.summarypoints.loss", playerData.RoundPoints]}");
 						}
 						else
-							player.PrintToChat($" {Config.GeneralSettings.Prefix} {ChatColors.Silver}No point changes in this round");
+							player.PrintToChat($" {Config.GeneralSettings.Prefix} {plugin.Localizer["k4.ranks.summarypoints.nochange"]}");
 					}
 				}
 
@@ -230,7 +230,7 @@ namespace K4System
 				if (player is null || !player.IsValid || !player.PlayerPawn.IsValid || player.IsBot || player.IsHLTV)
 					return HookResult.Continue;
 
-				ModifyPlayerPoints(player, Config.PointSettings.BombPlant, "Bomb Planted");
+				ModifyPlayerPoints(player, Config.PointSettings.BombPlant, "k4.phrases.bombplanted");
 
 				return HookResult.Continue;
 			});
@@ -253,11 +253,11 @@ namespace K4System
 				{
 					if (killer is null || !killer.IsValid || victim.UserId == killer.UserId)
 					{
-						ModifyPlayerPoints(victim, Config.PointSettings.Suicide, "Suicide");
+						ModifyPlayerPoints(victim, Config.PointSettings.Suicide, "k4.phrases.suicide");
 					}
 					else if (killer != null && killer.IsValid && (Config.RankSettings.PointsForBots || !killer.IsBot))
 					{
-						ModifyPlayerPoints(victim, CalculateDynamicPoints(victim, killer, Config.PointSettings.Death), "Dying");
+						ModifyPlayerPoints(victim, CalculateDynamicPoints(victim, killer, Config.PointSettings.Death), "k4.phrases.dying");
 					}
 				}
 
@@ -265,42 +265,42 @@ namespace K4System
 				{
 					if (!Config.GeneralSettings.FFAMode && killer.TeamNum == victim.TeamNum)
 					{
-						ModifyPlayerPoints(killer, Config.PointSettings.TeamKill, "TeamKill");
+						ModifyPlayerPoints(killer, Config.PointSettings.TeamKill, "k4.phrases.teamkill");
 					}
 					else
 					{
-						ModifyPlayerPoints(killer, CalculateDynamicPoints(killer, victim, Config.PointSettings.Kill), "Kill");
+						ModifyPlayerPoints(killer, CalculateDynamicPoints(killer, victim, Config.PointSettings.Kill), "k4.phrases.kill");
 
 						if (@event.Headshot)
 						{
-							ModifyPlayerPoints(killer, Config.PointSettings.Headshot, "Headshot");
+							ModifyPlayerPoints(killer, Config.PointSettings.Headshot, "k4.phrases.headshot");
 						}
 
 						int penetrateCount = @event.Penetrated;
 						if (penetrateCount > 0 && Config.PointSettings.Penetrated > 0)
 						{
 							int calculatedPoints = penetrateCount * Config.PointSettings.Penetrated;
-							ModifyPlayerPoints(killer, calculatedPoints, "Penetrated");
+							ModifyPlayerPoints(killer, calculatedPoints, "k4.phrases.penetrated");
 						}
 
 						if (@event.Noscope)
 						{
-							ModifyPlayerPoints(killer, Config.PointSettings.NoScope, "NoScope");
+							ModifyPlayerPoints(killer, Config.PointSettings.NoScope, "k4.phrases.noscope");
 						}
 
 						if (@event.Thrusmoke)
 						{
-							ModifyPlayerPoints(killer, Config.PointSettings.Thrusmoke, "ThruSmoke");
+							ModifyPlayerPoints(killer, Config.PointSettings.Thrusmoke, "k4.phrases.thrusmoke");
 						}
 
 						if (@event.Attackerblind)
 						{
-							ModifyPlayerPoints(killer, Config.PointSettings.BlindKill, "Blind Kill");
+							ModifyPlayerPoints(killer, Config.PointSettings.BlindKill, "k4.phrases.blindkill");
 						}
 
 						if (@event.Distance >= Config.PointSettings.LongDistance)
 						{
-							ModifyPlayerPoints(killer, Config.PointSettings.LongDistanceKill, "Long Distance");
+							ModifyPlayerPoints(killer, Config.PointSettings.LongDistanceKill, "k4.phrases.longdistance");
 						}
 
 						string lowerCaseWeaponName = @event.Weapon.ToLower();
@@ -309,17 +309,17 @@ namespace K4System
 						{
 							case var _ when lowerCaseWeaponName.Contains("grenade") || lowerCaseWeaponName.Contains("firebomb") || lowerCaseWeaponName.Contains("molotov") || lowerCaseWeaponName.Contains("flashbang") || lowerCaseWeaponName.Contains("bumpmine"):
 								{
-									ModifyPlayerPoints(killer, Config.PointSettings.GrenadeKill, "Grenade Kill");
+									ModifyPlayerPoints(killer, Config.PointSettings.GrenadeKill, "k4.phrases.grenadekill");
 									break;
 								}
 							case var _ when lowerCaseWeaponName.Contains("knife_") || lowerCaseWeaponName.Contains("bayonet"):
 								{
-									ModifyPlayerPoints(killer, Config.PointSettings.KnifeKill, "Knife Kill");
+									ModifyPlayerPoints(killer, Config.PointSettings.KnifeKill, "k4.phrases.knifekill");
 									break;
 								}
 							case "taser":
 								{
-									ModifyPlayerPoints(killer, Config.PointSettings.TaserKill, "Taser Kill");
+									ModifyPlayerPoints(killer, Config.PointSettings.TaserKill, "k4.phrases.taserkill");
 									break;
 								}
 						}
@@ -334,19 +334,19 @@ namespace K4System
 								int killStreak = playerKillStreaks[attackerIndex].killStreak;
 
 								Dictionary<int, (int points, string message)> killStreakMap = new Dictionary<int, (int points, string message)>
-									{
-										{ 2, (Config.PointSettings.DoubleKill, "Double Kill") },
-										{ 3, (Config.PointSettings.TripleKill, "Triple Kill") },
-										{ 4, (Config.PointSettings.Domination, "Domination") },
-										{ 5, (Config.PointSettings.Rampage, "Rampage") },
-										{ 6, (Config.PointSettings.MegaKill, "Mega Kill") },
-										{ 7, (Config.PointSettings.Ownage, "Ownage") },
-										{ 8, (Config.PointSettings.UltraKill, "Ultra Kill") },
-										{ 9, (Config.PointSettings.KillingSpree, "Killing Spree") },
-										{ 10, (Config.PointSettings.MonsterKill, "Monster Kill") },
-										{ 11, (Config.PointSettings.Unstoppable, "Unstoppable") },
-										{ 12, (Config.PointSettings.GodLike, "God Like") }
-									};
+								{
+									{ 2, (Config.PointSettings.DoubleKill, "k4.phrases.doublekill") },
+									{ 3, (Config.PointSettings.TripleKill, "k4.phrases.triplekill") },
+									{ 4, (Config.PointSettings.Domination, "k4.phrases.domination") },
+									{ 5, (Config.PointSettings.Rampage, "k4.phrases.rampage") },
+									{ 6, (Config.PointSettings.MegaKill, "k4.phrases.megakill") },
+									{ 7, (Config.PointSettings.Ownage, "k4.phrases.ownage") },
+									{ 8, (Config.PointSettings.UltraKill, "k4.phrases.ultrakill") },
+									{ 9, (Config.PointSettings.KillingSpree, "k4.phrases.killingspree") },
+									{ 10, (Config.PointSettings.MonsterKill, "k4.phrases.monsterkill") },
+									{ 11, (Config.PointSettings.Unstoppable, "k4.phrases.unstoppable") },
+									{ 12, (Config.PointSettings.GodLike, "k4.phrases.godlike") }
+								};
 
 								if (killStreakMap.TryGetValue(killStreak, out var killStreakInfo))
 								{
@@ -367,11 +367,11 @@ namespace K4System
 
 				if (assiter != null && assiter.IsValid && assiter.PlayerPawn.IsValid && !assiter.IsBot && (Config.RankSettings.PointsForBots || !victim.IsBot))
 				{
-					ModifyPlayerPoints(assiter, Config.PointSettings.Assist, "Assist");
+					ModifyPlayerPoints(assiter, Config.PointSettings.Assist, "k4.phrases.assist");
 
 					if (@event.Assistedflash)
 					{
-						ModifyPlayerPoints(assiter, Config.PointSettings.AssistFlash, "Assist Flash");
+						ModifyPlayerPoints(assiter, Config.PointSettings.AssistFlash, "k4.phrases.assistflash");
 					}
 				}
 

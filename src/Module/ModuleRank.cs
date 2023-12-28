@@ -6,8 +6,6 @@ namespace K4System
 	using CounterStrikeSharp.API.Modules.Timers;
 
 	using Microsoft.Extensions.Logging;
-	using MySqlConnector;
-	using System.Text.RegularExpressions;
 
 	public partial class ModuleRank : IModuleRank
 	{
@@ -78,7 +76,7 @@ namespace K4System
 						if (!rankCache.ContainsPlayer(player))
 							continue;
 
-						ModifyPlayerPoints(player, Config.PointSettings.PlaytimePoints, "Playtime");
+						ModifyPlayerPoints(player, Config.PointSettings.PlaytimePoints, "k4.phrases.playtime");
 					}
 				}, TimerFlags.STOP_ON_MAPCHANGE | TimerFlags.REPEAT);
 			}
