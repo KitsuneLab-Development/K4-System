@@ -34,7 +34,11 @@
                 base.Logger.LogWarning("Configuration version mismatch (Expected: {0} | Current: {1})", this.Config.Version, config.Version);
             }
 
-            config.GeneralSettings.Prefix = ApplyPrefixColors(config.GeneralSettings.Prefix);
+            if (config.GeneralSettings.LevelRanksCompatibility && (!config.GeneralSettings.ModuleRanks || !config.GeneralSettings.ModuleStats || !config.GeneralSettings.ModuleTimes))
+            {
+                base.Logger.LogWarning("LevelRanks Compatibility is enabled but one or more of the required modules are disabled. Disabling LevelRanks Compatibility.");
+                config.GeneralSettings.LevelRanksCompatibility = false;
+            }
 
             DatabaseSettings dbSettings = config.DatabaseSettings;
 
@@ -85,30 +89,23 @@
 
             if (Config.GeneralSettings.LevelRanksCompatibility)
             {
-                if (!Config.GeneralSettings.ModuleRanks || !Config.GeneralSettings.ModuleStats || !Config.GeneralSettings.ModuleTimes)
-                {
-                    base.Logger.LogWarning("LevelRanks Compatibility is enabled but one or more of the modules are disabled. Disabling LevelRanks Compatibility.");
-                }
-                else
-                {
-                    this.Database.ExecuteNonQueryAsync(@$"CREATE TABLE IF NOT EXISTS `lvl_base` (
-                            `steam` VARCHAR(32) COLLATE 'utf8_unicode_ci' PRIMARY KEY,
-                            `name`  VARCHAR(255) COLLATE 'utf8_unicode_ci',
-                            `value` INT NOT NULL DEFAULT 0,
-                            `rank` INT NOT NULL DEFAULT 0,
-                            `kills` INT NOT NULL DEFAULT 0,
-                            `deaths` INT NOT NULL DEFAULT 0,
-                            `shoots` INT NOT NULL DEFAULT 0,
-                            `hits` INT NOT NULL DEFAULT 0,
-                            `headshots` INT NOT NULL DEFAULT 0,
-                            `assists` INT NOT NULL DEFAULT 0,
-                            `round_win` INT NOT NULL DEFAULT 0,
-                            `round_lose` INT NOT NULL DEFAULT 0,
-                            `playtime` INT NOT NULL DEFAULT 0,
-                            `lastconnect` INT NOT NULL DEFAULT 0
-                        );
-                    ");
-                }
+                this.Database.ExecuteNonQueryAsync(@$"CREATE TABLE IF NOT EXISTS `lvl_base` (
+                        `steam` VARCHAR(32) COLLATE 'utf8_unicode_ci' PRIMARY KEY,
+                        `name`  VARCHAR(255) COLLATE 'utf8_unicode_ci',
+                        `value` INT NOT NULL DEFAULT 0,
+                        `rank` INT NOT NULL DEFAULT 0,
+                        `kills` INT NOT NULL DEFAULT 0,
+                        `deaths` INT NOT NULL DEFAULT 0,
+                        `shoots` INT NOT NULL DEFAULT 0,
+                        `hits` INT NOT NULL DEFAULT 0,
+                        `headshots` INT NOT NULL DEFAULT 0,
+                        `assists` INT NOT NULL DEFAULT 0,
+                        `round_win` INT NOT NULL DEFAULT 0,
+                        `round_lose` INT NOT NULL DEFAULT 0,
+                        `playtime` INT NOT NULL DEFAULT 0,
+                        `lastconnect` INT NOT NULL DEFAULT 0
+                    );
+                ");
             }
         }
 
