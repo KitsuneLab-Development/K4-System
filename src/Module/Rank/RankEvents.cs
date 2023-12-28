@@ -39,7 +39,7 @@ namespace K4System
 			{
 				globalGameRules = null;
 
-				plugin.AddTimer(Config.PointSettings.PlaytimeMinutes, () =>
+				plugin.AddTimer(Config.PointSettings.PlaytimeMinutes * 60, () =>
 				{
 					List<CCSPlayerController> players = Utilities.GetPlayers();
 

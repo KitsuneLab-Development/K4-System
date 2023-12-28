@@ -61,7 +61,7 @@ namespace K4System
 					await Task.WhenAll(loadTasks);
 				});
 
-				plugin.AddTimer(Config.PointSettings.PlaytimeMinutes, () =>
+				plugin.AddTimer(Config.PointSettings.PlaytimeMinutes * 60, () =>
 				{
 					List<CCSPlayerController> players = Utilities.GetPlayers();
 
