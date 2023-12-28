@@ -10,7 +10,6 @@ namespace K4System
 	{
 		public class StatData
 		{
-			public decimal KDA { get; set; }
 			public Dictionary<string, int> StatFields { get; set; } = new Dictionary<string, int>();
 		}
 

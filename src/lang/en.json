@@ -43,7 +43,7 @@
   "k4.stats.line4": "--- {silver}Round Wins: {lime}{0} {silver}| Round Losses: {lime}{1} {silver}| Chance: {lime}{2:n2}%",
   "k4.stats.line5": "--- {silver}Game Wins: {lime}{0} {silver}| Game Losses: {lime}{1} {silver}| Chance: {lime}{2:n2}%",
   "k4.stats.line6": "--- {silver}Shots: {lime}{0} {silver}| Accuracy: {lime}{1:n2}%",
-  "k4.stats.line7": "--- {silver}KDA: {lime}{0} {silver}| MVPs: {lime}{1}",
+  "k4.stats.line7": "--- {silver}KDA: {lime}{0:n2} {silver}| MVPs: {lime}{1}",
 
   "k4.times.title": "{lime}{0}{silver}'s PlayTime",
   "k4.times.line1": "--- {silver}Total: {lime}{0}",

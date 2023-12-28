@@ -60,7 +60,6 @@ namespace K4System
 			StatData playerData = new StatData
 			{
 				StatFields = NewStatFields,
-				KDA = result.Rows > 0 ? result.Get<decimal>(0, "kda") : 0
 			};
 
 			statCache[slot] = playerData;
@@ -91,7 +90,7 @@ namespace K4System
 
 			StringBuilder queryBuilder = new StringBuilder();
 			queryBuilder.Append($@"
-				INSERT INTO `{Config.DatabaseSettings.TablePrefix}k4stats` (`steam_id`, `name`, `lastseen`, `kda`");
+				INSERT INTO `{Config.DatabaseSettings.TablePrefix}k4stats` (`steam_id`, `name`, `lastseen`");
 
 			foreach (var field in playerData.StatFields)
 			{
@@ -99,7 +98,7 @@ namespace K4System
 			}
 
 			queryBuilder.Append($@")
-				VALUES ('{steamid}', '{escapedName}', CURRENT_TIMESTAMP, {playerData.KDA}");
+				VALUES ('{steamid}', '{escapedName}', CURRENT_TIMESTAMP");
 
 			foreach (var field in playerData.StatFields)
 			{
@@ -161,7 +160,6 @@ namespace K4System
 				}
 
 				statCache[slot].StatFields = NewStatFields;
-				statCache[slot].KDA = result.Rows > 0 ? result.Get<decimal>(0, "kda") : 0;
 			}
 			else
 			{
@@ -209,14 +207,6 @@ namespace K4System
 
 			StatData playerData = statCache[player];
 			playerData.StatFields[field] += amount;
-
-			string[] kdaCheck = { "deaths", "kills", "assists" };
-
-			if (kdaCheck.Contains(field))
-			{
-				int deaths = playerData.StatFields["deaths"];
-				playerData.KDA = deaths != 0 ? (playerData.StatFields["kills"] + playerData.StatFields["assists"]) / deaths : playerData.StatFields["kills"] + playerData.StatFields["assists"];
-			}
 		}
 	}
 }

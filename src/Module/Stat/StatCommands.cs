@@ -45,6 +45,7 @@ namespace K4System
 					float roundChance = (roundWin + roundLose) > 0 ? (float)roundWin / (roundWin + roundLose) * 100 : 0;
 					float gameChance = (gameWin + gameLose) > 0 ? (float)gameWin / (gameWin + gameLose) * 100 : 0;
 					float accuracy = shoots > 0 ? (float)hitsGiven / shoots * 100 : 0;
+					float kda = deaths > 0 ? (float)(playerData.StatFields["kills"] + playerData.StatFields["assists"]) / deaths : 0;
 
 					info.ReplyToCommand($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.stats.title", player!.PlayerName]}");
 					info.ReplyToCommand(plugin.Localizer["k4.stats.line1", kills, firstblood, assists]);
@@ -53,7 +54,7 @@ namespace K4System
 					info.ReplyToCommand(plugin.Localizer["k4.stats.line4", roundWin, roundLose, roundChance]);
 					info.ReplyToCommand(plugin.Localizer["k4.stats.line5", gameWin, gameLose, gameChance]);
 					info.ReplyToCommand(plugin.Localizer["k4.stats.line6", shoots, accuracy]);
-					info.ReplyToCommand(plugin.Localizer["k4.stats.line7", playerData.KDA, mvp]);
+					info.ReplyToCommand(plugin.Localizer["k4.stats.line7", kda, mvp]);
 				});
 			});
 		}

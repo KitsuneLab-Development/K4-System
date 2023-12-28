@@ -46,7 +46,6 @@ namespace K4System
 				`round_lose` INT NOT NULL DEFAULT 0,
 				`game_win` INT NOT NULL DEFAULT 0,
 				`game_lose` INT NOT NULL DEFAULT 0,
-				`kda` DECIMAL(5, 2) NOT NULL DEFAULT 0,
 				UNIQUE (`steam_id`)
 			);"))
 			{
