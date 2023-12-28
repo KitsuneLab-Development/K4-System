@@ -26,17 +26,34 @@ namespace K4System
 
 					StatData playerData = statCache[player];
 
-					float headshotPercentage = (float)playerData.StatFields["headshots"] / playerData.StatFields["hits_given"];
-					float roundedHeadshotPercentage = (float)Math.Round(headshotPercentage * 100, 1);
+					int kills = playerData.StatFields["kills"];
+					int firstblood = playerData.StatFields["firstblood"];
+					int assists = playerData.StatFields["assists"];
+					int hitsGiven = playerData.StatFields["hits_given"];
+					int hitsTaken = playerData.StatFields["hits_taken"];
+					int deaths = playerData.StatFields["deaths"];
+					int headshots = playerData.StatFields["headshots"];
+					int grenadesThrown = playerData.StatFields["grenades"];
+					int roundWin = playerData.StatFields["round_win"];
+					int roundLose = playerData.StatFields["round_lose"];
+					int gameWin = playerData.StatFields["game_win"];
+					int gameLose = playerData.StatFields["game_lose"];
+					int shoots = playerData.StatFields["shoots"];
+					int mvp = playerData.StatFields["mvp"];
+
+					float roundedHeadshotPercentage = (float)Math.Round((float)headshots / hitsGiven * 100, 1);
+					float roundChance = (roundWin + roundLose) > 0 ? (float)Math.Round((float)roundWin / (roundWin + roundLose) * 100, 1) : 0;
+					float gameChance = (gameWin + gameLose) > 0 ? (float)Math.Round((float)gameWin / (gameWin + gameLose) * 100, 1) : 0;
+					float accuracy = shoots > 0 ? (float)Math.Round((float)hitsGiven / shoots * 100, 1) : 0;
 
 					info.ReplyToCommand($" {Config.GeneralSettings.Prefix} {ChatColors.Lime}{player!.PlayerName}'s Statistics:");
-					info.ReplyToCommand($"--- {ChatColors.Silver}Kills: {ChatColors.Lime}{playerData.StatFields["kills"]} {ChatColors.Silver}| Firstblood: {ChatColors.Lime}{playerData.StatFields["firstblood"]} {ChatColors.Silver}| Assists: {ChatColors.Lime}{playerData.StatFields["assists"]}");
-					info.ReplyToCommand($"--- {ChatColors.Silver}Hits Given: {ChatColors.Lime}{playerData.StatFields["hits_given"]} {ChatColors.Silver}| Hits Taken: {ChatColors.Lime}{playerData.StatFields["hits_taken"]} {ChatColors.Silver}| Deaths: {ChatColors.Lime}{playerData.StatFields["deaths"]} {ChatColors.Silver}");
-					info.ReplyToCommand($"--- {ChatColors.Silver}Headshots: {ChatColors.Lime}{playerData.StatFields["headshots"]} {ChatColors.Silver}| Headshot Percentage: {ChatColors.Lime}{roundedHeadshotPercentage}% {ChatColors.Silver}| Grenades Thrown: {ChatColors.Lime}{playerData.StatFields["grenades"]}");
-					info.ReplyToCommand($"--- {ChatColors.Silver}Round Wins: {ChatColors.Lime}{playerData.StatFields["round_win"]} {ChatColors.Silver}| Round Loses: {ChatColors.Lime}{playerData.StatFields["round_lose"]} {ChatColors.Silver}| Chance: {ChatColors.Lime}{((playerData.StatFields["round_win"] + playerData.StatFields["round_lose"] > 0) ? playerData.StatFields["round_win"] / (playerData.StatFields["round_win"] + playerData.StatFields["round_lose"]) * 100 : 0)}");
-					info.ReplyToCommand($"--- {ChatColors.Silver}Game Wins: {ChatColors.Lime}{playerData.StatFields["game_win"]} {ChatColors.Silver}| Game Loses: {ChatColors.Lime}{playerData.StatFields["game_lose"]} {ChatColors.Silver}| Chance: {ChatColors.Lime}{((playerData.StatFields["game_win"] + playerData.StatFields["game_lose"] > 0) ? playerData.StatFields["game_win"] / (playerData.StatFields["game_win"] + playerData.StatFields["game_lose"]) * 100 : 0)}");
-					info.ReplyToCommand($"--- {ChatColors.Silver}Shoots: {ChatColors.Lime}{playerData.StatFields["shoots"]} {ChatColors.Silver}| Accuracy: {ChatColors.Lime}{((playerData.StatFields["shoots"] > 0) ? playerData.StatFields["hits_given"] / playerData.StatFields["shoots"] * 100 : 0)}%");
-					info.ReplyToCommand($"--- {ChatColors.Silver}KDA: {ChatColors.Lime}{playerData.KDA} {ChatColors.Silver}| MVPs: {ChatColors.Lime}{playerData.StatFields["mvp"]}");
+					info.ReplyToCommand($"--- {ChatColors.Silver}Kills: {ChatColors.Lime}{kills} {ChatColors.Silver}| Firstblood: {ChatColors.Lime}{firstblood} {ChatColors.Silver}| Assists: {ChatColors.Lime}{assists}");
+					info.ReplyToCommand($"--- {ChatColors.Silver}Hits Given: {ChatColors.Lime}{hitsGiven} {ChatColors.Silver}| Hits Taken: {ChatColors.Lime}{hitsTaken} {ChatColors.Silver}| Deaths: {ChatColors.Lime}{deaths} {ChatColors.Silver}");
+					info.ReplyToCommand($"--- {ChatColors.Silver}Headshots: {ChatColors.Lime}{headshots} {ChatColors.Silver}| Headshot Percentage: {ChatColors.Lime}{roundedHeadshotPercentage}% {ChatColors.Silver}| Grenades Thrown: {ChatColors.Lime}{grenadesThrown}");
+					info.ReplyToCommand($"--- {ChatColors.Silver}Round Wins: {ChatColors.Lime}{roundWin} {ChatColors.Silver}| Round Loses: {ChatColors.Lime}{roundLose} {ChatColors.Silver}| Chance: {ChatColors.Lime}{roundChance}");
+					info.ReplyToCommand($"--- {ChatColors.Silver}Game Wins: {ChatColors.Lime}{gameWin} {ChatColors.Silver}| Game Loses: {ChatColors.Lime}{gameLose} {ChatColors.Silver}| Chance: {ChatColors.Lime}{gameChance}");
+					info.ReplyToCommand($"--- {ChatColors.Silver}Shoots: {ChatColors.Lime}{shoots} {ChatColors.Silver}| Accuracy: {ChatColors.Lime}{accuracy}%");
+					info.ReplyToCommand($"--- {ChatColors.Silver}KDA: {ChatColors.Lime}{playerData.KDA} {ChatColors.Silver}| MVPs: {ChatColors.Lime}{mvp}");
 				});
 			});
 		}
