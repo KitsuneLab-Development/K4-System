@@ -167,10 +167,16 @@ The addon provides several commands and console variables (convars) to customize
 ## Roadmap
 
 - [x] Complete remake with modular dependency injection
-- [ ] VIP Clan Tag
-- [ ] More VIP perks
-- [ ] Point For Playtime
+- [x] Translations
+- [x] Detailed Ranks Lists
+- [ ] Promote/Demote colored alert messages
+- [ ] Weapon based points
+- [ ] Plugin auto updater (can be disabled, download stable branch, not dev)
+- [ ] Top 10 special tags
+- [ ] Upload to CSS forum
 - [ ] Create FAQ
+- [ ] Automate release build as pre
+- [ ] Permission based ranks module
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
