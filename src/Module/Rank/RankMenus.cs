@@ -7,7 +7,7 @@ namespace K4System
 
 	public partial class ModuleRank : IModuleRank
 	{
-		ChatMenu ranksMenu = new ChatMenu("Rank List");
+		ChatMenu ranksMenu = new ChatMenu("Available Rank List");
 
 		public void Initialize_Menus(Plugin plugin)
 		{
