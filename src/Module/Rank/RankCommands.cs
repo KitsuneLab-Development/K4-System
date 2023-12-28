@@ -4,11 +4,10 @@ namespace K4System
 	using CounterStrikeSharp.API.Core;
 	using CounterStrikeSharp.API.Modules.Admin;
 	using CounterStrikeSharp.API.Modules.Commands;
-	using CounterStrikeSharp.API.Modules.Utils;
 
-	using System.Text.RegularExpressions;
 	using Nexd.MySQL;
 	using CounterStrikeSharp.API.Modules.Commands.Targeting;
+	using CounterStrikeSharp.API.Modules.Menu;
 
 	public partial class ModuleRank : IModuleRank
 	{
@@ -66,6 +65,18 @@ namespace K4System
 					}
 
 					info.ReplyToCommand(plugin.Localizer["k4.ranks.rank.line4", playersWithMorePoints, totalPlayers]);
+				});
+			});
+
+			commands.RanksCommands.ForEach(commandString =>
+			{
+				plugin.AddCommand($"css_{commandString}", "Check the available ranks and their data",
+					[CommandHelper(0, whoCanExecute: CommandUsage.CLIENT_ONLY)] (player, info) =>
+				{
+					if (player == null || !player.IsValid || player.PlayerPawn.Value == null)
+						return;
+
+					ChatMenus.OpenMenu(player, ranksMenu);
 				});
 			});
 

@@ -44,7 +44,8 @@ namespace K4System
 
 			//** ? Register Module Parts */
 
-			Initialize_Config();
+			Initialize_Config(plugin);
+			Initialize_Menus(plugin);
 			Initialize_Events(plugin);
 			Initialize_Commands(plugin);
 

@@ -14,7 +14,13 @@ namespace K4System
 			public string? Tag { get; set; }
 			public required int Point { get; set; }
 			public required string Color { get; set; }
-			public List<string>? Permissions { get; set; }
+			public List<Permission>? Permissions { get; set; }
+		}
+
+		public class Permission
+		{
+			public required string DisplayName { get; set; }
+			public required string PermissionName { get; set; }
 		}
 
 		public class RankData

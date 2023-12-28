@@ -26,9 +26,14 @@ namespace K4System
 				{
 					await LoadRankData(slot, playerName, steamId);
 
-					if (rankCache[slot].Rank.Permissions != null)
+					RankData playerData = rankCache[player];
+
+					if (playerData.Rank.Permissions != null && playerData.Rank.Permissions.Count > 0)
 					{
-						AdminManager.AddPlayerPermissions(Utilities.GetPlayerFromSlot(slot), rankCache[slot].Rank.Permissions!.ToArray());
+						foreach (Permission permission in playerData.Rank.Permissions)
+						{
+							AdminManager.RemovePlayerPermissions(Utilities.GetPlayerFromSlot(player.Slot), permission.PermissionName);
+						}
 					}
 				});
 

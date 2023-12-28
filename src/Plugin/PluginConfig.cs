@@ -48,6 +48,13 @@ namespace K4System
 			"resetmyrank"
 		};
 
+		[JsonPropertyName("ranks-commands")]
+		public List<string> RanksCommands { get; set; } = new List<string>
+		{
+			"ranks",
+			"ranklist"
+		};
+
 		[JsonPropertyName("stat-commands")]
 		public List<string> StatCommands { get; set; } = new List<string>
 		{

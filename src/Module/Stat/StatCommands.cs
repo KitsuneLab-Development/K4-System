@@ -41,10 +41,10 @@ namespace K4System
 					int shoots = playerData.StatFields["shoots"];
 					int mvp = playerData.StatFields["mvp"];
 
-					float roundedHeadshotPercentage = (float)Math.Round((float)headshots / hitsGiven * 100, 1);
-					float roundChance = (roundWin + roundLose) > 0 ? (float)Math.Round((float)roundWin / (roundWin + roundLose) * 100, 1) : 0;
-					float gameChance = (gameWin + gameLose) > 0 ? (float)Math.Round((float)gameWin / (gameWin + gameLose) * 100, 1) : 0;
-					float accuracy = shoots > 0 ? (float)Math.Round((float)hitsGiven / shoots * 100, 1) : 0;
+					float roundedHeadshotPercentage = (float)headshots / hitsGiven * 100;
+					float roundChance = (roundWin + roundLose) > 0 ? (float)roundWin / (roundWin + roundLose) * 100 : 0;
+					float gameChance = (gameWin + gameLose) > 0 ? (float)gameWin / (gameWin + gameLose) * 100 : 0;
+					float accuracy = shoots > 0 ? (float)hitsGiven / shoots * 100 : 0;
 
 					info.ReplyToCommand($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.stats.title", player!.PlayerName]}");
 					info.ReplyToCommand(plugin.Localizer["k4.stats.line1", kills, firstblood, assists]);

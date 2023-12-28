@@ -134,14 +134,20 @@ namespace K4System
 			{
 				player.PrintToChat($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer[playerData.Rank.Point > newRank.Point ? "k4.ranks.demote" : "k4.ranks.promote", newRank.Color, newRank.Name]}");
 
-				if (playerData.Rank.Permissions != null)
+				if (playerData.Rank.Permissions != null && playerData.Rank.Permissions.Count > 0)
 				{
-					AdminManager.RemovePlayerPermissions(Utilities.GetPlayerFromSlot(player.Slot), playerData.Rank.Permissions!.ToArray());
+					foreach (Permission permission in playerData.Rank.Permissions)
+					{
+						AdminManager.RemovePlayerPermissions(Utilities.GetPlayerFromSlot(player.Slot), permission.PermissionName);
+					}
 				}
 
 				if (newRank.Permissions != null)
 				{
-					AdminManager.AddPlayerPermissions(Utilities.GetPlayerFromSlot(player.Slot), newRank.Permissions!.ToArray());
+					foreach (Permission permission in newRank.Permissions)
+					{
+						AdminManager.AddPlayerPermissions(Utilities.GetPlayerFromSlot(player.Slot), permission.PermissionName);
+					}
 				}
 
 				playerData.Rank = newRank;

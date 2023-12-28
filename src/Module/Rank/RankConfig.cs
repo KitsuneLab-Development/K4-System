@@ -7,7 +7,7 @@ namespace K4System
 
 	public partial class ModuleRank : IModuleRank
 	{
-		public void Initialize_Config()
+		public void Initialize_Config(Plugin plugin)
 		{
 			string ranksFilePath = Path.Join(ModuleDirectory, "ranks.jsonc");
 
@@ -28,7 +28,17 @@ namespace K4System
 		""Tag"": ""[G]"",
 		""Point"": 1000,
 		""Color"": ""red"",
-		""Permissions"": [""Permission1"", ""Permission2""] // You can add permissions for each rank. For example u can have a plugin, which giving +20 hp for permissions, and you add that permission here
+		""Permissions"": [ // You can add permissions to the rank. If you don't want to add any, remove this line
+			{
+				""DisplayName"": ""Super Permission"", // This is the name of the permission. Will be displayed in the menu of ranks to let people know the benefits of a rank
+				""PermissionName"": ""permission1"" // This is the permission name. You can assign 3rd party permissions here
+			},
+			{
+				""DisplayName"": ""Legendary Permission"",
+				""PermissionName"": ""permission2""
+			}
+			// You can add as many as you want
+		]
 	}
 	// You can add as many as you want
 }";
@@ -46,7 +56,7 @@ namespace K4System
 
 				rankDictionary = rankDictionary.OrderBy(kv => kv.Value.Point).ToDictionary(kv => kv.Key, kv => kv.Value);
 
-				rankDictionary.Values.ToList().ForEach(rank => rank.Color = rank.Color.ToLower());
+				rankDictionary.Values.ToList().ForEach(rank => rank.Color = plugin.ApplyPrefixColors(rank.Color));
 
 				if (!rankDictionary.Values.Any(rank => rank.Point == -1))
 				{
