@@ -5,7 +5,11 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="CounterStrikeSharp.API" Version="*" />
+    <PackageReference Include="CounterStrikeSharp.API" Version="*">
+      <PrivateAssets>none</PrivateAssets>
+      <ExcludeAssets>runtime</ExcludeAssets>
+      <IncludeAssets>compile; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
     <PackageReference Include="Nexd.MySQL" Version="*" />
     <PackageReference Include="Newtonsoft.Json" Version="*" />
   </ItemGroup>
