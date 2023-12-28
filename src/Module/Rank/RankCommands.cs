@@ -150,7 +150,7 @@ namespace K4System
 			});
 
 			plugin.AddCommand("css_resetrank", "Resets the targeted player's points to zero",
-				[CommandHelper(1, "<SteamID64>", whoCanExecute: CommandUsage.CLIENT_AND_SERVER)][RequiresPermissions("@k4system/admin")] (player, info) =>
+				[CommandHelper(1, "<target>", whoCanExecute: CommandUsage.CLIENT_AND_SERVER)][RequiresPermissions("@k4system/admin")] (player, info) =>
 			{
 				string playerName = player != null && player.IsValid && player.PlayerPawn.Value != null ? player.PlayerName : "SERVER";
 
@@ -188,7 +188,7 @@ namespace K4System
 			});
 
 			plugin.AddCommand("css_setpoints", "Resets the targeted player's points to zero",
-				[CommandHelper(2, "<SteamID64> <amount>", whoCanExecute: CommandUsage.CLIENT_AND_SERVER)][RequiresPermissions("@k4system/admin")] (player, info) =>
+				[CommandHelper(2, "<target> <amount>", whoCanExecute: CommandUsage.CLIENT_AND_SERVER)][RequiresPermissions("@k4system/admin")] (player, info) =>
 			{
 				string playerName = player != null && player.IsValid && player.PlayerPawn.Value != null ? player.PlayerName : "SERVER";
 
@@ -232,7 +232,7 @@ namespace K4System
 			});
 
 			plugin.AddCommand("css_givepoints", "Give points the targeted player",
-				[CommandHelper(2, "<SteamID64> <amount>", whoCanExecute: CommandUsage.CLIENT_AND_SERVER)][RequiresPermissions("@k4system/admin")] (player, info) =>
+				[CommandHelper(2, "<target> <amount>", whoCanExecute: CommandUsage.CLIENT_AND_SERVER)][RequiresPermissions("@k4system/admin")] (player, info) =>
 			{
 				string playerName = player != null && player.IsValid && player.PlayerPawn.Value != null ? player.PlayerName : "SERVER";
 
