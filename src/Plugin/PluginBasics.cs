@@ -16,7 +16,7 @@ namespace K4System
 				if (player == null || !player.IsValid || player.PlayerPawn.Value == null)
 					return;
 
-				info.ReplyToCommand($" {plugin.Localizer["k4.general.prefix"]} {ChatColors.Lime}Available Commands:");
+				info.ReplyToCommand($" {Localizer["k4.general.prefix"]} {ChatColors.Lime}Available Commands:");
 
 				CommandSettings commands = Config.CommandSettings;
 
@@ -82,7 +82,7 @@ namespace K4System
 					if (player.IsBot || player.IsHLTV)
 						continue;
 
-					player.PrintToChat($" {plugin.Localizer["k4.general.prefix"]} {ChatColors.Silver}The server is using the {ChatColors.Lime}K4-System {ChatColors.Silver}plugin. Type {ChatColors.Lime}!k4 {ChatColors.Silver}for more information!");
+					player.PrintToChat($" {Localizer["k4.general.prefix"]} {ChatColors.Silver}The server is using the {ChatColors.Lime}K4-System {ChatColors.Silver}plugin. Type {ChatColors.Lime}!k4 {ChatColors.Silver}for more information!");
 				}
 
 				return HookResult.Continue;
