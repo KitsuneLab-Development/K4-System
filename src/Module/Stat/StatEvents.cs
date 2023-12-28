@@ -217,16 +217,26 @@ namespace K4System
 				return HookResult.Continue;
 			});
 
-			plugin.RegisterEventHandler((EventGameEnd @event, GameEventInfo info) =>
+			plugin.RegisterEventHandler<EventCsWinPanelMatch>((@event, info) =>
 			{
 				if (!IsStatsAllowed())
 				{
 					return HookResult.Continue;
 				}
 
-				CsTeam winnerTeam = (CsTeam)@event.Winner;
+				int ctScore = Utilities.FindAllEntitiesByDesignerName<CCSTeam>("cs_team_manager")
+					.Where(team => team.Teamname == "CT")
+					.Select(team => team.Score)
+					.FirstOrDefault();
 
-				if (winnerTeam > CsTeam.Spectator)
+				int tScore = Utilities.FindAllEntitiesByDesignerName<CCSTeam>("cs_team_manager")
+					.Where(team => team.Teamname == "TERRORIST")
+					.Select(team => team.Score)
+					.FirstOrDefault();
+
+				CsTeam winnerTeam = ctScore > tScore ? CsTeam.CounterTerrorist : tScore > ctScore ? CsTeam.Terrorist : CsTeam.None;
+
+				if ((int)winnerTeam > (int)CsTeam.Spectator)
 				{
 					List<CCSPlayerController> players = Utilities.GetPlayers();
 
