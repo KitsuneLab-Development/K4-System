@@ -43,7 +43,7 @@
   "k4.stats.line4": "--- {silver}Vittorie nel round: {lime}{0} {silver}| Perdite nel round: {lime}{1} {silver}| Probabilità: {lime}{2:n2}% ",
   "k4.stats.line5": "--- {silver} Partita vinta: {lime}{0} {silver}| Partita persa: {lime}{1} {silver}| Probabilità: {lime}{2:n2}% ",
   "k4.stats.line6": "--- {silver}Tiri: {lime}{0} {silver}| Precisione: {lime}{1:n2}%",
-  "k4.stats.line7": "--- {silver}KDA: {lime}{0:n2} {silver}| MVP: {lime}{1}",
+  "k4.stats.line7": "--- {silver}UMA: {lime}{0:n2} {silver}| MVP: {lime}{1}",
 
   "k4.times.title": "PlayTime di {lime}{0}{silver}",
   "k4.times.line1": "--- {argento} Totale: {lime}{0}",
