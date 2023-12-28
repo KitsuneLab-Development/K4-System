@@ -261,7 +261,7 @@ namespace K4System
 					}
 				}
 
-				if (killer != null && killer.IsValid && killer.PlayerPawn.IsValid && !killer.IsBot && victim.UserId != killer.UserId)
+				if (killer != null && killer.IsValid && killer.PlayerPawn.IsValid && !killer.IsBot && victim.UserId != killer.UserId && (Config.RankSettings.PointsForBots || !victim.IsBot))
 				{
 					if (!Config.RankSettings.FFAMode && killer.TeamNum == victim.TeamNum)
 					{
@@ -365,7 +365,7 @@ namespace K4System
 
 				CCSPlayerController assiter = @event.Assister;
 
-				if (assiter != null && assiter.IsValid && assiter.PlayerPawn.IsValid && !assiter.IsBot)
+				if (assiter != null && assiter.IsValid && assiter.PlayerPawn.IsValid && !assiter.IsBot && (Config.RankSettings.PointsForBots || !victim.IsBot))
 				{
 					ModifyPlayerPoints(assiter, Config.PointSettings.Assist, "Assist");
 
