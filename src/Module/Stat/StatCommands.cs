@@ -2,6 +2,7 @@ namespace K4System
 {
 	using CounterStrikeSharp.API.Modules.Commands;
 	using CounterStrikeSharp.API.Modules.Utils;
+	using Microsoft.Extensions.Logging;
 
 	public partial class ModuleStat : IModuleStat
 	{
@@ -25,10 +26,13 @@ namespace K4System
 
 					StatData playerData = statCache[player];
 
+					float headshotPercentage = (float)playerData.StatFields["headshots"] / playerData.StatFields["hits_given"];
+					float roundedHeadshotPercentage = (float)Math.Round(headshotPercentage * 100, 1);
+
 					info.ReplyToCommand($" {Config.GeneralSettings.Prefix} {ChatColors.Lime}{player!.PlayerName}'s Statistics:");
 					info.ReplyToCommand($"--- {ChatColors.Silver}Kills: {ChatColors.Lime}{playerData.StatFields["kills"]} {ChatColors.Silver}| Firstblood: {ChatColors.Lime}{playerData.StatFields["firstblood"]} {ChatColors.Silver}| Assists: {ChatColors.Lime}{playerData.StatFields["assists"]}");
 					info.ReplyToCommand($"--- {ChatColors.Silver}Hits Given: {ChatColors.Lime}{playerData.StatFields["hits_given"]} {ChatColors.Silver}| Hits Taken: {ChatColors.Lime}{playerData.StatFields["hits_taken"]} {ChatColors.Silver}| Deaths: {ChatColors.Lime}{playerData.StatFields["deaths"]} {ChatColors.Silver}");
-					info.ReplyToCommand($"--- {ChatColors.Silver}Headshots: {ChatColors.Lime}{playerData.StatFields["headshots"]} {ChatColors.Silver}| Headshot Percentage: {ChatColors.Lime}{((playerData.StatFields["shoots"] > 0) ? playerData.StatFields["headshots"] / playerData.StatFields["shoots"] * 100 : 0)}% {ChatColors.Silver}| Grenades Thrown: {ChatColors.Lime}{playerData.StatFields["grenades"]}");
+					info.ReplyToCommand($"--- {ChatColors.Silver}Headshots: {ChatColors.Lime}{playerData.StatFields["headshots"]} {ChatColors.Silver}| Headshot Percentage: {ChatColors.Lime}{roundedHeadshotPercentage}% {ChatColors.Silver}| Grenades Thrown: {ChatColors.Lime}{playerData.StatFields["grenades"]}");
 					info.ReplyToCommand($"--- {ChatColors.Silver}Round Wins: {ChatColors.Lime}{playerData.StatFields["round_win"]} {ChatColors.Silver}| Round Loses: {ChatColors.Lime}{playerData.StatFields["round_lose"]} {ChatColors.Silver}| Chance: {ChatColors.Lime}{((playerData.StatFields["round_win"] + playerData.StatFields["round_lose"] > 0) ? playerData.StatFields["round_win"] / (playerData.StatFields["round_win"] + playerData.StatFields["round_lose"]) * 100 : 0)}");
 					info.ReplyToCommand($"--- {ChatColors.Silver}Game Wins: {ChatColors.Lime}{playerData.StatFields["game_win"]} {ChatColors.Silver}| Game Loses: {ChatColors.Lime}{playerData.StatFields["game_lose"]} {ChatColors.Silver}| Chance: {ChatColors.Lime}{((playerData.StatFields["game_win"] + playerData.StatFields["game_lose"] > 0) ? playerData.StatFields["game_win"] / (playerData.StatFields["game_win"] + playerData.StatFields["game_lose"]) * 100 : 0)}");
 					info.ReplyToCommand($"--- {ChatColors.Silver}Shoots: {ChatColors.Lime}{playerData.StatFields["shoots"]} {ChatColors.Silver}| Accuracy: {ChatColors.Lime}{((playerData.StatFields["shoots"] > 0) ? playerData.StatFields["hits_given"] / playerData.StatFields["shoots"] * 100 : 0)}%");
