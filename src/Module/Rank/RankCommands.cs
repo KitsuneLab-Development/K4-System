@@ -8,6 +8,7 @@ namespace K4System
 
 	using System.Text.RegularExpressions;
 	using Nexd.MySQL;
+	using CounterStrikeSharp.API.Modules.Commands.Targeting;
 
 	public partial class ModuleRank : IModuleRank
 	{
@@ -142,19 +143,26 @@ namespace K4System
 			{
 				string playerName = player != null && player.IsValid && player.PlayerPawn.Value != null ? player.PlayerName : "SERVER";
 
-				List<CCSPlayerController> players = Utilities.GetPlayers();
-				foreach (CCSPlayerController target in players)
+				TargetResult targetResult = info.GetArgTargetResult(1);
+
+				if (!targetResult.Any())
+				{
+					info.ReplyToCommand($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.general.targetnotfound"]}");
+					return;
+				}
+
+				foreach (CCSPlayerController target in targetResult.Players)
 				{
 					if (target.IsBot || target.IsHLTV)
+					{
+						info.ReplyToCommand($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.general.targetnobot", target.PlayerName]}");
 						continue;
-
-					if (target.SteamID.ToString() != Regex.Replace(info.ArgByIndex(1), @"['"",\s]", ""))
-						continue;
+					}
 
 					if (!rankCache.ContainsPlayer(target))
 					{
-						info.ReplyToCommand($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.general.targetloading"]}");
-						return;
+						info.ReplyToCommand($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.general.targetloading", target.PlayerName]}");
+						continue;
 					}
 
 					RankData playerData = rankCache[target];
@@ -165,8 +173,6 @@ namespace K4System
 					SavePlayerRankCache(target, false);
 
 					Server.PrintToChatAll($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.ranks.resetrank", target.PlayerName, playerName]}");
-
-					return;
 				}
 			});
 
@@ -181,19 +187,26 @@ namespace K4System
 					return;
 				}
 
-				List<CCSPlayerController> players = Utilities.GetPlayers();
-				foreach (CCSPlayerController target in players)
+				TargetResult targetResult = info.GetArgTargetResult(1);
+
+				if (!targetResult.Any())
+				{
+					info.ReplyToCommand($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.general.targetnotfound"]}");
+					return;
+				}
+
+				foreach (CCSPlayerController target in targetResult.Players)
 				{
 					if (target.IsBot || target.IsHLTV)
+					{
+						info.ReplyToCommand($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.general.targetnobot", target.PlayerName]}");
 						continue;
-
-					if (target.SteamID.ToString() != Regex.Replace(info.ArgByIndex(1), @"['"",\s]", ""))
-						continue;
+					}
 
 					if (!rankCache.ContainsPlayer(target))
 					{
-						info.ReplyToCommand($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.general.targetloading"]}");
-						return;
+						info.ReplyToCommand($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.general.targetloading", target.PlayerName]}");
+						continue;
 					}
 
 					RankData playerData = rankCache[target];
@@ -204,8 +217,6 @@ namespace K4System
 					SavePlayerRankCache(target, false);
 
 					Server.PrintToChatAll($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.ranks.setpoints", target.PlayerName, parsedInt, playerName]}");
-
-					return;
 				}
 			});
 
@@ -220,19 +231,26 @@ namespace K4System
 					return;
 				}
 
-				List<CCSPlayerController> players = Utilities.GetPlayers();
-				foreach (CCSPlayerController target in players)
+				TargetResult targetResult = info.GetArgTargetResult(1);
+
+				if (!targetResult.Any())
+				{
+					info.ReplyToCommand($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.general.targetnotfound"]}");
+					return;
+				}
+
+				foreach (CCSPlayerController target in targetResult.Players)
 				{
 					if (target.IsBot || target.IsHLTV)
+					{
+						info.ReplyToCommand($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.general.targetnobot", target.PlayerName]}");
 						continue;
-
-					if (target.SteamID.ToString() != Regex.Replace(info.ArgByIndex(1), @"['"",\s]", ""))
-						continue;
+					}
 
 					if (!rankCache.ContainsPlayer(target))
 					{
-						info.ReplyToCommand($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.general.targetloading"]}");
-						return;
+						info.ReplyToCommand($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.general.targetloading", target.PlayerName]}");
+						continue;
 					}
 
 					RankData playerData = rankCache[target];
@@ -243,13 +261,11 @@ namespace K4System
 					SavePlayerRankCache(target, false);
 
 					Server.PrintToChatAll($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.ranks.givepoints", playerName, parsedInt, target.PlayerName]}");
-
-					return;
 				}
 			});
 
 			plugin.AddCommand("css_removepoints", "Remove points from the targeted player",
-				[CommandHelper(2, "<SteamID64> <amount>", whoCanExecute: CommandUsage.CLIENT_AND_SERVER)][RequiresPermissions("@k4system/admin")] (player, info) =>
+				[CommandHelper(2, "<target> <amount>", whoCanExecute: CommandUsage.CLIENT_AND_SERVER)][RequiresPermissions("@k4system/admin")] (player, info) =>
 			{
 				string playerName = player != null && player.IsValid && player.PlayerPawn.Value != null ? player.PlayerName : "SERVER";
 
@@ -259,19 +275,26 @@ namespace K4System
 					return;
 				}
 
-				List<CCSPlayerController> players = Utilities.GetPlayers();
-				foreach (CCSPlayerController target in players)
+				TargetResult targetResult = info.GetArgTargetResult(1);
+
+				if (!targetResult.Any())
+				{
+					info.ReplyToCommand($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.general.targetnotfound"]}");
+					return;
+				}
+
+				foreach (CCSPlayerController target in targetResult.Players)
 				{
 					if (target.IsBot || target.IsHLTV)
+					{
+						info.ReplyToCommand($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.general.targetnobot", target.PlayerName]}");
 						continue;
-
-					if (target.SteamID.ToString() != Regex.Replace(info.ArgByIndex(1), @"['"",\s]", ""))
-						continue;
+					}
 
 					if (!rankCache.ContainsPlayer(target))
 					{
-						info.ReplyToCommand($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.general.targetloading"]}");
-						return;
+						info.ReplyToCommand($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.general.targetloading", target.PlayerName]}");
+						continue;
 					}
 
 					RankData playerData = rankCache[target];
@@ -282,8 +305,6 @@ namespace K4System
 					SavePlayerRankCache(target, false);
 
 					Server.PrintToChatAll($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.ranks.removepoints", playerName, parsedInt, target.PlayerName]}");
-
-					return;
 				}
 			});
 		}
