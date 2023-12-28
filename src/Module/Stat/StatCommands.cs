@@ -50,8 +50,8 @@ namespace K4System
 					info.ReplyToCommand($"--- {ChatColors.Silver}Kills: {ChatColors.Lime}{kills} {ChatColors.Silver}| Firstblood: {ChatColors.Lime}{firstblood} {ChatColors.Silver}| Assists: {ChatColors.Lime}{assists}");
 					info.ReplyToCommand($"--- {ChatColors.Silver}Hits Given: {ChatColors.Lime}{hitsGiven} {ChatColors.Silver}| Hits Taken: {ChatColors.Lime}{hitsTaken} {ChatColors.Silver}| Deaths: {ChatColors.Lime}{deaths} {ChatColors.Silver}");
 					info.ReplyToCommand($"--- {ChatColors.Silver}Headshots: {ChatColors.Lime}{headshots} {ChatColors.Silver}| Headshot Percentage: {ChatColors.Lime}{roundedHeadshotPercentage}% {ChatColors.Silver}| Grenades Thrown: {ChatColors.Lime}{grenadesThrown}");
-					info.ReplyToCommand($"--- {ChatColors.Silver}Round Wins: {ChatColors.Lime}{roundWin} {ChatColors.Silver}| Round Loses: {ChatColors.Lime}{roundLose} {ChatColors.Silver}| Chance: {ChatColors.Lime}{roundChance}");
-					info.ReplyToCommand($"--- {ChatColors.Silver}Game Wins: {ChatColors.Lime}{gameWin} {ChatColors.Silver}| Game Loses: {ChatColors.Lime}{gameLose} {ChatColors.Silver}| Chance: {ChatColors.Lime}{gameChance}");
+					info.ReplyToCommand($"--- {ChatColors.Silver}Round Wins: {ChatColors.Lime}{roundWin} {ChatColors.Silver}| Round Loses: {ChatColors.Lime}{roundLose} {ChatColors.Silver}| Chance: {ChatColors.Lime}{roundChance}%");
+					info.ReplyToCommand($"--- {ChatColors.Silver}Game Wins: {ChatColors.Lime}{gameWin} {ChatColors.Silver}| Game Loses: {ChatColors.Lime}{gameLose} {ChatColors.Silver}| Chance: {ChatColors.Lime}{gameChance}%");
 					info.ReplyToCommand($"--- {ChatColors.Silver}Shoots: {ChatColors.Lime}{shoots} {ChatColors.Silver}| Accuracy: {ChatColors.Lime}{accuracy}%");
 					info.ReplyToCommand($"--- {ChatColors.Silver}KDA: {ChatColors.Lime}{playerData.KDA} {ChatColors.Silver}| MVPs: {ChatColors.Lime}{mvp}");
 				});
