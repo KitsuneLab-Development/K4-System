@@ -275,7 +275,7 @@ namespace K4System
 				return amount;
 			}
 
-			double pointsRatio = Math.Max(Config.RankSettings.DynamicDeathPointsMinMultiplier, Math.Min(rankCache[modifyFrom].Points / rankCache[modifyFor].Points, Config.RankSettings.DynamicDeathPointsMaxMultiplier));
+			double pointsRatio = Math.Clamp(rankCache[modifyFor].Points / rankCache[modifyFrom].Points, Config.RankSettings.DynamicDeathPointsMinMultiplier, Config.RankSettings.DynamicDeathPointsMaxMultiplier);
 			double result = pointsRatio * amount;
 			return (int)Math.Round(result);
 		}
