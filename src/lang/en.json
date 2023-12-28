@@ -38,7 +38,7 @@
 
   "k4.stats.title": "{lime}{0}{silver}'s Stats",
   "k4.stats.line1": "--- {silver}Kills: {lime}{0} {silver}| First blood: {lime}{1} {silver}| Assists: {lime}{2}",
-  "k4.stats.line2": "--- {silver}Hits Given: {lime}{0} {silver}| Hits Taken: {lime}{1} {silver}| Deaths: {lime}{2} {silver}",
+  "k4.stats.line2": "--- {silver}Hits Given: {lime}{0} {silver}| Hits Taken: {lime}{1} {silver}| Deaths: {lime}{2}",
   "k4.stats.line3": "--- {silver}Headshots: {lime}{0} {silver}| Headshot Percentage: {lime}{1:n2}% {silver}| Grenades Thrown: {lime}{2}",
   "k4.stats.line4": "--- {silver}Round Wins: {lime}{0} {silver}| Round Losses: {lime}{1} {silver}| Chance: {lime}{2:n2}%",
   "k4.stats.line5": "--- {silver}Game Wins: {lime}{0} {silver}| Game Losses: {lime}{1} {silver}| Chance: {lime}{2:n2}%",

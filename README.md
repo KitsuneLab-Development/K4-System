@@ -112,8 +112,9 @@ To use this server addon, you'll need the following dependencies installed:
 I really appreciate the help of the following people who translated the plugin into their language:
 
 - **jinni**: German
+- **jinni**: Italian
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
+- <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- GETTING STARTED -->
 
