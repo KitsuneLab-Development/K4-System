@@ -10,6 +10,22 @@ namespace K4System
 
 	public sealed partial class Plugin : BasePlugin
 	{
+		public string ApplyPrefixColors(string msg)
+		{
+			string modifiedValue = msg;
+			Type chatColorsType = typeof(ChatColors);
+
+			foreach (FieldInfo field in chatColorsType.GetFields())
+			{
+				if (modifiedValue.Equals(field.Name, StringComparison.OrdinalIgnoreCase))
+				{
+					modifiedValue = modifiedValue.Replace(field.Name, field.GetValue(null)!.ToString(), StringComparison.OrdinalIgnoreCase);
+				}
+			}
+
+			return modifiedValue;
+		}
+
 		public bool InitializeDatabase(string tableName, string createTableQuery)
 		{
 			if (string.IsNullOrEmpty(this.Config.DatabaseSettings.Host) ||
