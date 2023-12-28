@@ -12,6 +12,14 @@ namespace K4System
 	{
 		public bool InitializeDatabase(string tableName, string createTableQuery)
 		{
+			if (string.IsNullOrEmpty(this.Config.DatabaseSettings.Host) ||
+				string.IsNullOrEmpty(this.Config.DatabaseSettings.Database) ||
+				string.IsNullOrEmpty(this.Config.DatabaseSettings.Username) ||
+				string.IsNullOrEmpty(this.Config.DatabaseSettings.Password))
+			{
+				return false;
+			}
+
 			tableName = $"{this.Config.DatabaseSettings.TablePrefix}{tableName}";
 
 			string connectionString = $"Server={this.Config.DatabaseSettings.Host};Database={this.Config.DatabaseSettings.Database};port={this.Config.DatabaseSettings.Port};User Id={this.Config.DatabaseSettings.Username};password={this.Config.DatabaseSettings.Password};SslMode=none;";
