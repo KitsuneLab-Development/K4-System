@@ -50,7 +50,7 @@ namespace K4System
 
 			Dictionary<string, int> NewStatFields = new Dictionary<string, int>();
 
-			string[] statFieldNames = { "kills", "firstblood", "deaths", "hits_given", "hits_taken", "headshots", "grenades", "mvp", "round_win", "round_lose", "game_win", "game_lose", "assists" };
+			string[] statFieldNames = { "kills", "shoots", "firstblood", "deaths", "hits_given", "hits_taken", "headshots", "grenades", "mvp", "round_win", "round_lose", "game_win", "game_lose", "assists" };
 
 			foreach (string statField in statFieldNames)
 			{
@@ -127,6 +127,27 @@ namespace K4System
 			string insertOrUpdateQuery = queryBuilder.ToString();
 
 			MySqlQueryResult result = await Database.ExecuteQueryAsync(insertOrUpdateQuery);
+
+			if (Config.GeneralSettings.LevelRanksCompatibility)
+			{
+				await Database.ExecuteNonQueryAsync($@"
+					INSERT INTO `lvl_base`
+					(`steam`, `name`, `kills`, `deaths`, `shoots`, `hits`, `headshots`, `assists`, `round_win`, `round_lose`, `lastconnect`)
+					VALUES
+					('{steamid}', '{escapedName}', {playerData.StatFields["kills"]}, {playerData.StatFields["deaths"]}, {playerData.StatFields["shoots"]}, {playerData.StatFields["hits_given"]}, {playerData.StatFields["headshots"]}, {playerData.StatFields["assists"]}, {playerData.StatFields["round_win"]}, {playerData.StatFields["round_lose"]}, CURRENT_TIMESTAMP)
+					ON DUPLICATE KEY UPDATE
+					`name` = '{escapedName}',
+					`kills` = {playerData.StatFields["kills"]},
+					`deaths` = {playerData.StatFields["deaths"]},
+					`shoots` = {playerData.StatFields["shoots"]},
+					`hits` = {playerData.StatFields["hits_given"]},
+					`headshots` = {playerData.StatFields["headshots"]},
+					`assists` = {playerData.StatFields["assists"]},
+					`round_win` = {playerData.StatFields["round_win"]},
+					`round_lose` = {playerData.StatFields["round_lose"]},
+					`lastconnect` = CURRENT_TIMESTAMP;
+				");
+			}
 
 			if (!remove)
 			{

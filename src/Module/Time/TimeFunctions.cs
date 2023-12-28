@@ -125,6 +125,20 @@ namespace K4System
 
 			MySqlQueryResult result = await Database.ExecuteQueryAsync(insertOrUpdateQuery);
 
+			if (Config.GeneralSettings.LevelRanksCompatibility)
+			{
+				await Database.ExecuteNonQueryAsync($@"
+					INSERT INTO `lvl_base`
+					(`steam`, `name`, `playtime`, `lastconnect`)
+					VALUES
+					('{steamid}', '{escapedName}', {playerData.TimeFields["all"]}, CURRENT_TIMESTAMP)
+					ON DUPLICATE KEY UPDATE
+					`name` = '{escapedName}',
+					`playtime` = (`playtime` + {playerData.TimeFields["all"]}),
+					`lastconnect` = CURRENT_TIMESTAMP;
+				");
+			}
+
 			if (!remove)
 			{
 				Dictionary<string, int> NewStatFields = new Dictionary<string, int>();

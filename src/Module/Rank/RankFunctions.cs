@@ -215,6 +215,29 @@ namespace K4System
 				END;
 			");
 
+			if (Config.GeneralSettings.LevelRanksCompatibility)
+			{
+				await Database.ExecuteNonQueryAsync($@"
+					INSERT INTO `lvl_base`
+					(`steam`, `name`, `rank`, `lastconnect`, `value`)
+					VALUES
+					('{steamid}', '{escapedName}', '{playerData.Rank.Name}', CURRENT_TIMESTAMP,
+					CASE
+						WHEN (`value` + {setPoints}) < 0 THEN 0
+						ELSE (`value` + {setPoints})
+					END)
+					ON DUPLICATE KEY UPDATE
+					`name` = '{escapedName}',
+					`rank` = '{playerData.Rank.Name}',
+					`lastconnect` = CURRENT_TIMESTAMP,
+					`value` =
+					CASE
+						WHEN (`value` + {setPoints}) < 0 THEN 0
+						ELSE (`value` + {setPoints})
+					END;
+				");
+			}
+
 			if (!remove)
 			{
 				MySqlQueryResult result = await Database.ExecuteQueryAsync($@"

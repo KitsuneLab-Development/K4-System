@@ -20,6 +20,9 @@ namespace K4System
 
 		[JsonPropertyName("module_times")]
 		public bool ModuleTimes { get; set; } = true;
+
+		[JsonPropertyName("lvl-ranks-table")]
+		public bool LevelRanksCompatibility { get; set; } = false;
 	}
 
 	public sealed class CommandSettings

@@ -31,8 +31,8 @@ namespace K4System
 
 			if (!plugin.InitializeDatabase("k4times", @$"CREATE TABLE IF NOT EXISTS `{this.Config.DatabaseSettings.TablePrefix}k4times` (
 					`id` INT AUTO_INCREMENT PRIMARY KEY,
-					`steam_id` VARCHAR(32) UNIQUE NOT NULL,
-					`name` VARCHAR(255) NOT NULL,
+					`steam_id` VARCHAR(32) COLLATE 'utf8_unicode_ci' UNIQUE NOT NULL,
+					`name` VARCHAR(255) COLLATE 'utf8_unicode_ci' NOT NULL,
 					`all` INT NOT NULL DEFAULT 0,
 					`ct` INT NOT NULL DEFAULT 0,
 					`t` INT NOT NULL DEFAULT 0,

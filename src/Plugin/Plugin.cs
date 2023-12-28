@@ -7,7 +7,7 @@
     using MySqlConnector;
     using Nexd.MySQL;
 
-    [MinimumApiVersion(124)]
+    [MinimumApiVersion(142)]
     public sealed partial class Plugin : BasePlugin, IPluginConfig<PluginConfig>
     {
         //** ? PLUGIN GLOBALS */
@@ -80,6 +80,36 @@
 
             if (Config.GeneralSettings.ModuleTimes)
                 this.ModuleTime.Initialize(hotReload);
+
+            //** ? Initialize LevelRanks Compatibility Table */
+
+            if (Config.GeneralSettings.LevelRanksCompatibility)
+            {
+                if (!Config.GeneralSettings.ModuleRanks || !Config.GeneralSettings.ModuleStats || !Config.GeneralSettings.ModuleTimes)
+                {
+                    base.Logger.LogWarning("LevelRanks Compatibility is enabled but one or more of the modules are disabled. Disabling LevelRanks Compatibility.");
+                }
+                else
+                {
+                    this.Database.ExecuteNonQueryAsync(@$"CREATE TABLE IF NOT EXISTS `lvl_base` (
+                            `steam` VARCHAR(32) COLLATE 'utf8_unicode_ci' PRIMARY KEY,
+                            `name`  VARCHAR(255) COLLATE 'utf8_unicode_ci',
+                            `value` INT NOT NULL DEFAULT 0,
+                            `rank` INT NOT NULL DEFAULT 0,
+                            `kills` INT NOT NULL DEFAULT 0,
+                            `deaths` INT NOT NULL DEFAULT 0,
+                            `shoots` INT NOT NULL DEFAULT 0,
+                            `hits` INT NOT NULL DEFAULT 0,
+                            `headshots` INT NOT NULL DEFAULT 0,
+                            `assists` INT NOT NULL DEFAULT 0,
+                            `round_win` INT NOT NULL DEFAULT 0,
+                            `round_lose` INT NOT NULL DEFAULT 0,
+                            `playtime` INT NOT NULL DEFAULT 0,
+                            `lastconnect` INT NOT NULL DEFAULT 0
+                        );
+                    ");
+                }
+            }
         }
 
         public override void Unload(bool hotReload)

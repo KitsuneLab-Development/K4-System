@@ -166,6 +166,25 @@ namespace K4System
 				return HookResult.Continue;
 			});
 
+			plugin.RegisterEventHandler((EventPlayerShoot @event, GameEventInfo info) =>
+			{
+				if (!IsStatsAllowed())
+				{
+					return HookResult.Continue;
+				}
+
+				CCSPlayerController player = @event.Userid;
+
+				if (player is null || !player.IsValid || !player.PlayerPawn.IsValid)
+					return HookResult.Continue;
+
+				if (player.IsBot || player.IsHLTV)
+					return HookResult.Continue;
+
+				ModifyPlayerStats(player, "shoots", 1);
+				return HookResult.Continue;
+			});
+
 			plugin.RegisterEventHandler((EventRoundMvp @event, GameEventInfo info) =>
 			{
 				if (!IsStatsAllowed())
