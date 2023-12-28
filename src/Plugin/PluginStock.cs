@@ -82,6 +82,7 @@ namespace K4System
 				this.Logger.LogInformation("Checking table '{0}' | Validating {1} columns", tableName, columnNames.Count);
 
 				var missingColumns = columnNames.Distinct().ToList();
+				var unusedColumns = new List<string>();
 
 				using (var connection = new MySqlConnection(connectionString))
 				{
@@ -97,7 +98,14 @@ namespace K4System
 						{
 							while (reader.Read())
 							{
-								missingColumns.Remove(reader.GetString(0));
+								string columnName = reader.GetString(0);
+
+
+								if (missingColumns.Contains(columnName))
+								{
+									missingColumns.Remove(columnName);
+								}
+								else unusedColumns.Add(columnName);
 							}
 						}
 					}
@@ -106,11 +114,15 @@ namespace K4System
 				if (missingColumns.Count > 0)
 				{
 					this.Logger.LogCritical("The following columns are missing in the {0} table: {1}", tableName, string.Join(", ", missingColumns));
-					return false;
 				}
-			}
 
-			return true;
+				if (unusedColumns.Count > 0)
+				{
+					this.Logger.LogWarning("The following columns exist in the {0} table but are not used in the plugin: {1}", tableName, string.Join(", ", unusedColumns));
+				}
+
+				return missingColumns.Count == 0;
+			}
 		}
 	}
 }
