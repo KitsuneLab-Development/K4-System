@@ -46,15 +46,7 @@ namespace K4System
 
 				rankDictionary = rankDictionary.OrderBy(kv => kv.Value.Point).ToDictionary(kv => kv.Key, kv => kv.Value);
 
-				rankDictionary.Values.ToList().ForEach(rank =>
-				{
-					rank.Color = rank.Color.ToLower();
-
-					if (!Enum.TryParse(typeof(CounterStrikeSharp.API.Modules.Utils.ChatColors), rank.Color, true, out _))
-					{
-						Logger.LogWarning($"Invalid color '{rank.Color}' for rank '{rank.Name}'.");
-					}
-				});
+				rankDictionary.Values.ToList().ForEach(rank => rank.Color = rank.Color.ToLower());
 
 				if (!rankDictionary.Values.Any(rank => rank.Point == -1))
 				{
