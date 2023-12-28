@@ -1,4 +1,15 @@
--- 2023.12.15 - V2.0.4
+-- 2023.12.28 - V2.0.5
+
+- feat: New statistics: Headshot percentage
+- feat: New statistics: Accuracy
+- feat: LevelRanks Compatibility added for webpanels
+- feat: MySQL table validation to prevent errors and crashes
+- fix: Stats Command MissType
+- fix: DynamicDeathPoints calculate problems
+- fix: Bot point calculations (now they are not counted if disabled)
+- refactor: Optimised the compiler options
+
+- -- 2023.12.15 - V2.0.4
 
 - feat: Game win stats
 - feat: Game lose stats
