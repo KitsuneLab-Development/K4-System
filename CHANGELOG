@@ -1,3 +1,25 @@
+-- 2023.12.29 - V3.0.0
+
+- feat: Check available ranks with details (#91)
+- feat: Translations added (#1)
+- feat: FFA mode support for game win/lose
+- feat: MySQL table validator now tells you which columns are unused by the plugin
+- fix: Translation rank colors
+- fix: Block MySQL validation if no credentials given
+- fix: Plugin context is not needed in main deps
+- fix: Game win/lose statistics count
+- fix: Round and Game based stats
+- fix: Percentage based stats are now calculated correctly
+- fix: Headshot percentage is now calculated correctly
+- fix: KDA is now calculated correctly
+- refactor: Remove unused parts
+- refactor: Remove unused functions
+- refactor: Disable levelranks if required modules not running
+- refactor: Prefix moved to translations
+- refactor: Update K4-System.csproj for Release configuration
+- upgrade: Add targeting functionality to RankCommands.cs
+- chore: Add % symbol to the required fields
+
 -- 2023.12.28 - V2.0.6
 
 - feat: FFA mode support for game win/lose
