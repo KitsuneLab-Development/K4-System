@@ -1,4 +1,15 @@
--- 2023.12.28 - V2.0.5
+-- 2023.12.28 - V2.0.6
+
+- feat: FFA mode support for game win/lose
+- fix: Headshot percentage not counted properly
+- fix: Accuracy not counted properly
+- fix: RoundEnd point changes not counted properly
+- fix: Round win percentage not counted properly
+- fix: Game win percentage not counted properly
+- fix: Shoots not counted properly
+- fix: Game win/loss not counted properly
+
+- -- 2023.12.28 - V2.0.5
 
 - feat: New statistics: Headshot percentage
 - feat: New statistics: Accuracy

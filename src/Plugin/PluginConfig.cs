@@ -23,6 +23,9 @@ namespace K4System
 
 		[JsonPropertyName("lvl-ranks-table")]
 		public bool LevelRanksCompatibility { get; set; } = false;
+
+		[JsonPropertyName("ffa-mode")]
+		public bool FFAMode { get; set; } = false;
 	}
 
 	public sealed class CommandSettings
@@ -108,9 +111,6 @@ namespace K4System
 
 		[JsonPropertyName("warmup-points")]
 		public bool WarmupPoints { get; set; } = false;
-
-		[JsonPropertyName("ffa-mode")]
-		public bool FFAMode { get; set; } = false;
 
 		[JsonPropertyName("round-end-points")]
 		public bool RoundEndPoints { get; set; } = false;
@@ -284,6 +284,6 @@ namespace K4System
 		public PointSettings PointSettings { get; set; } = new PointSettings();
 
 		[JsonPropertyName("ConfigVersion")]
-		public override int Version { get; set; } = 4;
+		public override int Version { get; set; } = 5;
 	}
 }

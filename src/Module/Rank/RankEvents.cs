@@ -263,7 +263,7 @@ namespace K4System
 
 				if (killer != null && killer.IsValid && killer.PlayerPawn.IsValid && !killer.IsBot && victim.UserId != killer.UserId && (Config.RankSettings.PointsForBots || !victim.IsBot))
 				{
-					if (!Config.RankSettings.FFAMode && killer.TeamNum == victim.TeamNum)
+					if (!Config.GeneralSettings.FFAMode && killer.TeamNum == victim.TeamNum)
 					{
 						ModifyPlayerPoints(killer, Config.PointSettings.TeamKill, "TeamKill");
 					}

@@ -224,36 +224,49 @@ namespace K4System
 					return HookResult.Continue;
 				}
 
-				int ctScore = Utilities.FindAllEntitiesByDesignerName<CCSTeam>("cs_team_manager")
-					.Where(team => team.Teamname == "CT")
-					.Select(team => team.Score)
-					.FirstOrDefault();
-
-				int tScore = Utilities.FindAllEntitiesByDesignerName<CCSTeam>("cs_team_manager")
-					.Where(team => team.Teamname == "TERRORIST")
-					.Select(team => team.Score)
-					.FirstOrDefault();
-
-				CsTeam winnerTeam = ctScore > tScore ? CsTeam.CounterTerrorist : tScore > ctScore ? CsTeam.Terrorist : CsTeam.None;
-
-				if ((int)winnerTeam > (int)CsTeam.Spectator)
+				if (Config.GeneralSettings.FFAMode)
 				{
 					List<CCSPlayerController> players = Utilities.GetPlayers();
 
-					foreach (CCSPlayerController player in players)
+					CCSPlayerController? player = players.OrderByDescending(p => p?.Score).FirstOrDefault();
+
+					if (player != null && player.IsValid && player.PlayerPawn.IsValid && !player.IsBot && !player.IsHLTV)
 					{
-						if (player is null || !player.IsValid || !player.PlayerPawn.IsValid)
-							continue;
+						ModifyPlayerStats(player, "game_win", 1);
+					}
 
-						if (player.IsBot || player.IsHLTV)
-							continue;
+					foreach (CCSPlayerController otherPlayer in players.Where(p => p != player && p != null && p.IsValid && p.PlayerPawn.IsValid && !p.IsBot && !p.IsHLTV))
+					{
+						ModifyPlayerStats(otherPlayer, "game_lose", 1);
+					}
+				}
+				else
+				{
+					int ctScore = Utilities.FindAllEntitiesByDesignerName<CCSTeam>("cs_team_manager")
+						.Where(team => team.Teamname == "CT")
+						.Select(team => team.Score)
+						.FirstOrDefault();
 
-						CsTeam playerTeam = (CsTeam)player.TeamNum;
+					int tScore = Utilities.FindAllEntitiesByDesignerName<CCSTeam>("cs_team_manager")
+						.Where(team => team.Teamname == "TERRORIST")
+						.Select(team => team.Score)
+						.FirstOrDefault();
 
-						if (playerTeam <= CsTeam.Spectator)
-							continue;
+					CsTeam winnerTeam = ctScore > tScore ? CsTeam.CounterTerrorist : tScore > ctScore ? CsTeam.Terrorist : CsTeam.None;
 
-						ModifyPlayerStats(player, playerTeam == winnerTeam ? "game_win" : "game_lose", 1);
+					if ((int)winnerTeam > (int)CsTeam.Spectator)
+					{
+						List<CCSPlayerController> players = Utilities.GetPlayers();
+
+						foreach (CCSPlayerController player in players.Where(p => p != null && p.IsValid && p.PlayerPawn.IsValid && !p.IsBot && !p.IsHLTV))
+						{
+							CsTeam playerTeam = (CsTeam)player.TeamNum;
+
+							if (playerTeam > CsTeam.Spectator)
+							{
+								ModifyPlayerStats(player, playerTeam == winnerTeam ? "game_win" : "game_lose", 1);
+							}
+						}
 					}
 				}
 
