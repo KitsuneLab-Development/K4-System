@@ -138,9 +138,9 @@ namespace K4System
 					return HookResult.Continue;
 				}
 
-				CsTeam winnerTeam = (CsTeam)@event.Winner;
+				int winnerTeam = @event.Winner;
 
-				if (winnerTeam < CsTeam.Spectator)
+				if (winnerTeam > (int)CsTeam.Spectator)
 				{
 					List<CCSPlayerController> players = Utilities.GetPlayers();
 
@@ -152,12 +152,10 @@ namespace K4System
 						if (player.IsBot || player.IsHLTV)
 							continue;
 
-						CsTeam playerTeam = (CsTeam)player.TeamNum;
-
-						if (playerTeam <= CsTeam.Spectator)
+						if (player.TeamNum <= (int)CsTeam.Spectator)
 							continue;
 
-						ModifyPlayerStats(player, playerTeam == winnerTeam ? "round_win" : "round_lose", 1);
+						ModifyPlayerStats(player, player.TeamNum == winnerTeam ? "round_win" : "round_lose", 1);
 					}
 				}
 
@@ -166,7 +164,7 @@ namespace K4System
 				return HookResult.Continue;
 			});
 
-			plugin.RegisterEventHandler((EventPlayerShoot @event, GameEventInfo info) =>
+			plugin.RegisterEventHandler((EventWeaponFire @event, GameEventInfo info) =>
 			{
 				if (!IsStatsAllowed())
 				{
@@ -228,7 +226,7 @@ namespace K4System
 
 				CsTeam winnerTeam = (CsTeam)@event.Winner;
 
-				if (winnerTeam < CsTeam.Spectator)
+				if (winnerTeam > CsTeam.Spectator)
 				{
 					List<CCSPlayerController> players = Utilities.GetPlayers();
 
