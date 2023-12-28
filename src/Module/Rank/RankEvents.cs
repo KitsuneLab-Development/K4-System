@@ -207,14 +207,14 @@ namespace K4System
 
 						if (playerData.RoundPoints > 0)
 						{
-							player.PrintToChat($" {Config.GeneralSettings.Prefix} {plugin.Localizer["k4.ranks.summarypoints.gain", playerData.RoundPoints]}");
+							player.PrintToChat($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.ranks.summarypoints.gain", playerData.RoundPoints]}");
 						}
 						else if (playerData.RoundPoints < 0)
 						{
-							player.PrintToChat($" {Config.GeneralSettings.Prefix} {plugin.Localizer["k4.ranks.summarypoints.loss", playerData.RoundPoints]}");
+							player.PrintToChat($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.ranks.summarypoints.loss", playerData.RoundPoints]}");
 						}
 						else
-							player.PrintToChat($" {Config.GeneralSettings.Prefix} {plugin.Localizer["k4.ranks.summarypoints.nochange"]}");
+							player.PrintToChat($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.ranks.summarypoints.nochange"]}");
 					}
 				}
 

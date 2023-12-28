@@ -6,9 +6,6 @@ namespace K4System
 
 	public sealed class GeneralSettings
 	{
-		[JsonPropertyName("chat-prefix")]
-		public string Prefix { get; set; } = "{Silver}[ {Lime}K4-System {Silver}]";
-
 		[JsonPropertyName("spawn-message")]
 		public bool SpawnMessage { get; set; } = true;
 

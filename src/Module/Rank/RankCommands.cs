@@ -25,7 +25,7 @@ namespace K4System
 
 					if (!rankCache.ContainsPlayer(player))
 					{
-						info.ReplyToCommand($" {Config.GeneralSettings.Prefix} {plugin.Localizer["k4.general.loading"]}");
+						info.ReplyToCommand($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.general.loading"]}");
 						return;
 					}
 
@@ -48,7 +48,7 @@ namespace K4System
 
 					int higherRanksCount = rankDictionary.Count(kv => kv.Value.Point > playerData.Points);
 
-					info.ReplyToCommand($" {Config.GeneralSettings.Prefix} {plugin.Localizer["k4.ranks.rank.title", name]}");
+					info.ReplyToCommand($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.ranks.rank.title", name]}");
 					info.ReplyToCommand(plugin.Localizer["k4.ranks.rank.line1", playerData.Points, playerData.Rank.Color, playerData.Rank.Name, rankDictionary.Count - higherRanksCount, rankDictionary.Count]);
 
 					var nextRankEntry = rankDictionary
@@ -78,7 +78,7 @@ namespace K4System
 
 					if (!rankCache.ContainsPlayer(player))
 					{
-						info.ReplyToCommand($" {Config.GeneralSettings.Prefix} {plugin.Localizer["k4.general.loading"]}");
+						info.ReplyToCommand($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.general.loading"]}");
 						return;
 					}
 
@@ -89,7 +89,7 @@ namespace K4System
 
 					SavePlayerRankCache(player, false);
 
-					Server.PrintToChatAll($" {Config.GeneralSettings.Prefix} {plugin.Localizer["k4.ranks.resetmyrank", player.PlayerName]}");
+					Server.PrintToChatAll($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.ranks.resetmyrank", player.PlayerName]}");
 				});
 			});
 
@@ -103,7 +103,7 @@ namespace K4System
 
 					if (!rankCache.ContainsPlayer(player))
 					{
-						info.ReplyToCommand($" {Config.GeneralSettings.Prefix} {plugin.Localizer["k4.general.loading"]}");
+						info.ReplyToCommand($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.general.loading"]}");
 						return;
 					}
 
@@ -118,7 +118,7 @@ namespace K4System
 
 					if (getResult.Count > 0)
 					{
-						player.PrintToChat($" {Config.GeneralSettings.Prefix} {plugin.Localizer["k4.ranks.top.title", printCount]}");
+						player.PrintToChat($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.ranks.top.title", printCount]}");
 
 						for (int i = 0; i < getResult.Count; i++)
 						{
@@ -131,7 +131,7 @@ namespace K4System
 					}
 					else
 					{
-						player.PrintToChat($" {Config.GeneralSettings.Prefix} {plugin.Localizer["k4.ranks.top.notfound", printCount]}");
+						player.PrintToChat($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.ranks.top.notfound", printCount]}");
 					}
 				});
 
@@ -153,7 +153,7 @@ namespace K4System
 
 					if (!rankCache.ContainsPlayer(target))
 					{
-						info.ReplyToCommand($" {Config.GeneralSettings.Prefix} {plugin.Localizer["k4.general.targetloading"]}");
+						info.ReplyToCommand($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.general.targetloading"]}");
 						return;
 					}
 
@@ -164,7 +164,7 @@ namespace K4System
 
 					SavePlayerRankCache(target, false);
 
-					Server.PrintToChatAll($" {Config.GeneralSettings.Prefix} {plugin.Localizer["k4.ranks.resetrank", target.PlayerName, playerName]}");
+					Server.PrintToChatAll($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.ranks.resetrank", target.PlayerName, playerName]}");
 
 					return;
 				}
@@ -177,7 +177,7 @@ namespace K4System
 
 				if (!int.TryParse(info.ArgByIndex(2), out int parsedInt))
 				{
-					info.ReplyToCommand($" {Config.GeneralSettings.Prefix} {plugin.Localizer["k4.general.invalidamount"]}");
+					info.ReplyToCommand($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.general.invalidamount"]}");
 					return;
 				}
 
@@ -192,7 +192,7 @@ namespace K4System
 
 					if (!rankCache.ContainsPlayer(target))
 					{
-						info.ReplyToCommand($" {Config.GeneralSettings.Prefix} {plugin.Localizer["k4.general.targetloading"]}");
+						info.ReplyToCommand($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.general.targetloading"]}");
 						return;
 					}
 
@@ -203,7 +203,7 @@ namespace K4System
 
 					SavePlayerRankCache(target, false);
 
-					Server.PrintToChatAll($" {Config.GeneralSettings.Prefix} {plugin.Localizer["k4.ranks.setpoints", target.PlayerName, parsedInt, playerName]}");
+					Server.PrintToChatAll($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.ranks.setpoints", target.PlayerName, parsedInt, playerName]}");
 
 					return;
 				}
@@ -216,7 +216,7 @@ namespace K4System
 
 				if (!int.TryParse(info.ArgByIndex(2), out int parsedInt))
 				{
-					info.ReplyToCommand($" {Config.GeneralSettings.Prefix} {plugin.Localizer["k4.general.invalidamount"]}");
+					info.ReplyToCommand($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.general.invalidamount"]}");
 					return;
 				}
 
@@ -231,7 +231,7 @@ namespace K4System
 
 					if (!rankCache.ContainsPlayer(target))
 					{
-						info.ReplyToCommand($" {Config.GeneralSettings.Prefix} {plugin.Localizer["k4.general.targetloading"]}");
+						info.ReplyToCommand($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.general.targetloading"]}");
 						return;
 					}
 
@@ -242,7 +242,7 @@ namespace K4System
 
 					SavePlayerRankCache(target, false);
 
-					Server.PrintToChatAll($" {Config.GeneralSettings.Prefix} {plugin.Localizer["k4.ranks.givepoints", playerName, parsedInt, target.PlayerName]}");
+					Server.PrintToChatAll($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.ranks.givepoints", playerName, parsedInt, target.PlayerName]}");
 
 					return;
 				}
@@ -255,7 +255,7 @@ namespace K4System
 
 				if (!int.TryParse(info.ArgByIndex(2), out int parsedInt))
 				{
-					info.ReplyToCommand($" {Config.GeneralSettings.Prefix} {plugin.Localizer["k4.general.invalidamount"]}");
+					info.ReplyToCommand($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.general.invalidamount"]}");
 					return;
 				}
 
@@ -270,7 +270,7 @@ namespace K4System
 
 					if (!rankCache.ContainsPlayer(target))
 					{
-						info.ReplyToCommand($" {Config.GeneralSettings.Prefix} {plugin.Localizer["k4.general.targetloading"]}");
+						info.ReplyToCommand($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.general.targetloading"]}");
 						return;
 					}
 
@@ -281,7 +281,7 @@ namespace K4System
 
 					SavePlayerRankCache(target, false);
 
-					Server.PrintToChatAll($" {Config.GeneralSettings.Prefix} {plugin.Localizer["k4.ranks.removepoints", playerName, parsedInt, target.PlayerName]}");
+					Server.PrintToChatAll($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.ranks.removepoints", playerName, parsedInt, target.PlayerName]}");
 
 					return;
 				}

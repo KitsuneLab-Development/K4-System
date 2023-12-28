@@ -20,7 +20,7 @@ namespace K4System
 
 					if (!statCache.ContainsPlayer(player))
 					{
-						info.ReplyToCommand($" {Config.GeneralSettings.Prefix} {plugin.Localizer["k4.general.loading"]}");
+						info.ReplyToCommand($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.general.loading"]}");
 						return;
 					}
 
@@ -46,7 +46,7 @@ namespace K4System
 					float gameChance = (gameWin + gameLose) > 0 ? (float)Math.Round((float)gameWin / (gameWin + gameLose) * 100, 1) : 0;
 					float accuracy = shoots > 0 ? (float)Math.Round((float)hitsGiven / shoots * 100, 1) : 0;
 
-					info.ReplyToCommand($" {Config.GeneralSettings.Prefix} {plugin.Localizer["k4.stats.title", player!.PlayerName]}");
+					info.ReplyToCommand($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.stats.title", player!.PlayerName]}");
 					info.ReplyToCommand(plugin.Localizer["k4.stats.line1", kills, firstblood, assists]);
 					info.ReplyToCommand(plugin.Localizer["k4.stats.line2", hitsGiven, hitsTaken, deaths]);
 					info.ReplyToCommand(plugin.Localizer["k4.stats.line3", headshots, roundedHeadshotPercentage, grenadesThrown]);

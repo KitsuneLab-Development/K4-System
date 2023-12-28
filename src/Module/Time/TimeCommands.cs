@@ -19,7 +19,7 @@ namespace K4System
 
 					if (!timeCache.ContainsPlayer(player))
 					{
-						info.ReplyToCommand($" {Config.GeneralSettings.Prefix} {plugin.Localizer["k4.general.loading"]}");
+						info.ReplyToCommand($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.general.loading"]}");
 						return;
 					}
 
@@ -33,7 +33,7 @@ namespace K4System
 					if ((CsTeam)player.TeamNum > CsTeam.Spectator)
 						playerData.TimeFields[player.PawnIsAlive ? "alive" : "dead"] += (int)Math.Round((now - playerData.Times["Death"]).TotalSeconds);
 
-					info.ReplyToCommand($" {Config.GeneralSettings.Prefix} {plugin.Localizer["k4.times.title", player.PlayerName]}");
+					info.ReplyToCommand($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.times.title", player.PlayerName]}");
 					info.ReplyToCommand($"--- {plugin.Localizer["k4.times.line1", FormatPlaytime(playerData.TimeFields["all"])]}");
 					info.ReplyToCommand($"--- {plugin.Localizer["k4.times.line2", FormatPlaytime(playerData.TimeFields["ct"]), FormatPlaytime(playerData.TimeFields["t"])]}");
 					info.ReplyToCommand($"--- {plugin.Localizer["k4.times.line3", FormatPlaytime(playerData.TimeFields["spec"])]}");

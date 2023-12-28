@@ -109,11 +109,11 @@ namespace K4System
 				{
 					if (amount > 0)
 					{
-						player.PrintToChat($" {Config.GeneralSettings.Prefix} {plugin.Localizer["k4.ranks.points.gain", oldPoints, amount, plugin.Localizer[reason]]}");
+						player.PrintToChat($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.ranks.points.gain", oldPoints, amount, plugin.Localizer[reason]]}");
 					}
 					else if (amount < 0)
 					{
-						player.PrintToChat($" {Config.GeneralSettings.Prefix} {plugin.Localizer["k4.ranks.points.loss", oldPoints, Math.Abs(amount), plugin.Localizer[reason]]}");
+						player.PrintToChat($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.ranks.points.loss", oldPoints, Math.Abs(amount), plugin.Localizer[reason]]}");
 					}
 				}
 			});
@@ -132,7 +132,7 @@ namespace K4System
 
 			if (playerData.Rank.Name != newRank.Name)
 			{
-				player.PrintToChat($" {Config.GeneralSettings.Prefix} {plugin.Localizer[playerData.Rank.Point > newRank.Point ? "k4.ranks.demote" : "k4.ranks.promote", newRank.Color, newRank.Name]}");
+				player.PrintToChat($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer[playerData.Rank.Point > newRank.Point ? "k4.ranks.demote" : "k4.ranks.promote", newRank.Color, newRank.Name]}");
 
 				if (playerData.Rank.Permissions != null)
 				{

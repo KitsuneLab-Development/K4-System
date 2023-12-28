@@ -1,4 +1,5 @@
 {
+  "k4.general.prefix": "{silver}[ {lime}K4-System {silver}]",
   "k4.general.loading": "{lightred}Your data is not yet loaded. Please try again later...",
   "k4.general.targetloading": "{lightred}The player's data is not yet loaded. Please try again later...",
   "k4.general.invalidamount": "{lightred}The given amount is invalid.",
