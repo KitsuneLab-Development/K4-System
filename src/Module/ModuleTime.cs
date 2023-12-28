@@ -1,10 +1,12 @@
 namespace K4System
 {
+	using System.Text.RegularExpressions;
 	using CounterStrikeSharp.API;
 	using CounterStrikeSharp.API.Core;
 	using CounterStrikeSharp.API.Core.Plugin;
 
 	using Microsoft.Extensions.Logging;
+	using MySqlConnector;
 
 	public partial class ModuleTime : IModuleTime
 	{
@@ -27,8 +29,7 @@ namespace K4System
 
 			//** ? Initialize Database */
 
-			this.Database.ExecuteNonQueryAsync(
-				@$"CREATE TABLE IF NOT EXISTS `{this.Config.DatabaseSettings.TablePrefix}k4times` (
+			if (!plugin.InitializeDatabase("k4times", @$"CREATE TABLE IF NOT EXISTS `{this.Config.DatabaseSettings.TablePrefix}k4times` (
 					`id` INT AUTO_INCREMENT PRIMARY KEY,
 					`steam_id` VARCHAR(32) UNIQUE NOT NULL,
 					`name` VARCHAR(255) NOT NULL,
@@ -39,8 +40,10 @@ namespace K4System
 					`dead` INT NOT NULL DEFAULT 0,
 					`alive` INT NOT NULL DEFAULT 0,
 					UNIQUE (`steam_id`)
-				);"
-			);
+				);"))
+			{
+				return;
+			}
 
 			//** ? Register Module Parts */
 
