@@ -16,8 +16,6 @@ namespace K4System
 				ranksMenu.AddMenuOption(rank.Point == -1 ? plugin.Localizer["k4.ranks.listdefault", rank.Color, rank.Name] : plugin.Localizer["k4.ranks.listitem", rank.Color, rank.Name, rank.Point],
 					(player, option) =>
 				{
-					Logger.LogInformation($"Player {player.PlayerName} selected rank {option.Text}.");
-
 					MySqlQueryResult result = Database.ExecuteQuery($@"
 						SELECT
 							COUNT(*) AS PlayerCount,
@@ -30,8 +28,6 @@ namespace K4System
 						GROUP BY
 							`rank`;"
 					);
-
-					Logger.LogInformation(result.ToString());
 
 					int playerInRank = result.Count > 0 ? result.Get<int>(0, "PlayerCount") : 0;
 					float playerPercentageInRank = result.Count > 0 ? result.Get<float>(0, "Percentage") : 0.0f;
