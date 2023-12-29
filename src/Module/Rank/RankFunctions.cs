@@ -2,9 +2,7 @@ namespace K4System
 {
 	using CounterStrikeSharp.API;
 	using CounterStrikeSharp.API.Core;
-	using CounterStrikeSharp.API.Modules.Utils;
 
-	using System.Reflection;
 	using MySqlConnector;
 	using Nexd.MySQL;
 	using Microsoft.Extensions.Logging;
@@ -155,7 +153,10 @@ namespace K4System
 			}
 
 			if (Config.RankSettings.ScoreboardRanks)
-				player.Clan = $"{playerData.Rank.Tag ?? $"[{playerData.Rank.Name}]"}";
+			{
+				string tag = playerData.Rank.Tag ?? $"[{playerData.Rank.Name}]";
+				SetPlayerClanTag(player, tag);
+			}
 		}
 
 		public void SavePlayerRankCache(CCSPlayerController player, bool remove)
@@ -304,6 +305,21 @@ namespace K4System
 			double pointsRatio = Math.Clamp(rankCache[to].Points / rankCache[from].Points, Config.RankSettings.DynamicDeathPointsMinMultiplier, Config.RankSettings.DynamicDeathPointsMaxMultiplier);
 			double result = pointsRatio * amount;
 			return (int)Math.Round(result);
+		}
+
+		public void SetPlayerClanTag(CCSPlayerController player, string tag)
+		{
+			Plugin plugin = (this.PluginContext.Plugin as Plugin)!;
+
+			player.Clan = tag;
+
+			// ? It just works...
+
+			plugin.AddTimer(0.2f, () =>
+			{
+				Utilities.SetStateChanged(player, "CCSPlayerController", "m_szClan");
+				Utilities.SetStateChanged(player, "CBasePlayerController", "m_iszPlayerName");
+			});
 		}
 	}
 }
