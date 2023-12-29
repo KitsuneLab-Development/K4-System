@@ -207,7 +207,7 @@ namespace K4System
 					INSERT INTO `lvl_base`
 					(`steam`, `name`, `rank`, `lastconnect`, `value`)
 					VALUES
-					('{steamid}', '{escapedName}', '{playerData.Rank.Name}', CURRENT_TIMESTAMP,
+					('{Plugin.ConvertSteamID64ToSteamID(long.Parse(steamid))}', '{escapedName}', '{playerData.Rank.Name}', CURRENT_TIMESTAMP,
 					CASE
 						WHEN (`value` + {setPoints}) < 0 THEN 0
 						ELSE (`value` + {setPoints})

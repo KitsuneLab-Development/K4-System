@@ -133,7 +133,7 @@ namespace K4System
 					INSERT INTO `lvl_base`
 					(`steam`, `name`, `kills`, `deaths`, `shoots`, `hits`, `headshots`, `assists`, `round_win`, `round_lose`, `lastconnect`)
 					VALUES
-					('{steamid}', '{escapedName}', {playerData.StatFields["kills"]}, {playerData.StatFields["deaths"]}, {playerData.StatFields["shoots"]}, {playerData.StatFields["hits_given"]}, {playerData.StatFields["headshots"]}, {playerData.StatFields["assists"]}, {playerData.StatFields["round_win"]}, {playerData.StatFields["round_lose"]}, CURRENT_TIMESTAMP)
+					('{Plugin.ConvertSteamID64ToSteamID(long.Parse(steamid))}', '{escapedName}', {playerData.StatFields["kills"]}, {playerData.StatFields["deaths"]}, {playerData.StatFields["shoots"]}, {playerData.StatFields["hits_given"]}, {playerData.StatFields["headshots"]}, {playerData.StatFields["assists"]}, {playerData.StatFields["round_win"]}, {playerData.StatFields["round_lose"]}, CURRENT_TIMESTAMP)
 					ON DUPLICATE KEY UPDATE
 					`name` = '{escapedName}',
 					`kills` = {playerData.StatFields["kills"]},
