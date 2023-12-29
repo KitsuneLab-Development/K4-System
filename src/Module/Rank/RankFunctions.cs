@@ -279,14 +279,14 @@ namespace K4System
 			return (0, 0);
 		}
 
-		public int CalculateDynamicPoints(CCSPlayerController modifyFor, CCSPlayerController modifyFrom, int amount)
+		public int CalculateDynamicPoints(CCSPlayerController from, CCSPlayerController to, int amount)
 		{
-			if (!Config.RankSettings.DynamicDeathPoints || modifyFor.IsBot || modifyFrom.IsBot || rankCache[modifyFor].Points <= 0 || rankCache[modifyFrom].Points <= 0)
+			if (!Config.RankSettings.DynamicDeathPoints || to.IsBot || from.IsBot || rankCache[to].Points <= 0 || rankCache[from].Points <= 0)
 			{
 				return amount;
 			}
 
-			double pointsRatio = Math.Clamp(rankCache[modifyFor].Points / rankCache[modifyFrom].Points, Config.RankSettings.DynamicDeathPointsMinMultiplier, Config.RankSettings.DynamicDeathPointsMaxMultiplier);
+			double pointsRatio = Math.Clamp(rankCache[to].Points / rankCache[from].Points, Config.RankSettings.DynamicDeathPointsMinMultiplier, Config.RankSettings.DynamicDeathPointsMaxMultiplier);
 			double result = pointsRatio * amount;
 			return (int)Math.Round(result);
 		}

@@ -262,7 +262,7 @@ namespace K4System
 					}
 					else if (killer != null && killer.IsValid && (Config.RankSettings.PointsForBots || !killer.IsBot))
 					{
-						ModifyPlayerPoints(victim, CalculateDynamicPoints(victim, killer, Config.PointSettings.Death), "k4.phrases.dying");
+						ModifyPlayerPoints(victim, CalculateDynamicPoints(killer, victim, Config.PointSettings.Death), "k4.phrases.dying");
 					}
 				}
 
@@ -274,7 +274,7 @@ namespace K4System
 					}
 					else
 					{
-						ModifyPlayerPoints(killer, CalculateDynamicPoints(killer, victim, Config.PointSettings.Kill), "k4.phrases.kill");
+						ModifyPlayerPoints(killer, CalculateDynamicPoints(victim, killer, Config.PointSettings.Kill), "k4.phrases.kill");
 
 						if (@event.Headshot)
 						{
