@@ -122,7 +122,7 @@ namespace K4System
 				queryBuilder.Append($@"
 
 				SELECT * FROM `{Config.DatabaseSettings.TablePrefix}k4stats`
-				WHERE `steam_id` = '{steamid}';");
+				WHERE `steam_id` = '{steamid.SteamId64}';");
 			}
 
 			string insertOrUpdateQuery = queryBuilder.ToString();
