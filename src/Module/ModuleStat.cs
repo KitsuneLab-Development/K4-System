@@ -47,7 +47,7 @@ namespace K4System
 				`game_win` INT NOT NULL DEFAULT 0,
 				`game_lose` INT NOT NULL DEFAULT 0,
 				UNIQUE (`steam_id`)
-			);"))
+			) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"))
 			{
 				return;
 			}

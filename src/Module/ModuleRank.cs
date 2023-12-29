@@ -37,7 +37,7 @@ namespace K4System
 				`rank` VARCHAR(255) COLLATE 'utf8mb4_unicode_ci' NOT NULL,
 				`points` INT NOT NULL DEFAULT 0,
 				UNIQUE (`steam_id`)
-			);"))
+			) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"))
 			{
 				return;
 			}

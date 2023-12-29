@@ -104,8 +104,7 @@
                         `round_lose` INT NOT NULL DEFAULT 0,
                         `playtime` INT NOT NULL DEFAULT 0,
                         `lastconnect` INT NOT NULL DEFAULT 0
-                    );
-                ");
+                    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;");
             }
         }
 
