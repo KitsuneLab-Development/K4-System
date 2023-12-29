@@ -4,6 +4,7 @@
 - feat: Killstreak can be now "remembered" until player die (seconds-between-kills = 0)
 - fix: MySQL support for emojis and special characters
 - fix: Add emoji support for player names
+- fix: Replace STEAM_0 with STEAM_1 to match old lvlranks
 
 -- 2023.12.29 - V3.0.2
 
