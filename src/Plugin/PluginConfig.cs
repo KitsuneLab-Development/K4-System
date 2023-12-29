@@ -219,7 +219,7 @@ namespace K4System
 		public int LongDistance { get; set; } = 30;
 
 		[JsonPropertyName("seconds-between-kills")]
-		public int SecondsBetweenKills { get; set; } = 5;
+		public int SecondsBetweenKills { get; set; } = 0;
 
 		[JsonPropertyName("double-kill")]
 		public int DoubleKill { get; set; } = 5;

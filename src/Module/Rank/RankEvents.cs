@@ -290,6 +290,8 @@ namespace K4System
 
 				if (!victim.IsBot)
 				{
+					playerKillStreaks[victim.Slot] = (0, DateTime.Now);
+
 					if (killer is null || !killer.IsValid || victim.UserId == killer.UserId)
 					{
 						ModifyPlayerPoints(victim, Config.PointSettings.Suicide, "k4.phrases.suicide");
@@ -363,14 +365,15 @@ namespace K4System
 								}
 						}
 
-						int attackerIndex = (killer.UserId != null) ? (int)killer.UserId : -1;
-
-						if (playerKillStreaks.ContainsKey(attackerIndex))
+						if (playerKillStreaks.ContainsKey(killer.Slot))
 						{
-							if (playerKillStreaks[attackerIndex].killStreak > 0 && DateTime.Now - playerKillStreaks[attackerIndex].lastKillTime <= TimeSpan.FromSeconds(Config.PointSettings.SecondsBetweenKills))
+							int time = Config.PointSettings.SecondsBetweenKills;
+							bool isTimeBetweenKills = time <= 0 || DateTime.Now - playerKillStreaks[killer.Slot].lastKillTime <= TimeSpan.FromSeconds(time);
+
+							if (playerKillStreaks[killer.Slot].killStreak > 0 && isTimeBetweenKills)
 							{
-								playerKillStreaks[attackerIndex] = (playerKillStreaks[attackerIndex].killStreak + 1, DateTime.Now);
-								int killStreak = playerKillStreaks[attackerIndex].killStreak;
+								playerKillStreaks[killer.Slot] = (playerKillStreaks[killer.Slot].killStreak + 1, DateTime.Now);
+								int killStreak = playerKillStreaks[killer.Slot].killStreak;
 
 								Dictionary<int, (int points, string message)> killStreakMap = new Dictionary<int, (int points, string message)>
 								{
@@ -392,13 +395,13 @@ namespace K4System
 									ModifyPlayerPoints(killer, killStreakInfo.points, killStreakInfo.message);
 								}
 								else
-									playerKillStreaks[attackerIndex] = (1, DateTime.Now);
+									playerKillStreaks[killer.Slot] = (1, DateTime.Now);
 							}
 							else
-								playerKillStreaks[attackerIndex] = (1, DateTime.Now);
+								playerKillStreaks[killer.Slot] = (1, DateTime.Now);
 						}
 						else
-							playerKillStreaks[attackerIndex] = (1, DateTime.Now);
+							playerKillStreaks[killer.Slot] = (1, DateTime.Now);
 					}
 				}
 
