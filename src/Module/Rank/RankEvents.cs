@@ -93,6 +93,8 @@ namespace K4System
 				if (!rankCache.ContainsPlayer(player))
 					return HookResult.Continue;
 
+				playerKillStreaks[player.Slot] = (0, DateTime.Now);
+
 				if (Config.RankSettings.ScoreboardRanks)
 				{
 					RankData playerData = rankCache[player];
