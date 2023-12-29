@@ -80,6 +80,14 @@ namespace K4System
 
 				rankCache[player].PlayedRound = true;
 
+				if (Config.RankSettings.ScoreboardRanks)
+				{
+					RankData playerData = rankCache[player];
+
+					string tag = playerData.Rank.Tag ?? $"[{playerData.Rank.Name}]";
+					SetPlayerClanTag(player, tag);
+				}
+
 				return HookResult.Continue;
 			});
 
