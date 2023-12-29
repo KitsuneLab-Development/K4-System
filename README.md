@@ -113,6 +113,7 @@ I really appreciate the help of the following people who translated the plugin i
 
 - **jinni**: German
 - **jinni**: Italian
+- [**onurcanertekin**](https://github.com/onurcanertekin): Turkish
 
 - <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
