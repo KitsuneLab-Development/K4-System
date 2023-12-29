@@ -1,3 +1,10 @@
+-- 2023.12.29 - V3.0.4
+
+- fix: KillStreaks after bot control
+- fix: Stats not saved
+- fix: Remove debug print
+- fix: NaN values in stats
+
 -- 2023.12.29 - V3.0.3
 
 - feat: Add translation for Latvian language (by rcon420)
