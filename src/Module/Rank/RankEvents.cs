@@ -32,7 +32,7 @@ namespace K4System
 					{
 						foreach (Permission permission in playerData.Rank.Permissions)
 						{
-							AdminManager.RemovePlayerPermissions(Utilities.GetPlayerFromSlot(player.Slot), permission.PermissionName);
+							AdminManager.AddPlayerPermissions(Utilities.GetPlayerFromSlot(player.Slot), permission.PermissionName);
 						}
 					}
 				});
