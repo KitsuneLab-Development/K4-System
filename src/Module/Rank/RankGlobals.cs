@@ -10,6 +10,7 @@ namespace K4System
 	{
 		public class Rank
 		{
+			public int Id { get; set; }
 			public required string Name { get; set; }
 			public string? Tag { get; set; }
 			public required int Point { get; set; }
@@ -42,11 +43,6 @@ namespace K4System
 		internal static PlayerCache<RankData> rankCache = new PlayerCache<RankData>();
 		public CCSGameRules? globalGameRules = null;
 		public Dictionary<int, (int killStreak, DateTime lastKillTime)> playerKillStreaks = new Dictionary<int, (int, DateTime)>();
-		internal Rank noneRank = new Rank
-		{
-			Name = "None",
-			Point = -1,
-			Color = "Default"
-		};
+		internal Rank noneRank;
 	}
 }

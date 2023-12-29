@@ -56,16 +56,28 @@ namespace K4System
 
 				rankDictionary = rankDictionary.OrderBy(kv => kv.Value.Point).ToDictionary(kv => kv.Key, kv => kv.Value);
 
-				rankDictionary.Values.ToList().ForEach(rank => rank.Color = plugin.ApplyPrefixColors(rank.Color));
+				int id = rankDictionary.Values.First().Point == -1 ? -1 : 0;
+				foreach (Rank rank in rankDictionary.Values)
+				{
+					rank.Id = id++;
+					rank.Color = plugin.ApplyPrefixColors(rank.Color);
+				}
 
-				if (!rankDictionary.Values.Any(rank => rank.Point == -1))
+				Rank? temp = rankDictionary.Values.FirstOrDefault(rank => rank.Point == -1);
+				if (temp == null)
 				{
 					Logger.LogWarning("Default rank is not set. You can set it by creating a rank with -1 point.");
+
+					noneRank = new Rank
+					{
+						Id = -1,
+						Name = "None",
+						Point = -1,
+						Color = "Default"
+					};
 				}
 				else
-				{
-					noneRank = rankDictionary.Values.First(rank => rank.Point == -1);
-				}
+					noneRank = temp;
 			}
 			catch (Exception ex)
 			{

@@ -209,14 +209,14 @@ namespace K4System
 					INSERT INTO `lvl_base`
 					(`steam`, `name`, `rank`, `lastconnect`, `value`)
 					VALUES
-					('{steamid.SteamId2}', '{escapedName}', '{playerData.Rank.Name}', CURRENT_TIMESTAMP,
+					('{steamid.SteamId2}', '{escapedName}', '{playerData.Rank.Id}', CURRENT_TIMESTAMP,
 					CASE
 						WHEN (`value` + {setPoints}) < 0 THEN 0
 						ELSE (`value` + {setPoints})
 					END)
 					ON DUPLICATE KEY UPDATE
 					`name` = '{escapedName}',
-					`rank` = '{playerData.Rank.Name}',
+					`rank` = '{playerData.Rank.Id}',
 					`lastconnect` = CURRENT_TIMESTAMP,
 					`value` =
 					CASE
