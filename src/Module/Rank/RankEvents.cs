@@ -18,8 +18,6 @@ namespace K4System
 				if (player is null || !player.IsValid || player.IsBot || player.IsHLTV)
 					return HookResult.Continue;
 
-				Server.PrintToChatAll($"Player {player.PlayerName} changed team to {@event.Team} from {@event.Oldteam}");
-
 				if (!@event.Disconnect && @event.Team != @event.Oldteam)
 				{
 					rankCache[player].PlayedRound = false;
