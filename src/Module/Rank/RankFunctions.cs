@@ -91,6 +91,9 @@ namespace K4System
 
 			RankData playerData = rankCache[player];
 
+			if (Config.RankSettings.RoundEndPoints)
+				playerData.RoundPoints += amount;
+
 			if (amount == 0)
 				return;
 
@@ -124,8 +127,6 @@ namespace K4System
 
 			if (Config.RankSettings.ScoreboardScoreSync)
 				player.Score = playerData.Points;
-
-			playerData.RoundPoints += amount;
 
 			Rank newRank = GetPlayerRank(playerData.Points);
 
