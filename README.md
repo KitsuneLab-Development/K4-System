@@ -114,7 +114,8 @@ I really appreciate the help of the following people who translated the plugin i
 - **jinni**: German
 - **jinni**: Italian
 - [**onurcanertekin**](https://github.com/onurcanertekin): Turkish
-- **ViTamin**: Russian
+- [**ViTamin**](https://github.com/ezekutor): Russian
+- [**rcon420**](https://github.com/rcon420): Latvian
 
 - <p align="right">(<a href="#readme-top">back to top</a>)</p>
 

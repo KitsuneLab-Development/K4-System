@@ -1,10 +1,11 @@
 -- 2023.12.29 - V3.0.3
 
+- feat: Add translation for Latvian language (by rcon420)
 - fix: Add emoji support for player names
 
 -- 2023.12.29 - V3.0.2
 
-- feat: Add translation for russian language (by ViTamin)
+- feat: Add translation for Russian language (by ViTamin)
 - refactor: Remove unused imports
 - fix: Invisible player on clantag change
 - fix: Permission giving on player connect
