@@ -1,27 +1,28 @@
 -- 2023.12.29 - V3.0.2
 
 feat: Add translation for russian language (by ViTamin)
-fix: Invisible player on clantag change
-refactor: Remove unused imports
-fix: Permission giving on player connect
-fix: Add missing translations
-fix: Add missing commands to !k4
+- refactor: Remove unused imports
+- fix: Invisible player on clantag change
+- fix: Permission giving on player connect
+- fix: Add missing translations
+- fix: Add missing commands to !k4
+- fix: Negative point save added points
 
 -- 2023.12.29 - V3.0.1
 
-feat: add tr translate by @onurcanertekin in #95
-fix: Time command extra symbols
-fix: Players not loaded after mapchange (#94)
-fix: DynamicDeathPoints
-fix: Double negative symbols
-fix: LevelRanks rank ids
-fix: Type enforcement
-fix: LevelRanks steamid changed
-fix: Italian Translation
-chore: Update module version to 3.0.1
-chore: Add Turkish translator name
-chore: Update README and CHANGELOG
-upgrade: Better SteamID conversion for LevelRanks
+- feat: add tr translate by @onurcanertekin in #95
+- fix: Time command extra symbols
+- fix: Players not loaded after mapchange (#94)
+- fix: DynamicDeathPoints
+- fix: Double negative symbols
+- fix: LevelRanks rank ids
+- fix: Type enforcement
+- fix: LevelRanks steamid changed
+- fix: Italian Translation
+- chore: Update module version to 3.0.1
+- chore: Add Turkish translator name
+- chore: Update README and CHANGELOG
+- upgrade: Better SteamID conversion for LevelRanks
 
 -- 2023.12.29 - V3.0.0
 
