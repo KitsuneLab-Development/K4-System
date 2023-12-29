@@ -165,12 +165,36 @@ namespace K4System
 
 			plugin.RegisterEventHandler((EventBombExploded @event, GameEventInfo info) =>
 			{
-				CCSPlayerController player = @event.Userid;
+				List<CCSPlayerController> players = Utilities.GetPlayers();
 
-				if (player is null || !player.IsValid || !player.PlayerPawn.IsValid || player.IsBot || player.IsHLTV)
-					return HookResult.Continue;
+				foreach (CCSPlayerController player in players)
+				{
+					if (player is null || !player.IsValid || !player.PlayerPawn.IsValid || player.IsBot || player.IsHLTV)
+						continue;
 
-				ModifyPlayerPoints(player, Config.PointSettings.BombExploded, "k4.phrases.bombexploded");
+					if (!rankCache.ContainsPlayer(player))
+						continue;
+
+					ModifyPlayerPoints(player, Config.PointSettings.BombExploded, "k4.phrases.bombexploded");
+				}
+
+				return HookResult.Continue;
+			});
+
+			plugin.RegisterEventHandler((EventHostageRescuedAll @event, GameEventInfo info) =>
+			{
+				List<CCSPlayerController> players = Utilities.GetPlayers();
+
+				foreach (CCSPlayerController player in players)
+				{
+					if (player is null || !player.IsValid || !player.PlayerPawn.IsValid || player.IsBot || player.IsHLTV)
+						continue;
+
+					if (!rankCache.ContainsPlayer(player))
+						continue;
+
+					ModifyPlayerPoints(player, Config.PointSettings.HostageRescueAll, "k4.phrases.hostagerescuedall");
+				}
 
 				return HookResult.Continue;
 			});

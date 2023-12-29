@@ -209,6 +209,9 @@ namespace K4System
 		[JsonPropertyName("hostage-rescue")]
 		public int HostageRescue { get; set; } = 15;
 
+		[JsonPropertyName("hostage-rescueall")]
+		public int HostageRescueAll { get; set; } = 10;
+
 		[JsonPropertyName("long-distance-kill")]
 		public int LongDistanceKill { get; set; } = 8;
 
@@ -288,6 +291,6 @@ namespace K4System
 		public PointSettings PointSettings { get; set; } = new PointSettings();
 
 		[JsonPropertyName("ConfigVersion")]
-		public override int Version { get; set; } = 5;
+		public override int Version { get; set; } = 6;
 	}
 }
