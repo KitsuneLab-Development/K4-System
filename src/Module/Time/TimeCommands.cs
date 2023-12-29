@@ -34,10 +34,10 @@ namespace K4System
 						playerData.TimeFields[player.PawnIsAlive ? "alive" : "dead"] += (int)Math.Round((now - playerData.Times["Death"]).TotalSeconds);
 
 					info.ReplyToCommand($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.times.title", player.PlayerName]}");
-					info.ReplyToCommand($"--- {plugin.Localizer["k4.times.line1", FormatPlaytime(playerData.TimeFields["all"])]}");
-					info.ReplyToCommand($"--- {plugin.Localizer["k4.times.line2", FormatPlaytime(playerData.TimeFields["ct"]), FormatPlaytime(playerData.TimeFields["t"])]}");
-					info.ReplyToCommand($"--- {plugin.Localizer["k4.times.line3", FormatPlaytime(playerData.TimeFields["spec"])]}");
-					info.ReplyToCommand($"--- {plugin.Localizer["k4.times.line4", FormatPlaytime(playerData.TimeFields["alive"]), FormatPlaytime(playerData.TimeFields["dead"])]}");
+					info.ReplyToCommand($" {plugin.Localizer["k4.times.line1", FormatPlaytime(playerData.TimeFields["all"])]}");
+					info.ReplyToCommand($" {plugin.Localizer["k4.times.line2", FormatPlaytime(playerData.TimeFields["ct"]), FormatPlaytime(playerData.TimeFields["t"])]}");
+					info.ReplyToCommand($" {plugin.Localizer["k4.times.line3", FormatPlaytime(playerData.TimeFields["spec"])]}");
+					info.ReplyToCommand($" {plugin.Localizer["k4.times.line4", FormatPlaytime(playerData.TimeFields["alive"]), FormatPlaytime(playerData.TimeFields["dead"])]}");
 					playerData.Times = new Dictionary<string, DateTime>
 					{
 						{ "Connect", now },
