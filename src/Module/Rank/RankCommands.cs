@@ -107,7 +107,7 @@ namespace K4System
 
 			commands.TopCommands.ForEach(commandString =>
 			{
-				plugin.AddCommand($"css_{commandString}", "Check the top 5 players by points",
+				plugin.AddCommand($"css_{commandString}", "Check the top players by points",
 					[CommandHelper(0, whoCanExecute: CommandUsage.CLIENT_ONLY)] (player, info) =>
 				{
 					if (player == null || !player.IsValid || player.PlayerPawn.Value == null)

@@ -1,3 +1,7 @@
+-- 2023.12.29 - V3.0.3
+
+- fix: Add emoji support for player names
+
 -- 2023.12.29 - V3.0.2
 
 - feat: Add translation for russian language (by ViTamin)
@@ -6,7 +10,7 @@
 - fix: Permission giving on player connect
 - fix: Add missing translations
 - fix: Add missing commands to !k4
-- fix: Negative point save added points
+- fix: Negative savepoints calulcated as positive
 
 -- 2023.12.29 - V3.0.1
 

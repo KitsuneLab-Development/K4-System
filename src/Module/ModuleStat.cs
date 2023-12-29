@@ -29,8 +29,8 @@ namespace K4System
 
 			if (!plugin.InitializeDatabase("k4stats", $@"CREATE TABLE IF NOT EXISTS `{this.Config.DatabaseSettings.TablePrefix}k4stats` (
 				`id` INT AUTO_INCREMENT PRIMARY KEY,
-				`steam_id` VARCHAR(32) COLLATE 'utf8_unicode_ci' UNIQUE NOT NULL,
-				`name` VARCHAR(255) COLLATE 'utf8_unicode_ci' NOT NULL,
+				`steam_id` VARCHAR(32) COLLATE 'utf8mb4_unicode_ci' UNIQUE NOT NULL,
+				`name` VARCHAR(255) COLLATE 'utf8mb4_unicode_ci' NOT NULL,
 				`lastseen` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
 				`kills` INT NOT NULL DEFAULT 0,
 				`firstblood` INT NOT NULL DEFAULT 0,

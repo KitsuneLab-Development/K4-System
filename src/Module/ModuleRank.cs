@@ -32,9 +32,9 @@ namespace K4System
 			if (!plugin.InitializeDatabase("k4ranks", $@"
 			CREATE TABLE IF NOT EXISTS `{this.Config.DatabaseSettings.TablePrefix}k4ranks` (
 				`id` INT AUTO_INCREMENT PRIMARY KEY,
-				`steam_id` VARCHAR(32) COLLATE 'utf8_unicode_ci' UNIQUE NOT NULL,
-				`name` VARCHAR(255) COLLATE 'utf8_unicode_ci' NOT NULL,
-				`rank` VARCHAR(255) COLLATE 'utf8_unicode_ci' NOT NULL,
+				`steam_id` VARCHAR(32) COLLATE 'utf8mb4_unicode_ci' UNIQUE NOT NULL,
+				`name` VARCHAR(255) COLLATE 'utf8mb4_unicode_ci' NOT NULL,
+				`rank` VARCHAR(255) COLLATE 'utf8mb4_unicode_ci' NOT NULL,
 				`points` INT NOT NULL DEFAULT 0,
 				UNIQUE (`steam_id`)
 			);"))

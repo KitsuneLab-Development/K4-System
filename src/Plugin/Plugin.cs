@@ -90,8 +90,8 @@
             if (Config.GeneralSettings.LevelRanksCompatibility)
             {
                 this.Database.ExecuteNonQueryAsync(@$"CREATE TABLE IF NOT EXISTS `lvl_base` (
-                        `steam` VARCHAR(32) COLLATE 'utf8_unicode_ci' PRIMARY KEY,
-                        `name`  VARCHAR(255) COLLATE 'utf8_unicode_ci',
+                        `steam` VARCHAR(32) COLLATE 'utf8mb4_unicode_ci' PRIMARY KEY,
+                        `name`  VARCHAR(255) COLLATE 'utf8mb4_unicode_ci',
                         `value` INT NOT NULL DEFAULT 0,
                         `rank` INT NOT NULL DEFAULT 0,
                         `kills` INT NOT NULL DEFAULT 0,
