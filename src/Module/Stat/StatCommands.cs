@@ -47,6 +47,12 @@ namespace K4System
 					float accuracy = shoots > 0 ? (float)hitsGiven / shoots * 100 : 0;
 					float kda = deaths > 0 ? (float)(playerData.StatFields["kills"] + playerData.StatFields["assists"]) / deaths : 0;
 
+					roundedHeadshotPercentage = float.IsNaN(roundedHeadshotPercentage) ? 0 : roundedHeadshotPercentage;
+					roundChance = float.IsNaN(roundChance) ? 0 : roundChance;
+					gameChance = float.IsNaN(gameChance) ? 0 : gameChance;
+					accuracy = float.IsNaN(accuracy) ? 0 : accuracy;
+					kda = float.IsNaN(kda) ? 0 : kda;
+
 					info.ReplyToCommand($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.stats.title", player!.PlayerName]}");
 					info.ReplyToCommand(plugin.Localizer["k4.stats.line1", kills, firstblood, assists]);
 					info.ReplyToCommand(plugin.Localizer["k4.stats.line2", hitsGiven, hitsTaken, deaths]);
