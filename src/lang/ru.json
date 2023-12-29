@@ -15,7 +15,7 @@
   "k4.ranks.rank.line1": "--- {silver}У Вас {lime}{0} {silver} баллов. На данный момент Ваш ранг {1}{2} {lime} {3} место  из {4}",
   "k4.ranks.rank.line2": "--- {silver}Следующий ранг: {0}{1}",
   "k4.ranks.rank.line3": "--- {silver}Очков до следующего ранга: {lime}{0}",
-  "k4.ranks.rank.line4": "--- {silver}Место в топ-листе: {lime}{0} out of {1}",
+  "k4.ranks.rank.line4": "--- {silver}Место в топ-листе: {lime}{0} из {1}",
   "k4.ranks.resetmyrank": "{lime}{0} {silver}сбросил свой ранг и очки.",
   "k4.ranks.top.title": "Top {lime}{0} {silver} Игроков",
   "k4.ranks.top.line": "{gold}{0}. {1}[{2}] {gold}{3} - {blue}{4} очков",
