@@ -11,6 +11,23 @@ namespace K4System
 	{
 		public void Initialize_Events(Plugin plugin)
 		{
+			plugin.RegisterEventHandler((EventPlayerTeam @event, GameEventInfo info) =>
+			{
+				CCSPlayerController player = @event.Userid;
+
+				if (player is null || !player.IsValid || player.IsBot || player.IsHLTV)
+					return HookResult.Continue;
+
+				Server.PrintToChatAll($"Player {player.PlayerName} changed team to {@event.Team} from {@event.Oldteam}");
+
+				if (!@event.Disconnect && @event.Team != @event.Oldteam)
+				{
+					rankCache[player].PlayedRound = false;
+				}
+
+				return HookResult.Continue;
+			}, HookMode.Pre);
+
 			plugin.RegisterEventHandler((EventPlayerConnectFull @event, GameEventInfo info) =>
 			{
 				CCSPlayerController player = @event.Userid;
@@ -77,8 +94,6 @@ namespace K4System
 
 				if (!rankCache.ContainsPlayer(player))
 					return HookResult.Continue;
-
-				rankCache[player].PlayedRound = true;
 
 				if (Config.RankSettings.ScoreboardRanks)
 				{
@@ -211,56 +226,74 @@ namespace K4System
 				return HookResult.Continue;
 			});
 
-			plugin.RegisterEventHandler((EventRoundEnd @event, GameEventInfo info) =>
+			plugin.RegisterEventHandler((EventRoundStart @event, GameEventInfo info) =>
 			{
-				int winnerTeam = @event.Winner;
-
 				List<CCSPlayerController> players = Utilities.GetPlayers();
 
 				foreach (CCSPlayerController player in players)
 				{
-					if (player is null || !player.IsValid || !player.PlayerPawn.IsValid || player.IsBot || player.IsHLTV)
+					if (player is null || !player.IsValid || !player.PlayerPawn.IsValid || player.IsBot || player.IsHLTV || !player.PawnIsAlive)
 						continue;
 
 					if (!rankCache.ContainsPlayer(player))
 						continue;
 
-					if (!rankCache[player].PlayedRound)
-						continue;
-
-					if (player.TeamNum <= (int)CsTeam.Spectator)
-						continue;
-
-					if (winnerTeam == player.TeamNum)
-					{
-						ModifyPlayerPoints(player, Config.PointSettings.RoundWin, "k4.phrases.roundwin");
-					}
-					else
-					{
-						ModifyPlayerPoints(player, Config.PointSettings.RoundLose, "k4.phrases.roundlose");
-					}
-
-					if (Config.RankSettings.RoundEndPoints)
-					{
-						RankData playerData = rankCache[player];
-
-						if (playerData.RoundPoints > 0)
-						{
-							player.PrintToChat($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.ranks.summarypoints.gain", playerData.RoundPoints]}");
-						}
-						else if (playerData.RoundPoints < 0)
-						{
-							player.PrintToChat($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.ranks.summarypoints.loss", Math.Abs(playerData.RoundPoints)]}");
-						}
-						else
-							player.PrintToChat($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.ranks.summarypoints.nochange"]}");
-					}
+					rankCache[player].PlayedRound = true;
 				}
-
-				SaveAllPlayerCache(false);
 
 				return HookResult.Continue;
 			});
+
+			plugin.RegisterEventHandler((EventRoundEnd @event, GameEventInfo info) =>
+		{
+			int winnerTeam = @event.Winner;
+
+			List<CCSPlayerController> players = Utilities.GetPlayers();
+
+			foreach (CCSPlayerController player in players)
+			{
+				if (player is null || !player.IsValid || !player.PlayerPawn.IsValid || player.IsBot || player.IsHLTV)
+					continue;
+
+				if (!rankCache.ContainsPlayer(player))
+					continue;
+
+				if (!rankCache[player].PlayedRound)
+					continue;
+
+				if (player.TeamNum <= (int)CsTeam.Spectator)
+					continue;
+
+				if (winnerTeam == player.TeamNum)
+				{
+					ModifyPlayerPoints(player, Config.PointSettings.RoundWin, "k4.phrases.roundwin");
+				}
+				else
+				{
+					ModifyPlayerPoints(player, Config.PointSettings.RoundLose, "k4.phrases.roundlose");
+				}
+
+				if (Config.RankSettings.RoundEndPoints)
+				{
+					RankData playerData = rankCache[player];
+
+					if (playerData.RoundPoints > 0)
+					{
+						player.PrintToChat($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.ranks.summarypoints.gain", playerData.RoundPoints]}");
+					}
+					else if (playerData.RoundPoints < 0)
+					{
+						player.PrintToChat($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.ranks.summarypoints.loss", Math.Abs(playerData.RoundPoints)]}");
+					}
+					else
+						player.PrintToChat($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.ranks.summarypoints.nochange"]}");
+				}
+			}
+
+			SaveAllPlayerCache(false);
+
+			return HookResult.Continue;
+		});
 
 			plugin.RegisterEventHandler((EventBombPlanted @event, GameEventInfo info) =>
 			{
