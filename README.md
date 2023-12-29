@@ -170,11 +170,11 @@ The addon provides several commands and console variables (convars) to customize
 - [x] Complete remake with modular dependency injection
 - [x] Translations
 - [x] Detailed Ranks Lists
+- [x] Upload to CSS forum
 - [ ] Promote/Demote colored alert messages
 - [ ] Weapon based points
 - [ ] Plugin auto updater (can be disabled, download stable branch, not dev)
 - [ ] Top 10 special tags
-- [ ] Upload to CSS forum
 - [ ] Create FAQ
 - [ ] Automate release build as pre
 - [ ] Permission based ranks module
