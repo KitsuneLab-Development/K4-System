@@ -24,12 +24,13 @@ namespace K4System
 				{
 					{ "Rank Commands", new List<string>() },
 					{ "Stat Commands", commands.StatCommands },
-					{ "Time Commands", commands.TimeCommands }
+					{ "Time Commands", commands.TimeCommands },
 				};
 
 				commandCategories["Rank Commands"].AddRange(commands.RankCommands);
 				commandCategories["Rank Commands"].AddRange(commands.TopCommands);
 				commandCategories["Rank Commands"].AddRange(commands.ResetMyCommands);
+				commandCategories["Rank Commands"].AddRange(commands.RanksCommands);
 
 				StringBuilder messageBuilder = new StringBuilder();
 
