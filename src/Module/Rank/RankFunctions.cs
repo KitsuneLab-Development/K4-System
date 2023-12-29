@@ -121,6 +121,7 @@ namespace K4System
 			});
 
 			playerData.Points += amount;
+			playerData.RoundPoints += amount;
 
 			if (playerData.Points < 0)
 				playerData.Points = 0;
@@ -238,7 +239,7 @@ namespace K4System
 
 				playerData.Points = result.Rows > 0 ? result.Get<int>(0, "points") : 0;
 
-				playerData.RoundPoints -= setPoints;
+				playerData.RoundPoints = 0;
 				playerData.Rank = GetPlayerRank(playerData.Points);
 			}
 			else
