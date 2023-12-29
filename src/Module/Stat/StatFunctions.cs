@@ -7,6 +7,7 @@ namespace K4System
 	using Nexd.MySQL;
 	using Microsoft.Extensions.Logging;
 	using System.Text;
+	using CounterStrikeSharp.API.Modules.Entities;
 
 	public partial class ModuleStat : IModuleStat
 	{
@@ -70,15 +71,16 @@ namespace K4System
 			var savedSlot = player.Slot;
 			var savedStat = statCache[player];
 			var savedName = player.PlayerName;
-			var savedSteam = player.SteamID.ToString();
+
+			SteamID steamid = new SteamID(player.SteamID);
 
 			Task.Run(async () =>
 			{
-				await SavePlayerStatCacheAsync(savedSlot, savedStat, savedName, savedSteam, remove);
+				await SavePlayerStatCacheAsync(savedSlot, savedStat, savedName, steamid, remove);
 			});
 		}
 
-		public async Task SavePlayerStatCacheAsync(int slot, StatData playerData, string name, string steamid, bool remove)
+		public async Task SavePlayerStatCacheAsync(int slot, StatData playerData, string name, SteamID steamid, bool remove)
 		{
 			if (!statCache.ContainsKey(slot))
 			{
@@ -98,7 +100,7 @@ namespace K4System
 			}
 
 			queryBuilder.Append($@")
-				VALUES ('{steamid}', '{escapedName}', CURRENT_TIMESTAMP");
+				VALUES ('{steamid.SteamId64}', '{escapedName}', CURRENT_TIMESTAMP");
 
 			foreach (var field in playerData.StatFields)
 			{
@@ -133,7 +135,7 @@ namespace K4System
 					INSERT INTO `lvl_base`
 					(`steam`, `name`, `kills`, `deaths`, `shoots`, `hits`, `headshots`, `assists`, `round_win`, `round_lose`, `lastconnect`)
 					VALUES
-					('{Plugin.ConvertSteamID64ToSteamID(long.Parse(steamid))}', '{escapedName}', {playerData.StatFields["kills"]}, {playerData.StatFields["deaths"]}, {playerData.StatFields["shoots"]}, {playerData.StatFields["hits_given"]}, {playerData.StatFields["headshots"]}, {playerData.StatFields["assists"]}, {playerData.StatFields["round_win"]}, {playerData.StatFields["round_lose"]}, CURRENT_TIMESTAMP)
+					('{steamid.SteamId2}', '{escapedName}', {playerData.StatFields["kills"]}, {playerData.StatFields["deaths"]}, {playerData.StatFields["shoots"]}, {playerData.StatFields["hits_given"]}, {playerData.StatFields["headshots"]}, {playerData.StatFields["assists"]}, {playerData.StatFields["round_win"]}, {playerData.StatFields["round_lose"]}, CURRENT_TIMESTAMP)
 					ON DUPLICATE KEY UPDATE
 					`name` = '{escapedName}',
 					`kills` = {playerData.StatFields["kills"]},
@@ -173,7 +175,7 @@ namespace K4System
 
 			var saveTasks = players
 				.Where(player => player != null && player.IsValid && player.PlayerPawn.IsValid && !player.IsBot && !player.IsHLTV && statCache.ContainsPlayer(player))
-				.Select(player => SavePlayerStatCacheAsync(player.Slot, statCache[player], player.PlayerName, player.SteamID.ToString(), clear))
+				.Select(player => SavePlayerStatCacheAsync(player.Slot, statCache[player], player.PlayerName, new SteamID(player.SteamID), clear))
 				.ToList();
 
 			Task.Run(async () =>

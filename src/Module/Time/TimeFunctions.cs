@@ -8,6 +8,7 @@ namespace K4System
 	using Nexd.MySQL;
 	using Microsoft.Extensions.Logging;
 	using System.Text;
+	using CounterStrikeSharp.API.Modules.Entities;
 
 	public partial class ModuleTime : IModuleTime
 	{
@@ -61,15 +62,16 @@ namespace K4System
 			var savedSlot = player.Slot;
 			var savedStat = timeCache[player];
 			var savedName = player.PlayerName;
-			var savedSteam = player.SteamID.ToString();
+
+			SteamID steamid = new SteamID(player.SteamID);
 
 			Task.Run(async () =>
 			{
-				await SavePlayerTimeCacheAsync(savedSlot, savedStat, savedName, savedSteam, remove);
+				await SavePlayerTimeCacheAsync(savedSlot, savedStat, savedName, steamid, remove);
 			});
 		}
 
-		public async Task SavePlayerTimeCacheAsync(int slot, TimeData playerData, string name, string steamid, bool remove)
+		public async Task SavePlayerTimeCacheAsync(int slot, TimeData playerData, string name, SteamID steamid, bool remove)
 		{
 			if (!timeCache.ContainsKey(slot))
 			{
@@ -89,7 +91,7 @@ namespace K4System
 			}
 
 			queryBuilder.Append($@")
-				VALUES ('{steamid}', '{escapedName}'");
+				VALUES ('{steamid.SteamId64}', '{escapedName}'");
 
 			foreach (var field in playerData.TimeFields)
 			{
@@ -131,7 +133,7 @@ namespace K4System
 					INSERT INTO `lvl_base`
 					(`steam`, `name`, `playtime`, `lastconnect`)
 					VALUES
-					('{Plugin.ConvertSteamID64ToSteamID(long.Parse(steamid))}', '{escapedName}', {playerData.TimeFields["all"]}, CURRENT_TIMESTAMP)
+					('{steamid.SteamId2}', '{escapedName}', {playerData.TimeFields["all"]}, CURRENT_TIMESTAMP)
 					ON DUPLICATE KEY UPDATE
 					`name` = '{escapedName}',
 					`playtime` = (`playtime` + {playerData.TimeFields["all"]}),
@@ -164,7 +166,7 @@ namespace K4System
 
 			var saveTasks = players
 				.Where(player => player != null && player.IsValid && player.PlayerPawn.IsValid && !player.IsBot && !player.IsHLTV && timeCache.ContainsPlayer(player))
-				.Select(player => SavePlayerTimeCacheAsync(player.Slot, timeCache[player], player.PlayerName, player.SteamID.ToString(), clear))
+				.Select(player => SavePlayerTimeCacheAsync(player.Slot, timeCache[player], player.PlayerName, new SteamID(player.SteamID), clear))
 				.ToList();
 
 			Task.Run(async () =>

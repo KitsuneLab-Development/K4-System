@@ -9,6 +9,7 @@ namespace K4System
 	using Nexd.MySQL;
 	using Microsoft.Extensions.Logging;
 	using CounterStrikeSharp.API.Modules.Admin;
+	using CounterStrikeSharp.API.Modules.Entities;
 
 	public partial class ModuleRank : IModuleRank
 	{
@@ -162,15 +163,16 @@ namespace K4System
 			var savedSlot = player.Slot;
 			var savedRank = rankCache[player];
 			var savedName = player.PlayerName;
-			var savedSteam = player.SteamID.ToString();
+
+			SteamID steamID = new SteamID(player.SteamID);
 
 			Task.Run(async () =>
 			{
-				await SavePlayerRankCacheAsync(savedSlot, savedRank, savedName, savedSteam, remove);
+				await SavePlayerRankCacheAsync(savedSlot, savedRank, savedName, steamID, remove);
 			});
 		}
 
-		public async Task SavePlayerRankCacheAsync(int slot, RankData playerData, string name, string steamid, bool remove)
+		public async Task SavePlayerRankCacheAsync(int slot, RankData playerData, string name, SteamID steamid, bool remove)
 		{
 			if (!rankCache.ContainsKey(slot))
 			{
@@ -186,7 +188,7 @@ namespace K4System
 				INSERT INTO `{Config.DatabaseSettings.TablePrefix}k4ranks`
 				(`steam_id`, `name`, `rank`, `points`)
 				VALUES
-				('{steamid}', '{escapedName}', '{playerData.Rank.Name}',
+				('{steamid.SteamId64}', '{escapedName}', '{playerData.Rank.Name}',
 				CASE
 					WHEN (`points` + {setPoints}) < 0 THEN 0
 					ELSE (`points` + {setPoints})
@@ -207,7 +209,7 @@ namespace K4System
 					INSERT INTO `lvl_base`
 					(`steam`, `name`, `rank`, `lastconnect`, `value`)
 					VALUES
-					('{Plugin.ConvertSteamID64ToSteamID(long.Parse(steamid))}', '{escapedName}', '{playerData.Rank.Name}', CURRENT_TIMESTAMP,
+					('{steamid.SteamId2}', '{escapedName}', '{playerData.Rank.Name}', CURRENT_TIMESTAMP,
 					CASE
 						WHEN (`value` + {setPoints}) < 0 THEN 0
 						ELSE (`value` + {setPoints})
@@ -229,7 +231,7 @@ namespace K4System
 				MySqlQueryResult result = await Database.ExecuteQueryAsync($@"
 					SELECT `points`
 					FROM `{Config.DatabaseSettings.TablePrefix}k4ranks`
-					WHERE `steam_id` = '{steamid}';
+					WHERE `steam_id` = '{steamid.SteamId64}';
 				");
 
 				playerData.Points = result.Rows > 0 ? result.Get<int>(0, "points") : 0;
@@ -249,7 +251,7 @@ namespace K4System
 
 			var saveTasks = players
 				.Where(player => player != null && player.IsValid && player.PlayerPawn.IsValid && !player.IsBot && !player.IsHLTV && rankCache.ContainsPlayer(player))
-				.Select(player => SavePlayerRankCacheAsync(player.Slot, rankCache[player], player.PlayerName, player.SteamID.ToString(), clear))
+				.Select(player => SavePlayerRankCacheAsync(player.Slot, rankCache[player], player.PlayerName, new SteamID(player.SteamID), clear))
 				.ToList();
 
 			Task.Run(async () =>

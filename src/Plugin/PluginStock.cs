@@ -10,13 +10,6 @@ namespace K4System
 
 	public sealed partial class Plugin : BasePlugin
 	{
-		public static string ConvertSteamID64ToSteamID(long steamId64)
-		{
-			long authserver = (steamId64 - 76561197960265728) & 1;
-			long authid = (steamId64 - 76561197960265728 - authserver) / 2;
-			return $"STEAM_0:{authserver}:{authid}";
-		}
-
 		public string ApplyPrefixColors(string msg)
 		{
 			string modifiedValue = msg;
