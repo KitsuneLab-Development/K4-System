@@ -32,6 +32,8 @@ namespace K4System
 			plugin.RegisterListener<Listeners.OnMapStart>((mapName) =>
 			{
 				globalGameRules = null;
+
+				LoadAllPlayerCache();
 			});
 
 			plugin.RegisterListener<Listeners.OnMapEnd>(() =>

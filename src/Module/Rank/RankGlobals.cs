@@ -43,6 +43,6 @@ namespace K4System
 		internal static PlayerCache<RankData> rankCache = new PlayerCache<RankData>();
 		public CCSGameRules? globalGameRules = null;
 		public Dictionary<int, (int killStreak, DateTime lastKillTime)> playerKillStreaks = new Dictionary<int, (int, DateTime)>();
-		internal Rank noneRank;
+		internal Rank? noneRank;
 	}
 }

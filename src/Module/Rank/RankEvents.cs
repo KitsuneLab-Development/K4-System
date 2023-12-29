@@ -44,6 +44,8 @@ namespace K4System
 			{
 				globalGameRules = null;
 
+				LoadAllPlayerCache();
+
 				plugin.AddTimer(Config.PointSettings.PlaytimeMinutes * 60, () =>
 				{
 					List<CCSPlayerController> players = Utilities.GetPlayers();
@@ -63,7 +65,7 @@ namespace K4System
 
 			plugin.RegisterListener<Listeners.OnMapEnd>(() =>
 			{
-				SaveAllPlayerCache(false);
+				SaveAllPlayerCache(true);
 			});
 
 			plugin.RegisterEventHandler((EventPlayerSpawn @event, GameEventInfo info) =>

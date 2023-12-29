@@ -38,7 +38,7 @@ namespace K4System
 				VALUES (
 					'{escapedName}',
 					'{steamid}',
-					'{noneRank.Name}'
+					'{noneRank!.Name}'
 				)
 				ON DUPLICATE KEY UPDATE
 					`name` = '{escapedName}';
@@ -65,7 +65,7 @@ namespace K4System
 
 		public Rank GetPlayerRank(int points)
 		{
-			return rankDictionary.LastOrDefault(kv => points >= kv.Value.Point).Value ?? noneRank;
+			return rankDictionary.LastOrDefault(kv => points >= kv.Value.Point).Value ?? noneRank!;
 		}
 
 		public void ModifyPlayerPoints(CCSPlayerController player, int amount, string reason)
@@ -243,6 +243,21 @@ namespace K4System
 			{
 				rankCache.Remove(slot);
 			}
+		}
+
+		public void LoadAllPlayerCache()
+		{
+			List<CCSPlayerController> players = Utilities.GetPlayers();
+
+			var loadTasks = players
+				.Where(player => player != null && player.IsValid && player.PlayerPawn.IsValid && !player.IsBot && !player.IsHLTV)
+				.Select(player => LoadRankData(player.Slot, player.PlayerName, player.SteamID.ToString()))
+				.ToList();
+
+			Task.Run(async () =>
+			{
+				await Task.WhenAll(loadTasks);
+			});
 		}
 
 		public void SaveAllPlayerCache(bool clear)

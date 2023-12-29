@@ -61,17 +61,7 @@ namespace K4System
 
 			if (hotReload)
 			{
-				List<CCSPlayerController> players = Utilities.GetPlayers();
-
-				var loadTasks = players
-					.Where(player => player != null && player.IsValid && player.PlayerPawn.IsValid && !player.IsBot && !player.IsHLTV)
-					.Select(player => LoadStatData(player.Slot, player.PlayerName, player.SteamID.ToString()))
-					.ToList();
-
-				Task.Run(async () =>
-				{
-					await Task.WhenAll(loadTasks);
-				});
+				LoadAllPlayerCache();
 			}
 		}
 
