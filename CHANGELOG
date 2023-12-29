@@ -1,6 +1,6 @@
 -- 2023.12.29 - V3.0.2
 
-feat: Add translation for russian language (by ViTamin)
+- feat: Add translation for russian language (by ViTamin)
 - refactor: Remove unused imports
 - fix: Invisible player on clantag change
 - fix: Permission giving on player connect
