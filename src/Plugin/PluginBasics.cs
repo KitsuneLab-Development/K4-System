@@ -16,21 +16,23 @@ namespace K4System
 				if (player == null || !player.IsValid || player.PlayerPawn.Value == null)
 					return;
 
-				info.ReplyToCommand($" {Localizer["k4.general.prefix"]} {ChatColors.Lime}Available Commands:");
+				info.ReplyToCommand($" {Localizer["k4.general.prefix"]} {ChatColors.Lime}{Localizer["k4.general.availablecommands"]}");
 
 				CommandSettings commands = Config.CommandSettings;
 
+				string rankLocale = Localizer["k4.general.availablecommands.rank"];
+
 				Dictionary<string, List<string>> commandCategories = new Dictionary<string, List<string>>
 				{
-					{ "Rank Commands", new List<string>() },
-					{ "Stat Commands", commands.StatCommands },
-					{ "Time Commands", commands.TimeCommands },
+					{ rankLocale, new List<string>() },
+					{ Localizer["k4.general.availablecommands.stat"], commands.StatCommands },
+					{ Localizer["k4.general.availablecommands.time"], commands.TimeCommands },
 				};
 
-				commandCategories["Rank Commands"].AddRange(commands.RankCommands);
-				commandCategories["Rank Commands"].AddRange(commands.TopCommands);
-				commandCategories["Rank Commands"].AddRange(commands.ResetMyCommands);
-				commandCategories["Rank Commands"].AddRange(commands.RanksCommands);
+				commandCategories[rankLocale].AddRange(commands.RankCommands);
+				commandCategories[rankLocale].AddRange(commands.TopCommands);
+				commandCategories[rankLocale].AddRange(commands.ResetMyCommands);
+				commandCategories[rankLocale].AddRange(commands.RanksCommands);
 
 				StringBuilder messageBuilder = new StringBuilder();
 
@@ -83,7 +85,7 @@ namespace K4System
 					if (player.IsBot || player.IsHLTV)
 						continue;
 
-					player.PrintToChat($" {Localizer["k4.general.prefix"]} {ChatColors.Silver}The server is using the {ChatColors.Lime}K4-System {ChatColors.Silver}plugin. Type {ChatColors.Lime}!k4 {ChatColors.Silver}for more information!");
+					player.PrintToChat($" {Localizer["k4.general.prefix"]} {ChatColors.Lime}{Localizer["k4.general.spawnmessage"]}");
 				}
 
 				return HookResult.Continue;

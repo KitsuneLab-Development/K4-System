@@ -5,6 +5,11 @@
   "k4.general.targetnotfound": "{lightred}The player could not be found.",
   "k4.general.targetnobot": "{lightred}{0} cannot be targeted, because they are a bot.",
   "k4.general.invalidamount": "{lightred}The given amount is invalid.",
+  "k4.general.spawnmessage": "{silver}The server is using the {lime}K4-System {silver}plugin. Type {lime}!k4 {silver}for more information!",
+  "k4.general.availablecommands": "{lime}Available Commands",
+  "k4.general.availablecommands.stat": "Stat Commands",
+  "k4.general.availablecommands.rank": "Rank Commands",
+  "k4.general.availablecommands.time": "Time Commands",
 
   "k4.ranks.rank.title": "{lime}{0}{silver}'s Rank",
   "k4.ranks.rank.line1": "--- {silver}You have {lime}{0} {silver}points and are currently {1}{2} {silver}({3} out of {4})",
