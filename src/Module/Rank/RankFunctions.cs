@@ -208,11 +208,14 @@ namespace K4System
 
 			if (Config.GeneralSettings.LevelRanksCompatibility)
 			{
+				// ? STEAM_0:0:12345678 -> STEAM_1:0:12345678 just to match lvlranks as we can
+				string lvlSteamID = steamid.SteamId2.Replace("STEAM_0", "STEAM_1");
+
 				await Database.ExecuteNonQueryAsync($@"
 					INSERT INTO `lvl_base`
 					(`steam`, `name`, `rank`, `lastconnect`, `value`)
 					VALUES
-					('{steamid.SteamId2}', '{escapedName}', '{playerData.Rank.Id}', CURRENT_TIMESTAMP,
+					('{lvlSteamID}', '{escapedName}', '{playerData.Rank.Id}', CURRENT_TIMESTAMP,
 					CASE
 						WHEN (`value` + {setPoints}) < 0 THEN 0
 						ELSE (`value` + {setPoints})

@@ -131,11 +131,14 @@ namespace K4System
 
 			if (Config.GeneralSettings.LevelRanksCompatibility)
 			{
+				// ? STEAM_0:0:12345678 -> STEAM_1:0:12345678 just to match lvlranks as we can
+				string lvlSteamID = steamid.SteamId2.Replace("STEAM_0", "STEAM_1");
+
 				await Database.ExecuteNonQueryAsync($@"
 					INSERT INTO `lvl_base`
 					(`steam`, `name`, `kills`, `deaths`, `shoots`, `hits`, `headshots`, `assists`, `round_win`, `round_lose`, `lastconnect`)
 					VALUES
-					('{steamid.SteamId2}', '{escapedName}', {playerData.StatFields["kills"]}, {playerData.StatFields["deaths"]}, {playerData.StatFields["shoots"]}, {playerData.StatFields["hits_given"]}, {playerData.StatFields["headshots"]}, {playerData.StatFields["assists"]}, {playerData.StatFields["round_win"]}, {playerData.StatFields["round_lose"]}, CURRENT_TIMESTAMP)
+					('{lvlSteamID}', '{escapedName}', {playerData.StatFields["kills"]}, {playerData.StatFields["deaths"]}, {playerData.StatFields["shoots"]}, {playerData.StatFields["hits_given"]}, {playerData.StatFields["headshots"]}, {playerData.StatFields["assists"]}, {playerData.StatFields["round_win"]}, {playerData.StatFields["round_lose"]}, CURRENT_TIMESTAMP)
 					ON DUPLICATE KEY UPDATE
 					`name` = '{escapedName}',
 					`kills` = {playerData.StatFields["kills"]},
