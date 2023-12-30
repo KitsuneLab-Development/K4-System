@@ -1,3 +1,7 @@
+-- 2023.12.30 - V3.0.5
+
+- fix: KillStreak resets on spawn
+
 -- 2023.12.29 - V3.0.4
 
 - fix: KillStreaks after bot control
