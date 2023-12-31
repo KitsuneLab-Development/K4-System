@@ -344,7 +344,7 @@ namespace K4System
 					}
 					else
 					{
-						ModifyPlayerPoints(killer, CalculateDynamicPoints(victim, killer, Config.PointSettings.Kill), "k4.phrases.kill");
+						ModifyPlayerPoints(killer, CalculateDynamicPoints(killer, victim, Config.PointSettings.Kill), "k4.phrases.kill");
 
 						if (@event.Headshot)
 						{
