@@ -1,5 +1,6 @@
 ﻿namespace K4System
 {
+    using CounterStrikeSharp.API;
     using CounterStrikeSharp.API.Core;
     using CounterStrikeSharp.API.Core.Attributes;
 
@@ -7,7 +8,7 @@
     using MySqlConnector;
     using Nexd.MySQL;
 
-    [MinimumApiVersion(142)]
+    [MinimumApiVersion(153)]
     public sealed partial class Plugin : BasePlugin, IPluginConfig<PluginConfig>
     {
         //** ? PLUGIN GLOBALS */
