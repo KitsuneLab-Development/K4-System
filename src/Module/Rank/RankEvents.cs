@@ -6,6 +6,7 @@ namespace K4System
 	using CounterStrikeSharp.API.Modules.Admin;
 	using CounterStrikeSharp.API.Modules.Timers;
 	using CounterStrikeSharp.API.Modules.Utils;
+	using Microsoft.Extensions.Logging;
 
 	public partial class ModuleRank : IModuleRank
 	{
@@ -17,6 +18,16 @@ namespace K4System
 
 				if (player is null || !player.IsValid || player.IsBot || player.IsHLTV)
 					return HookResult.Continue;
+
+				RankData playerData = rankCache[player];
+
+				if (playerData.Rank.Permissions != null && playerData.Rank.Permissions.Count > 0)
+				{
+					foreach (Permission permission in playerData.Rank.Permissions)
+					{
+						AdminManager.AddPlayerPermissions(Utilities.GetPlayerFromSlot(player.Slot), permission.PermissionName);
+					}
+				}
 
 				if (!@event.Disconnect && @event.Team != @event.Oldteam && rankCache.ContainsPlayer(player))
 				{
@@ -40,16 +51,6 @@ namespace K4System
 				Task.Run(async () =>
 				{
 					await LoadRankData(slot, playerName, steamId);
-
-					RankData playerData = rankCache[player];
-
-					if (playerData.Rank.Permissions != null && playerData.Rank.Permissions.Count > 0)
-					{
-						foreach (Permission permission in playerData.Rank.Permissions)
-						{
-							AdminManager.AddPlayerPermissions(Utilities.GetPlayerFromSlot(player.Slot), permission.PermissionName);
-						}
-					}
 				});
 
 				return HookResult.Continue;
@@ -58,8 +59,6 @@ namespace K4System
 			plugin.RegisterListener<Listeners.OnMapStart>((mapName) =>
 			{
 				globalGameRules = null;
-
-				LoadAllPlayerCache();
 
 				plugin.AddTimer(Config.PointSettings.PlaytimeMinutes * 60, () =>
 				{
