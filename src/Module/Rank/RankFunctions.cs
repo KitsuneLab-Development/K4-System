@@ -8,6 +8,7 @@ namespace K4System
     using Microsoft.Extensions.Logging;
     using CounterStrikeSharp.API.Modules.Admin;
     using CounterStrikeSharp.API.Modules.Entities;
+    using System.Text;
 
     public partial class ModuleRank : IModuleRank
     {
@@ -320,6 +321,8 @@ namespace K4System
             {
                 if (adminSettings.ClanTag == null)
                     continue;
+
+                var adminData = AdminManager.GetPlayerAdminData(new SteamID(player.SteamID))!.Flags;
 
                 if (AdminManager.PlayerHasPermissions(player, adminSettings.Permission))
                 {
