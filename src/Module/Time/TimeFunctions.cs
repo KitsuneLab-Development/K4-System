@@ -136,11 +136,11 @@ namespace K4System
 					INSERT INTO `lvl_base`
 					(`steam`, `name`, `playtime`, `lastconnect`)
 					VALUES
-					('{lvlSteamID}', '{escapedName}', {playerData.TimeFields["all"]}, CURRENT_TIMESTAMP)
+					('{lvlSteamID}', '{escapedName}', {playerData.TimeFields["all"]}, UNIX_TIMESTAMP())
 					ON DUPLICATE KEY UPDATE
 					`name` = '{escapedName}',
 					`playtime` = (`playtime` + {playerData.TimeFields["all"]}),
-					`lastconnect` = CURRENT_TIMESTAMP;
+					`lastconnect` = UNIX_TIMESTAMP();
 				");
 			}
 
