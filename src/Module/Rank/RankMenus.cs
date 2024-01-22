@@ -21,8 +21,8 @@ namespace K4System
 							COUNT(*) AS PlayerCount,
 							ROUND((COUNT(*) / TotalPlayers) * 100, 2) AS Percentage
 						FROM
-							`k4ranks`,
-							(SELECT COUNT(*) AS TotalPlayers FROM `k4ranks`) AS Total
+							`{Config.DatabaseSettings.TablePrefix}k4ranks`,
+							(SELECT COUNT(*) AS TotalPlayers FROM `{Config.DatabaseSettings.TablePrefix}k4ranks`) AS Total
 						WHERE
 							`rank` = '{rank.Name}'
 						GROUP BY
