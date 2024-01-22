@@ -2,6 +2,7 @@
   "k4.general.prefix": "{silver}[ {lime}K4-System {silver}]",
   "k4.general.loading": "{lightred}Your data is not yet loaded. Please try again later...",
   "k4.general.targetloading": "{lightred}{0} cannot be targeted, because their data is not yet loaded.",
+  "k4.general.targetimmunity": "{lightred}{0} cannot be targeted, because their immunity is higher than yours.",
   "k4.general.targetnotfound": "{lightred}The player could not be found.",
   "k4.general.targetnobot": "{lightred}{0} cannot be targeted, because they are a bot.",
   "k4.general.invalidamount": "{lightred}The given amount is invalid.",
