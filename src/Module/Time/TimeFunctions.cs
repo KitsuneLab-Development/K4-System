@@ -118,7 +118,6 @@ namespace K4System
 			if (!remove)
 			{
 				queryBuilder.Append($@"
-
 				SELECT * FROM `{Config.DatabaseSettings.TablePrefix}k4times`
 				WHERE `steam_id` = '{steamid}';");
 			}
