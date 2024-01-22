@@ -32,7 +32,7 @@ namespace K4System
 
 							if (AdminManager.PlayerHasPermissions(adminPlayer, adminSettings.Permission))
 							{
-								string adminName = $"{adminSettings.ListColor}{adminPlayer.PlayerName}";
+								string adminName = $"{plugin.ApplyPrefixColors(adminSettings.ListColor)}{adminPlayer.PlayerName}";
 								onlineAdmins.Add(adminName);
 							}
 						}
