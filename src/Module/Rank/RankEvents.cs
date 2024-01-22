@@ -18,7 +18,7 @@ namespace K4System
 				if (player is null || !player.IsValid || player.IsBot || player.IsHLTV)
 					return HookResult.Continue;
 
-				if (!@event.Disconnect && @event.Team != @event.Oldteam)
+				if (!@event.Disconnect && @event.Team != @event.Oldteam && rankCache.ContainsPlayer(player))
 				{
 					rankCache[player].PlayedRound = false;
 				}
