@@ -170,6 +170,12 @@ namespace K4System
 						continue;
 					}
 
+					if (!AdminManager.CanPlayerTarget(player, target))
+					{
+						info.ReplyToCommand($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.general.targetimmunity", target.PlayerName]}");
+						continue;
+					}
+
 					if (!rankCache.ContainsPlayer(target))
 					{
 						info.ReplyToCommand($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.general.targetloading", target.PlayerName]}");
@@ -211,6 +217,12 @@ namespace K4System
 					if (target.IsBot || target.IsHLTV)
 					{
 						info.ReplyToCommand($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.general.targetnobot", target.PlayerName]}");
+						continue;
+					}
+
+					if (!AdminManager.CanPlayerTarget(player, target))
+					{
+						info.ReplyToCommand($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.general.targetimmunity", target.PlayerName]}");
 						continue;
 					}
 
@@ -258,6 +270,12 @@ namespace K4System
 						continue;
 					}
 
+					if (!AdminManager.CanPlayerTarget(player, target))
+					{
+						info.ReplyToCommand($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.general.targetimmunity", target.PlayerName]}");
+						continue;
+					}
+
 					if (!rankCache.ContainsPlayer(target))
 					{
 						info.ReplyToCommand($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.general.targetloading", target.PlayerName]}");
@@ -299,6 +317,12 @@ namespace K4System
 					if (target.IsBot || target.IsHLTV)
 					{
 						info.ReplyToCommand($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.general.targetnobot", target.PlayerName]}");
+						continue;
+					}
+
+					if (!AdminManager.CanPlayerTarget(player, target))
+					{
+						info.ReplyToCommand($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.general.targetimmunity", target.PlayerName]}");
 						continue;
 					}
 
