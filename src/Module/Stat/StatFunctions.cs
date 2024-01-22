@@ -135,7 +135,7 @@ namespace K4System
 				string lvlSteamID = steamid.SteamId2.Replace("STEAM_0", "STEAM_1");
 
 				await Database.ExecuteNonQueryAsync($@"
-					INSERT INTO `lvl_base`
+					INSERT INTO `{Config.DatabaseSettings.LvLRanksTableName}`
 					(`steam`, `name`, `kills`, `deaths`, `shoots`, `hits`, `headshots`, `assists`, `round_win`, `round_lose`, `lastconnect`)
 					VALUES
 					('{lvlSteamID}', '{escapedName}', {playerData.StatFields["kills"]}, {playerData.StatFields["deaths"]}, {playerData.StatFields["shoots"]}, {playerData.StatFields["hits_given"]}, {playerData.StatFields["headshots"]}, {playerData.StatFields["assists"]}, {playerData.StatFields["round_win"]}, {playerData.StatFields["round_lose"]}, CURRENT_TIMESTAMP)

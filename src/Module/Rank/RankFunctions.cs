@@ -212,7 +212,7 @@ namespace K4System
                 string lvlSteamID = steamid.SteamId2.Replace("STEAM_0", "STEAM_1");
 
                 await Database.ExecuteNonQueryAsync($@"
-					INSERT INTO `lvl_base`
+					INSERT INTO `{Config.DatabaseSettings.LvLRanksTableName}`
 					(`steam`, `name`, `rank`, `lastconnect`, `value`)
 					VALUES
 					('{lvlSteamID}', '{escapedName}', '{playerData.Rank.Id}', CURRENT_TIMESTAMP,

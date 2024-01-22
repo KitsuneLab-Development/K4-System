@@ -89,7 +89,7 @@
 
             if (Config.GeneralSettings.LevelRanksCompatibility)
             {
-                this.Database.ExecuteNonQueryAsync(@$"CREATE TABLE IF NOT EXISTS `lvl_base` (
+                this.Database.ExecuteNonQueryAsync(@$"CREATE TABLE IF NOT EXISTS `{Config.DatabaseSettings.LvLRanksTableName}` (
                         `steam` VARCHAR(32) COLLATE 'utf8mb4_unicode_ci' PRIMARY KEY,
                         `name`  VARCHAR(255) COLLATE 'utf8mb4_unicode_ci',
                         `value` INT NOT NULL DEFAULT 0,

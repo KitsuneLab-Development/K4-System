@@ -94,6 +94,9 @@ namespace K4System
 
 		[JsonPropertyName("table-prefix")]
 		public string TablePrefix { get; set; } = "";
+
+		[JsonPropertyName("lvlranks-table-name")]
+		public string LvLRanksTableName { get; set; } = "lvl_base";
 	}
 
 	public sealed class StatisticSettings
@@ -291,6 +294,6 @@ namespace K4System
 		public PointSettings PointSettings { get; set; } = new PointSettings();
 
 		[JsonPropertyName("ConfigVersion")]
-		public override int Version { get; set; } = 6;
+		public override int Version { get; set; } = 7;
 	}
 }
