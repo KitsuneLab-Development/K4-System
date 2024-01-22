@@ -10,6 +10,7 @@
 - fix: Missing prefixes for MySQL queries (by rigE08)
 - fix: Block MySQL save for people with SteamID = 0
 - fix: EventPlayerTeam targets not yet loaded players (#110)
+- fix: Prevent load with wrong database configs
 
 -- 2023.12.30 - V3.0.5
 

@@ -1,9 +1,6 @@
 namespace K4System
 {
-	using CounterStrikeSharp.API;
-	using CounterStrikeSharp.API.Core;
 	using CounterStrikeSharp.API.Core.Plugin;
-	using CounterStrikeSharp.API.Modules.Timers;
 
 	using Microsoft.Extensions.Logging;
 

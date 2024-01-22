@@ -21,6 +21,9 @@
         private readonly IModuleTime ModuleTime;
         private readonly IModuleUtils ModuleUtils;
 
+        //** ? HELPERS */
+        private bool isDatabaseValid = false;
+
         public Plugin(ModuleRank moduleRank, ModuleStat moduleStat, ModuleTime moduleTime, ModuleUtils moduleUtils)
         {
             this.ModuleRank = moduleRank;
@@ -51,10 +54,12 @@
                 using (var connection = new MySqlConnection(connectionString))
                 {
                     connection.Open();
+                    isDatabaseValid = true;
                 }
             }
             catch (MySqlException ex)
             {
+                isDatabaseValid = false;
                 base.Logger.LogError($"Connection to the MySQL database failed: {ex.Message}");
             }
 
@@ -70,6 +75,12 @@
         public override void Load(bool hotReload)
         {
             _ModuleDirectory = ModuleDirectory;
+
+            if (!isDatabaseValid)
+            {
+                base.Logger.LogCritical("Plugin load has been terminated due to a database connection error. Please check your configuration and try again.");
+                return;
+            }
 
             //** ? Core */
 
