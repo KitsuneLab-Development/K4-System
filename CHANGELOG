@@ -3,10 +3,13 @@
 - feat: Add translation for Spanish language (by criskkky)
 - feat: Add translation for Chinese (Simplified, People's Republic of China) language (by TianxSky)
 - feat: CFG to set custom name for LVLRanks Table (#102)
+- feat: Admin list with custom colors for each permission
+- feat: ClanTags by permissions
 - fix: DynamicPoints integer devision (by TianxSky)
 - fix: Change timestamp to unix timestamp (by stefanx111)
 - fix: Missing prefixes for MySQL queries (by rigE08)
 - fix: Block MySQL save for people with SteamID = 0
+- fix: EventPlayerTeam targets not yet loaded players (#110)
 
 -- 2023.12.30 - V3.0.5
 

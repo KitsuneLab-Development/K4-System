@@ -316,9 +316,19 @@ namespace K4System
         {
             Plugin plugin = (this.PluginContext.Plugin as Plugin)!;
 
-            player.Clan = tag;
+            foreach (AdminSettingsEntry adminSettings in Config.GeneralSettings.AdminSettingsList)
+            {
+                if (adminSettings.ClanTag == null)
+                    continue;
 
-            // ? It just works...
+                if (AdminManager.PlayerHasPermissions(player, adminSettings.Permission))
+                {
+                    tag = adminSettings.ClanTag;
+                    break;
+                }
+            }
+
+            player.Clan = tag;
 
             plugin.AddTimer(0.2f, () =>
             {

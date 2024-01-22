@@ -56,6 +56,9 @@
   "k4.times.line3": "--- {silver}Spectator: {lime}{0}",
   "k4.times.line4": "--- {silver}Alive: {lime}{0} {silver}| Dead: {lime}{1}",
 
+  "k4.adminlist.title": "{lime}Online Administrators",
+  "k4.adminlist.no-admins": "{lightred}Currently no administrators online.",
+
   "k4.phrases.suicide": "Suicide",
   "k4.phrases.dying": "Dying",
   "k4.phrases.playtime": "Playtime",

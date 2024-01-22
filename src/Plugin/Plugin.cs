@@ -19,12 +19,14 @@
         private readonly IModuleRank ModuleRank;
         private readonly IModuleStat ModuleStat;
         private readonly IModuleTime ModuleTime;
+        private readonly IModuleUtils ModuleUtils;
 
-        public Plugin(ModuleRank moduleRank, ModuleStat moduleStat, ModuleTime moduleTime)
+        public Plugin(ModuleRank moduleRank, ModuleStat moduleStat, ModuleTime moduleTime, ModuleUtils moduleUtils)
         {
             this.ModuleRank = moduleRank;
             this.ModuleStat = moduleStat;
             this.ModuleTime = moduleTime;
+            this.ModuleUtils = moduleUtils;
         }
 
         public void OnConfigParsed(PluginConfig config)
@@ -85,6 +87,9 @@
             if (Config.GeneralSettings.ModuleTimes)
                 this.ModuleTime.Initialize(hotReload);
 
+            if (Config.GeneralSettings.ModuleUtils)
+                this.ModuleUtils.Initialize(hotReload);
+
             //** ? Initialize LevelRanks Compatibility Table */
 
             if (Config.GeneralSettings.LevelRanksCompatibility)
@@ -120,6 +125,10 @@
 
             if (Config.GeneralSettings.ModuleTimes)
                 this.ModuleTime.Release(hotReload);
+
+            if (Config.GeneralSettings.ModuleUtils)
+                this.ModuleUtils.Release(hotReload);
+
         }
     }
 }

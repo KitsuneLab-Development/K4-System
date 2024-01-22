@@ -4,6 +4,19 @@ namespace K4System
 
 	using System.Text.Json.Serialization;
 
+	public sealed class AdminSettingsEntry
+	{
+		[JsonPropertyName("permission")]
+		public required string Permission { get; set; }
+
+		[JsonPropertyName("listcolor")]
+		public string? ListColor { get; set; } = null;
+
+		[JsonPropertyName("clantag")]
+		public string? ClanTag { get; set; } = null;
+	}
+
+
 	public sealed class GeneralSettings
 	{
 		[JsonPropertyName("spawn-message")]
@@ -18,11 +31,31 @@ namespace K4System
 		[JsonPropertyName("module_times")]
 		public bool ModuleTimes { get; set; } = true;
 
+		[JsonPropertyName("module_utils")]
+		public bool ModuleUtils { get; set; } = true;
+
 		[JsonPropertyName("lvl-ranks-table")]
 		public bool LevelRanksCompatibility { get; set; } = false;
 
 		[JsonPropertyName("ffa-mode")]
 		public bool FFAMode { get; set; } = false;
+
+		[JsonPropertyName("admin-settings")]
+		public List<AdminSettingsEntry> AdminSettingsList { get; set; } = new List<AdminSettingsEntry>
+		{
+			new AdminSettingsEntry
+			{
+				Permission = "this-is-an-owner-permission",
+				ListColor = "red",
+				ClanTag = "[Owner]"
+			},
+			new AdminSettingsEntry
+			{
+				Permission = "this-is-an-admin-permission",
+				ListColor = "lightred",
+				ClanTag = "[Admin]"
+			}
+		};
 	}
 
 	public sealed class CommandSettings
@@ -72,6 +105,13 @@ namespace K4System
 			"time",
 			"mytime",
 			"playtime"
+		};
+
+		[JsonPropertyName("admin-list-commands")]
+		public List<string> AdminListCommands { get; set; } = new List<string>
+		{
+			"admins",
+			"listadmins"
 		};
 	}
 

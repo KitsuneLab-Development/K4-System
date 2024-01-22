@@ -10,6 +10,7 @@ namespace K4System
 			serviceCollection.AddSingleton<ModuleRank>();
 			serviceCollection.AddSingleton<ModuleStat>();
 			serviceCollection.AddSingleton<ModuleTime>();
+			serviceCollection.AddSingleton<ModuleUtils>();
 		}
 	}
 }
