@@ -149,7 +149,7 @@ namespace K4System
 					`assists` = {playerData.StatFields["assists"]},
 					`round_win` = {playerData.StatFields["round_win"]},
 					`round_lose` = {playerData.StatFields["round_lose"]},
-					`lastconnect` = CURRENT_TIMESTAMP;
+					`lastconnect` = UNIX_TIMESTAMP();
 				");
 			}
 

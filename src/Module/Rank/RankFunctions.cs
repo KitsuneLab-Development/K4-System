@@ -223,7 +223,7 @@ namespace K4System
 					ON DUPLICATE KEY UPDATE
 					`name` = '{escapedName}',
 					`rank` = '{playerData.Rank.Id}',
-					`lastconnect` = CURRENT_TIMESTAMP,
+					`lastconnect` = UNIX_TIMESTAMP(),
 					`value` =
 					CASE
 						WHEN (`value` + {setPoints}) < 0 THEN 0
