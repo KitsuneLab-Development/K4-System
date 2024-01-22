@@ -21,10 +21,12 @@ namespace K4System
 				CommandSettings commands = Config.CommandSettings;
 
 				string rankLocale = Localizer["k4.general.availablecommands.rank"];
+				string otherLocale = Localizer["k4.general.availablecommands.other"];
 
 				Dictionary<string, List<string>> commandCategories = new Dictionary<string, List<string>>
 				{
 					{ rankLocale, new List<string>() },
+					{ otherLocale, new List<string>() },
 					{ Localizer["k4.general.availablecommands.stat"], commands.StatCommands },
 					{ Localizer["k4.general.availablecommands.time"], commands.TimeCommands },
 				};
@@ -33,6 +35,8 @@ namespace K4System
 				commandCategories[rankLocale].AddRange(commands.TopCommands);
 				commandCategories[rankLocale].AddRange(commands.ResetMyCommands);
 				commandCategories[rankLocale].AddRange(commands.RanksCommands);
+
+				commandCategories[otherLocale].AddRange(commands.AdminListCommands);
 
 				StringBuilder messageBuilder = new StringBuilder();
 

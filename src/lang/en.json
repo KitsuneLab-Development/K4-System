@@ -10,6 +10,7 @@
   "k4.general.availablecommands.stat": "Stat Commands",
   "k4.general.availablecommands.rank": "Rank Commands",
   "k4.general.availablecommands.time": "Time Commands",
+  "k4.general.availablecommands.other": "Other Commands",
 
   "k4.ranks.rank.title": "{lime}{0}{silver}'s Rank",
   "k4.ranks.rank.line1": "--- {silver}You have {lime}{0} {silver}points and are currently {1}{2} {silver}({3} out of {4})",
