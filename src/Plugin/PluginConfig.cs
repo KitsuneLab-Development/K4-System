@@ -45,14 +45,14 @@ namespace K4System
 		{
 			new AdminSettingsEntry
 			{
-				Permission = "this-is-an-owner-permission",
+				Permission = "@myplugin/owner-permission",
 				ListColor = "red",
 				ClanTag = "[Owner]"
 			},
 			new AdminSettingsEntry
 			{
-				Permission = "this-is-an-admin-permission",
-				ListColor = "lightred",
+				Permission = "@myplugin/admin-permission",
+				ListColor = "lightblue",
 				ClanTag = "[Admin]"
 			}
 		};
