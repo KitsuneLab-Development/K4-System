@@ -1,6 +1,10 @@
 -- 2023.01.22 - ...
 
 - feat: Add translation for Spanish language (by criskkky)
+- feat: Add translation for Chinese (Simplified, People's Republic of China) language (by TianxSky)
+- fix: DynamicPoints integer devision (by TianxSky)
+- fix: Change timestamp to unix timestamp (by stefanx111)
+- fix: Missing prefixes for MySQL queries (by rigE08)
 
 -- 2023.12.30 - V3.0.5
 
