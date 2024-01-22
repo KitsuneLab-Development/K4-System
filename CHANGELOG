@@ -5,6 +5,7 @@
 - feat: CFG to set custom name for LVLRanks Table (#102)
 - feat: Admin list with custom colors for each permission
 - feat: ClanTags by permissions
+- feat: Added arg to top command (!top 8)
 - feat: Add immunity check for targeting commands
 - fix: DynamicPoints integer devision (by TianxSky)
 - fix: Change timestamp to unix timestamp (by stefanx111)
