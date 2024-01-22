@@ -182,7 +182,7 @@ namespace K4System
 			List<CCSPlayerController> players = Utilities.GetPlayers();
 
 			var saveTasks = players
-				.Where(player => player != null && player.IsValid && player.PlayerPawn.IsValid && !player.IsBot && !player.IsHLTV && timeCache.ContainsPlayer(player))
+				.Where(player => player != null && player.IsValid && player.PlayerPawn.IsValid && !player.IsBot && !player.IsHLTV && player.SteamID != 0 && timeCache.ContainsPlayer(player))
 				.Select(player => SavePlayerTimeCacheAsync(player.Slot, timeCache[player], player.PlayerName, new SteamID(player.SteamID), clear))
 				.ToList();
 
