@@ -121,7 +121,12 @@ namespace K4System
 						return;
 					}
 
-					int printCount = int.TryParse(new string(info.ArgByIndex(0).Reverse().TakeWhile(char.IsDigit).Reverse().ToArray()), out int result) ? result : 5;
+					int printCount = 5;
+
+					if (int.TryParse(info.ArgByIndex(1), out int parsedInt))
+					{
+						printCount = parsedInt;
+					}
 
 					CCSPlayerController savedPlayer = player;
 
