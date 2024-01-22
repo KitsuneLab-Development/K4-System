@@ -9,6 +9,7 @@ namespace K4System
 	using Microsoft.Extensions.Logging;
 	using System.Text;
 	using CounterStrikeSharp.API.Modules.Entities;
+	using CounterStrikeSharp.API.Modules.Timers;
 
 	public partial class ModuleTime : IModuleTime
 	{
@@ -32,20 +33,13 @@ namespace K4System
 				WHERE `steam_id` = '{steamid}';
 			");
 
-			Dictionary<string, int> NewTimeFields = new Dictionary<string, int>();
-
 			string[] timeFieldNames = { "all", "ct", "t", "spec", "alive", "dead" };
-
-			foreach (var timeField in timeFieldNames)
-			{
-				NewTimeFields[timeField] = result.Rows > 0 ? result.Get<int>(0, timeField) : 0;
-			}
 
 			DateTime now = DateTime.UtcNow;
 
 			TimeData playerData = new TimeData
 			{
-				TimeFields = NewTimeFields,
+				TimeFields = new Dictionary<string, int>(),
 				Times = new Dictionary<string, DateTime>
 				{
 					{ "Connect", now },
@@ -54,24 +48,28 @@ namespace K4System
 				}
 			};
 
+			foreach (string timeField in timeFieldNames)
+			{
+				playerData.TimeFields[timeField] = result.Rows > 0 ? result.Get<int>(0, timeField) : 0;
+			}
+
 			timeCache[slot] = playerData;
 		}
 
 		public void SavePlayerTimeCache(CCSPlayerController player, bool remove)
 		{
 			var savedSlot = player.Slot;
-			var savedStat = timeCache[player];
 			var savedName = player.PlayerName;
 
 			SteamID steamid = new SteamID(player.SteamID);
 
 			Task.Run(async () =>
 			{
-				await SavePlayerTimeCacheAsync(savedSlot, savedStat, savedName, steamid, remove);
+				await SavePlayerTimeCacheAsync(savedSlot, savedName, steamid, remove);
 			});
 		}
 
-		public async Task SavePlayerTimeCacheAsync(int slot, TimeData playerData, string name, SteamID steamid, bool remove)
+		public async Task SavePlayerTimeCacheAsync(int slot, string name, SteamID steamid, bool remove)
 		{
 			if (!timeCache.ContainsKey(slot))
 			{
@@ -84,6 +82,8 @@ namespace K4System
 			StringBuilder queryBuilder = new StringBuilder();
 			queryBuilder.Append($@"
    				INSERT INTO `{Config.DatabaseSettings.TablePrefix}k4times` (`steam_id`, `name`");
+
+			TimeData playerData = timeCache[slot];
 
 			foreach (var field in playerData.TimeFields)
 			{
@@ -119,7 +119,7 @@ namespace K4System
 			{
 				queryBuilder.Append($@"
 				SELECT * FROM `{Config.DatabaseSettings.TablePrefix}k4times`
-				WHERE `steam_id` = '{steamid}';");
+				WHERE `steam_id` = '{steamid.SteamId64}';");
 			}
 
 			string insertOrUpdateQuery = queryBuilder.ToString();
@@ -145,16 +145,12 @@ namespace K4System
 
 			if (!remove)
 			{
-				Dictionary<string, int> NewStatFields = new Dictionary<string, int>();
-
 				var allKeys = playerData.TimeFields.Keys.ToList();
 
 				foreach (string statField in allKeys)
 				{
-					NewStatFields[statField] = result.Rows > 0 ? result.Get<int>(0, statField) : 0;
+					playerData.TimeFields[statField] = result.Rows > 0 ? result.Get<int>(0, statField) : 0;
 				}
-
-				timeCache[slot].TimeFields = NewStatFields;
 			}
 			else
 			{
@@ -183,7 +179,7 @@ namespace K4System
 
 			var saveTasks = players
 				.Where(player => player != null && player.IsValid && player.PlayerPawn.IsValid && !player.IsBot && !player.IsHLTV && player.SteamID != 0 && timeCache.ContainsPlayer(player))
-				.Select(player => SavePlayerTimeCacheAsync(player.Slot, timeCache[player], player.PlayerName, new SteamID(player.SteamID), clear))
+				.Select(player => SavePlayerTimeCacheAsync(player.Slot, player.PlayerName, new SteamID(player.SteamID), clear))
 				.ToList();
 
 			Task.Run(async () =>

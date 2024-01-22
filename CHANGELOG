@@ -16,6 +16,7 @@
 - fix: Crashes on mapchange
 - fix: Duplicated player load into cache
 - fix: Thread problems
+- fix: Time wont save (Spawn resets it)
 
 -- 2023.12.30 - V3.0.5
 
