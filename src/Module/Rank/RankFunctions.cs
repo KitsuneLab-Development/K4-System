@@ -322,8 +322,6 @@ namespace K4System
                 if (adminSettings.ClanTag == null)
                     continue;
 
-                var adminData = AdminManager.GetPlayerAdminData(new SteamID(player.SteamID))!.Flags;
-
                 if (AdminManager.PlayerHasPermissions(player, adminSettings.Permission))
                 {
                     tag = adminSettings.ClanTag;
