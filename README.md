@@ -117,6 +117,7 @@ I really appreciate the help of the following people who translated the plugin i
 - [**ViTamin**](https://github.com/ezekutor): Russian
 - [**rcon420**](https://github.com/rcon420): Latvian
 - [**criskkky**](https://github.com/criskkky): Spanish
+- [**TianxSky**](https://github.com/TianxSky): Chinese (cn)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
