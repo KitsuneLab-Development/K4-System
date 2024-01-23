@@ -31,12 +31,10 @@ namespace K4System
 
 			plugin.RegisterListener<Listeners.OnMapStart>((mapName) =>
 			{
-				globalGameRules = null;
-			});
-
-			plugin.RegisterListener<Listeners.OnMapEnd>(() =>
-			{
-				SaveAllPlayerCache(true);
+				plugin.AddTimer(1.0f, () =>
+				{
+					globalGameRules = Utilities.FindAllEntitiesByDesignerName<CCSGameRulesProxy>("cs_gamerules").First().GameRules;
+				});
 			});
 
 			plugin.RegisterEventHandler((EventPlayerDeath @event, GameEventInfo info) =>

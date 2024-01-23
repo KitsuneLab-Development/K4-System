@@ -58,7 +58,10 @@ namespace K4System
 
 			plugin.RegisterListener<Listeners.OnMapStart>((mapName) =>
 			{
-				globalGameRules = null;
+				plugin.AddTimer(1.0f, () =>
+				{
+					globalGameRules = Utilities.FindAllEntitiesByDesignerName<CCSGameRulesProxy>("cs_gamerules").First().GameRules;
+				});
 
 				plugin.AddTimer(Config.PointSettings.PlaytimeMinutes * 60, () =>
 				{
@@ -75,11 +78,6 @@ namespace K4System
 						ModifyPlayerPoints(player, Config.PointSettings.PlaytimePoints, "k4.phrases.playtime");
 					}
 				}, TimerFlags.STOP_ON_MAPCHANGE | TimerFlags.REPEAT);
-			});
-
-			plugin.RegisterListener<Listeners.OnMapEnd>(() =>
-			{
-				SaveAllPlayerCache(true);
 			});
 
 			plugin.RegisterEventHandler((EventPlayerSpawn @event, GameEventInfo info) =>
@@ -316,7 +314,7 @@ namespace K4System
 
 				CCSPlayerController victim = @event.Userid;
 
-				if (victim is null || !victim.IsValid || !victim.PlayerPawn.IsValid || !victim.UserId.HasValue || victim.UserId == -1)
+				if (victim is null || !victim.IsValid || !victim.PlayerPawn.IsValid || victim.Connected == PlayerConnectedState.PlayerDisconnecting)
 					return HookResult.Continue;
 
 				CCSPlayerController killer = @event.Attacker;

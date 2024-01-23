@@ -11,20 +11,12 @@ namespace K4System
 
 	public partial class ModuleStat : IModuleStat
 	{
-		public CCSGameRules GameRules()
-		{
-			if (globalGameRules is null)
-				globalGameRules = Utilities.FindAllEntitiesByDesignerName<CCSGameRulesProxy>("cs_gamerules").First().GameRules!;
-
-			return globalGameRules;
-		}
-
 		public bool IsStatsAllowed()
 		{
 			List<CCSPlayerController> players = Utilities.GetPlayers();
 			int notBots = players.Count(player => !player.IsBot);
 
-			return (!GameRules().WarmupPeriod || Config.StatisticSettings.WarmupStats) && (Config.StatisticSettings.MinPlayers <= notBots);
+			return globalGameRules != null && (!globalGameRules.WarmupPeriod || Config.StatisticSettings.WarmupStats) && (Config.StatisticSettings.MinPlayers <= notBots);
 		}
 
 		public async Task LoadStatData(int slot, string name, string steamid)
@@ -199,10 +191,10 @@ namespace K4System
 			Task.Run(async () =>
 			{
 				await Task.WhenAll(saveTasks);
-			});
 
-			if (clear)
-				statCache.Clear();
+				if (clear)
+					statCache.Clear();
+			});
 		}
 
 		public void ModifyPlayerStats(CCSPlayerController player, string field, int amount)

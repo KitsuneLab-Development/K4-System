@@ -62,6 +62,8 @@ namespace K4System
 			if (hotReload)
 			{
 				LoadAllPlayerCache();
+
+				globalGameRules = Utilities.FindAllEntitiesByDesignerName<CCSGameRulesProxy>("cs_gamerules").First().GameRules;
 			}
 		}
 

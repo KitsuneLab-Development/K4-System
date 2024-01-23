@@ -55,6 +55,8 @@ namespace K4System
 			{
 				LoadAllPlayerCache();
 
+				globalGameRules = Utilities.FindAllEntitiesByDesignerName<CCSGameRulesProxy>("cs_gamerules").First().GameRules;
+
 				plugin.AddTimer(Config.PointSettings.PlaytimeMinutes * 60, () =>
 				{
 					List<CCSPlayerController> players = Utilities.GetPlayers();

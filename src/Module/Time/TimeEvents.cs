@@ -29,11 +29,6 @@ namespace K4System
 				return HookResult.Continue;
 			});
 
-			plugin.RegisterListener<Listeners.OnMapStart>((mapName) =>
-			{
-				globalGameRules = null;
-			});
-
 			plugin.RegisterListener<Listeners.OnMapEnd>(() =>
 			{
 				SaveAllPlayerCache(true);

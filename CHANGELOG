@@ -2,6 +2,10 @@
 
 - fix: ClanTag problems on players with no permissions (#112)
 - fix: Add TianxSky as translator to README
+- fix: Cache gets deleted before saved sometimes
+- fix: Duplicated load and save for players on map change
+- fix: GameRule was used before it was initiated by the server
+- fix: PlayerDeath caused crash on mapchange
 
 -- 2023.01.22 - V3.1.0
 

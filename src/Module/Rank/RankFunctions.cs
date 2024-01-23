@@ -12,20 +12,12 @@ namespace K4System
 
     public partial class ModuleRank : IModuleRank
     {
-        public CCSGameRules GameRules()
-        {
-            if (globalGameRules is null)
-                globalGameRules = Utilities.FindAllEntitiesByDesignerName<CCSGameRulesProxy>("cs_gamerules").First().GameRules!;
-
-            return globalGameRules;
-        }
-
         public bool IsPointsAllowed()
         {
             List<CCSPlayerController> players = Utilities.GetPlayers();
             int notBots = players.Count(player => !player.IsBot);
 
-            return (!GameRules().WarmupPeriod || Config.RankSettings.WarmupPoints) && (Config.RankSettings.MinPlayers <= notBots);
+            return globalGameRules != null && (!globalGameRules.WarmupPeriod || Config.RankSettings.WarmupPoints) && (Config.RankSettings.MinPlayers <= notBots);
         }
 
         public async Task LoadRankData(int slot, string name, string steamid)
@@ -164,19 +156,18 @@ namespace K4System
 
         public void SavePlayerRankCache(CCSPlayerController player, bool remove)
         {
-            var savedSlot = player.Slot;
-            var savedRank = rankCache[player];
-            var savedName = player.PlayerName;
+            int savedSlot = player.Slot;
+            string savedName = player.PlayerName;
 
             SteamID steamID = new SteamID(player.SteamID);
 
             Task.Run(async () =>
             {
-                await SavePlayerRankCacheAsync(savedSlot, savedRank, savedName, steamID, remove);
+                await SavePlayerRankCacheAsync(savedSlot, savedName, steamID, remove);
             });
         }
 
-        public async Task SavePlayerRankCacheAsync(int slot, RankData playerData, string name, SteamID steamid, bool remove)
+        public async Task SavePlayerRankCacheAsync(int slot, string name, SteamID steamid, bool remove)
         {
             if (!rankCache.ContainsKey(slot))
             {
@@ -185,6 +176,8 @@ namespace K4System
             }
 
             string escapedName = MySqlHelper.EscapeString(name);
+
+            RankData playerData = rankCache[slot];
 
             int setPoints = playerData.RoundPoints;
 
@@ -273,16 +266,16 @@ namespace K4System
 
             var saveTasks = players
                 .Where(player => player != null && player.IsValid && player.PlayerPawn.IsValid && !player.IsBot && !player.IsHLTV && rankCache.ContainsPlayer(player))
-                .Select(player => SavePlayerRankCacheAsync(player.Slot, rankCache[player], player.PlayerName, new SteamID(player.SteamID), clear))
+                .Select(player => SavePlayerRankCacheAsync(player.Slot, player.PlayerName, new SteamID(player.SteamID), clear))
                 .ToList();
 
             Task.Run(async () =>
             {
                 await Task.WhenAll(saveTasks);
-            });
 
-            if (clear)
-                rankCache.Clear();
+                if (clear)
+                    rankCache.Clear();
+            });
         }
 
         public async Task<(int playerPlace, int totalPlayers)> GetPlayerPlaceAndCount(string steamID)

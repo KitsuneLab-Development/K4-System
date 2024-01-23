@@ -20,7 +20,6 @@ namespace K4System
 		public required PluginConfig Config { get; set; }
 		public required MySqlDb Database { get; set; }
 
-		public CCSGameRules? globalGameRules = null;
 		internal static PlayerCache<TimeData> timeCache = new PlayerCache<TimeData>();
 	}
 }

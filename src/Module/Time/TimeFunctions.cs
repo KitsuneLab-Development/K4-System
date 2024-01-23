@@ -185,10 +185,10 @@ namespace K4System
 			Task.Run(async () =>
 			{
 				await Task.WhenAll(saveTasks);
-			});
 
-			if (clear)
-				timeCache.Clear();
+				if (clear)
+					timeCache.Clear();
+			});
 		}
 
 		public string GetFieldForTeam(CsTeam team)
