@@ -109,10 +109,7 @@ namespace K4System
 				if (player is null || !player.IsValid || !player.PlayerPawn.IsValid)
 					return HookResult.Continue;
 
-				if (player.IsBot || player.IsHLTV)
-					return HookResult.Continue;
-
-				if (!timeCache.ContainsPlayer(player))
+				if (player.IsBot || player.IsHLTV || !timeCache.ContainsPlayer(player))
 					return HookResult.Continue;
 
 				DateTime now = DateTime.UtcNow;

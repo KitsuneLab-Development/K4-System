@@ -16,7 +16,7 @@ namespace K4System
 			{
 				CCSPlayerController player = @event.Userid;
 
-				if (player is null || !player.IsValid || player.IsBot || player.IsHLTV)
+				if (player is null || !player.IsValid || player.IsBot || player.IsHLTV || !rankCache.ContainsPlayer(player))
 					return HookResult.Continue;
 
 				RankData playerData = rankCache[player];
@@ -29,7 +29,7 @@ namespace K4System
 					}
 				}
 
-				if (!@event.Disconnect && @event.Team != @event.Oldteam && rankCache.ContainsPlayer(player))
+				if (!@event.Disconnect && @event.Team != @event.Oldteam)
 				{
 					rankCache[player].PlayedRound = false;
 				}
@@ -458,7 +458,7 @@ namespace K4System
 				if (player is null || !player.IsValid || !player.PlayerPawn.IsValid)
 					return HookResult.Continue;
 
-				if (player.IsBot || player.IsHLTV)
+				if (player.IsBot || player.IsHLTV || !rankCache.ContainsPlayer(player))
 					return HookResult.Continue;
 
 				SavePlayerRankCache(player, true);

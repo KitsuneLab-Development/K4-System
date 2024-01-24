@@ -210,6 +210,9 @@ namespace K4System
 				if (player.IsBot || player.IsHLTV)
 					return HookResult.Continue;
 
+				if (!statCache.ContainsPlayer(player))
+					return HookResult.Continue;
+
 				SavePlayerStatCache(player, true);
 
 				return HookResult.Continue;

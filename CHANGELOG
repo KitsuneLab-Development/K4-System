@@ -1,5 +1,10 @@
+-- 2023.01.24 - V3.1.2
+
+- fix: Use of cache, where player not loaded yet
+
 -- 2023.01.23 - V3.1.1
 
+- feat: Add Brazilian Portuguese translation (by Gabriel 'sopax' Lima)
 - fix: ClanTag problems on players with no permissions (#112)
 - fix: Add TianxSky as translator to README
 - fix: Cache gets deleted before saved sometimes

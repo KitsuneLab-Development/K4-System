@@ -60,25 +60,26 @@ namespace K4System
 
 		public void SavePlayerStatCache(CCSPlayerController player, bool remove)
 		{
-			var savedSlot = player.Slot;
-			var savedStat = statCache[player];
-			var savedName = player.PlayerName;
+			int savedSlot = player.Slot;
+			string savedName = player.PlayerName;
 
 			SteamID steamid = new SteamID(player.SteamID);
 
 			Task.Run(async () =>
 			{
-				await SavePlayerStatCacheAsync(savedSlot, savedStat, savedName, steamid, remove);
+				await SavePlayerStatCacheAsync(savedSlot, savedName, steamid, remove);
 			});
 		}
 
-		public async Task SavePlayerStatCacheAsync(int slot, StatData playerData, string name, SteamID steamid, bool remove)
+		public async Task SavePlayerStatCacheAsync(int slot, string name, SteamID steamid, bool remove)
 		{
 			if (!statCache.ContainsKey(slot))
 			{
 				Logger.LogWarning($"SavePlayerStatCache > Player is not loaded to the cache ({name})");
 				return;
 			}
+
+			StatData playerData = statCache[slot];
 
 			string escapedName = MySqlHelper.EscapeString(name);
 
@@ -185,7 +186,7 @@ namespace K4System
 
 			var saveTasks = players
 				.Where(player => player != null && player.IsValid && player.PlayerPawn.IsValid && !player.IsBot && !player.IsHLTV && statCache.ContainsPlayer(player))
-				.Select(player => SavePlayerStatCacheAsync(player.Slot, statCache[player], player.PlayerName, new SteamID(player.SteamID), clear))
+				.Select(player => SavePlayerStatCacheAsync(player.Slot, player.PlayerName, new SteamID(player.SteamID), clear))
 				.ToList();
 
 			Task.Run(async () =>
