@@ -29,6 +29,11 @@ namespace K4System
 				return HookResult.Continue;
 			});
 
+			plugin.RegisterListener<Listeners.OnMapStart>((mapName) =>
+			{
+				LoadAllPlayerCache();
+			});
+
 			plugin.RegisterListener<Listeners.OnMapEnd>(() =>
 			{
 				SaveAllPlayerCache(true);

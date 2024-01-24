@@ -169,7 +169,7 @@ namespace K4System
 		{
 			List<CCSPlayerController> players = Utilities.GetPlayers();
 
-			var loadTasks = players
+			List<Task> loadTasks = players
 				.Where(player => player != null && player.IsValid && player.PlayerPawn.IsValid && !player.IsBot && !player.IsHLTV)
 				.Select(player => LoadStatData(player.Slot, player.PlayerName, player.SteamID.ToString()))
 				.ToList();
@@ -184,7 +184,7 @@ namespace K4System
 		{
 			List<CCSPlayerController> players = Utilities.GetPlayers();
 
-			var saveTasks = players
+			List<Task> saveTasks = players
 				.Where(player => player != null && player.IsValid && player.PlayerPawn.IsValid && !player.IsBot && !player.IsHLTV && statCache.ContainsPlayer(player))
 				.Select(player => SavePlayerStatCacheAsync(player.Slot, player.PlayerName, new SteamID(player.SteamID), clear))
 				.ToList();

@@ -1,6 +1,7 @@
 -- 2023.01.24 - V3.1.2
 
 - fix: Use of cache, where player not loaded yet
+- fix: Player not loaded on mapchange
 
 -- 2023.01.23 - V3.1.1
 
