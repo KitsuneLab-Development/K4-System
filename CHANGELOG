@@ -1,5 +1,6 @@
 -- 2023.01.24 - V3.1.2
 
+- feat: Add support for admin groups and command overrides
 - fix: Use of cache, where player not loaded yet
 - fix: Player not loaded on mapchange
 

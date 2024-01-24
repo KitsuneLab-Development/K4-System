@@ -314,10 +314,20 @@ namespace K4System
                 if (adminSettings.ClanTag == null)
                     continue;
 
-                if (AdminManager.PlayerHasPermissions(player, adminSettings.Permission))
+                switch (adminSettings.Permission[0])
                 {
-                    tag = adminSettings.ClanTag;
-                    break;
+                    case '@':
+                        if (AdminManager.PlayerHasPermissions(player, adminSettings.Permission))
+                            tag = adminSettings.ClanTag;
+                        break;
+                    case '#':
+                        if (AdminManager.PlayerInGroup(player, adminSettings.Permission))
+                            tag = adminSettings.ClanTag;
+                        break;
+                    default:
+                        if (AdminManager.PlayerHasCommandOverride(player, adminSettings.Permission))
+                            tag = adminSettings.ClanTag;
+                        break;
                 }
             }
 
