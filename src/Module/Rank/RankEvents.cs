@@ -262,7 +262,9 @@ namespace K4System
 					if (!player.PawnIsAlive)
 						playerKillStreaks[player.Slot] = (0, DateTime.Now);
 
-					if (!rankCache[player].PlayedRound)
+					RankData playerData = rankCache[player];
+
+					if (!playerData.PlayedRound)
 						continue;
 
 					if (player.TeamNum <= (int)CsTeam.Spectator)
@@ -279,8 +281,6 @@ namespace K4System
 
 					if (Config.RankSettings.RoundEndPoints)
 					{
-						RankData playerData = rankCache[player];
-
 						if (playerData.RoundPoints > 0)
 						{
 							player.PrintToChat($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.ranks.summarypoints.gain", playerData.RoundPoints]}");

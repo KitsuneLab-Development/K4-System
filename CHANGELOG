@@ -3,6 +3,7 @@
 - feat: Add support for admin groups and command overrides
 - fix: Use of cache, where player not loaded yet
 - fix: Player not loaded on mapchange
+- fix: Add Gabriel 'sopax' Lima as translator to README
 
 -- 2023.01.23 - V3.1.1
 
