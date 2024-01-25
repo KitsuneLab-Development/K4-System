@@ -398,7 +398,6 @@ namespace K4System
 									break;
 								}
 							// Grenade impact kill (hitting a player and killing them with a grenade when they are 1hp for example)
-							// No idea how bump mines work, but I kept them here anyways.
 							case var _ when lowerCaseWeaponName.Contains("grenade") || lowerCaseWeaponName.Contains("molotov") || lowerCaseWeaponName.Contains("flashbang") || lowerCaseWeaponName.Contains("bumpmine"):
 								{
 									ModifyPlayerPoints(killer, Config.PointSettings.ImpactKill, "k4.phrases.impactkill");
