@@ -300,6 +300,12 @@ namespace K4System
 		[JsonPropertyName("grenade-kill")]
 		public int GrenadeKill { get; set; } = 30;
 
+		[JsonPropertyName("inferno-kill")]
+		public int InfernoKill { get; set; } = 30;
+
+		[JsonPropertyName("impact-kill")]
+		public int ImpactKill { get; set; } = 100;
+
 		[JsonPropertyName("taser-kill")]
 		public int TaserKill { get; set; } = 20;
 
