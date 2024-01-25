@@ -51,7 +51,7 @@ namespace K4System
 			},
 			new AdminSettingsEntry
 			{
-				Permission = "@myplugin/admin-permission",
+				Permission = "#myplugin/admin-group",
 				ListColor = "lightblue",
 				ClanTag = "[Admin]"
 			}

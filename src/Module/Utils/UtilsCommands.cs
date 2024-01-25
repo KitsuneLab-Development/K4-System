@@ -27,13 +27,31 @@ namespace K4System
 					{
 						foreach (AdminSettingsEntry adminSettings in Config.GeneralSettings.AdminSettingsList)
 						{
-							if (adminSettings.ListColor == null)
-								continue;
+							string color = adminSettings.ListColor ?? "default";
 
-							if (AdminManager.PlayerHasPermissions(adminPlayer, adminSettings.Permission))
+							switch (adminSettings.Permission[0])
 							{
-								string adminName = $"{plugin.ApplyPrefixColors(adminSettings.ListColor)}{adminPlayer.PlayerName}";
-								onlineAdmins.Add(adminName);
+								case '@':
+									if (AdminManager.PlayerHasPermissions(adminPlayer, adminSettings.Permission))
+									{
+										string adminName = $"{plugin.ApplyPrefixColors(color)}{adminPlayer.PlayerName}";
+										onlineAdmins.Add(adminName);
+									}
+									break;
+								case '#':
+									if (AdminManager.PlayerInGroup(adminPlayer, adminSettings.Permission))
+									{
+										string adminName = $"{plugin.ApplyPrefixColors(color)}{adminPlayer.PlayerName}";
+										onlineAdmins.Add(adminName);
+									}
+									break;
+								default:
+									if (AdminManager.PlayerHasCommandOverride(adminPlayer, adminSettings.Permission))
+									{
+										string adminName = $"{plugin.ApplyPrefixColors(color)}{adminPlayer.PlayerName}";
+										onlineAdmins.Add(adminName);
+									}
+									break;
 							}
 						}
 					}
