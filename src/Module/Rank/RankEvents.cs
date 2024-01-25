@@ -385,12 +385,27 @@ namespace K4System
 
 						switch (lowerCaseWeaponName)
 						{
-							case var _ when lowerCaseWeaponName.Contains("grenade") || lowerCaseWeaponName.Contains("firebomb") || lowerCaseWeaponName.Contains("molotov") || lowerCaseWeaponName.Contains("flashbang") || lowerCaseWeaponName.Contains("bumpmine"):
+							//Killed by grenade explosion
+							case var _ when lowerCaseWeaponName.Contains("hegrenade"):
 								{
 									ModifyPlayerPoints(killer, Config.PointSettings.GrenadeKill, "k4.phrases.grenadekill");
 									break;
 								}
-							case var _ when lowerCaseWeaponName.Contains("knife_") || lowerCaseWeaponName.Contains("bayonet"):
+							//Molotov or Incendiary fire kill
+							case var _ when lowerCaseWeaponName.Contains("inferno"):
+								{
+									ModifyPlayerPoints(killer, Config.PointSettings.InfernoKill, "k4.phrases.infernokill");
+									break;
+								}
+							// Grenade impact kill (hitting a player and killing them with a grenade when they are 1hp for example)
+							// No idea how bump mines work, but I kept them here anyways.
+							case var _ when lowerCaseWeaponName.Contains("grenade") || lowerCaseWeaponName.Contains("molotov") || lowerCaseWeaponName.Contains("flashbang") || lowerCaseWeaponName.Contains("bumpmine"):
+								{
+									ModifyPlayerPoints(killer, Config.PointSettings.ImpactKill, "k4.phrases.impactkill");
+									break;
+								}
+							// knife_ would not handle default knives (therefore changed to just "knife"), this will also not handle other Danger Zone items such as axes and wrenches (if they are even implemented yet in CS2)
+							case var _ when lowerCaseWeaponName.Contains("knife") || lowerCaseWeaponName.Contains("bayonet"):
 								{
 									ModifyPlayerPoints(killer, Config.PointSettings.KnifeKill, "k4.phrases.knifekill");
 									break;
