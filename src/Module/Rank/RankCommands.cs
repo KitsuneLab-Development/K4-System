@@ -125,7 +125,7 @@ namespace K4System
 
 					if (int.TryParse(info.ArgByIndex(1), out int parsedInt))
 					{
-						printCount = Math.Max(1, Math.Min(50, parsedInt));
+						printCount = Math.Clamp(parsedInt, 1, 25);
 					}
 
 					CCSPlayerController savedPlayer = player;
