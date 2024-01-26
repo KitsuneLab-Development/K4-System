@@ -138,7 +138,7 @@ namespace K4System
 					('{lvlSteamID}', '{escapedName}', {playerData.TimeFields["all"]}, UNIX_TIMESTAMP())
 					ON DUPLICATE KEY UPDATE
 					`name` = '{escapedName}',
-					`playtime` = (`playtime` + {playerData.TimeFields["all"]}),
+					`playtime = '{playerData.TimeFields["all"]}',
 					`lastconnect` = UNIX_TIMESTAMP();
 				");
 			}
