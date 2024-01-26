@@ -240,7 +240,7 @@ namespace K4System
 		[JsonPropertyName("bomb-plant")]
 		public int BombPlant { get; set; } = 10;
 
-		[JsonPropertyName("bomb-expode")]
+		[JsonPropertyName("bomb-explode")]
 		public int BombExploded { get; set; } = 10;
 
 		[JsonPropertyName("hostage-hurt")]
