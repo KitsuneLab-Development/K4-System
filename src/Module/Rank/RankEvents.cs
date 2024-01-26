@@ -57,8 +57,6 @@ namespace K4System
 
 			plugin.RegisterListener<Listeners.OnMapStart>((mapName) =>
 			{
-				LoadAllPlayerCache();
-
 				plugin.AddTimer(1.0f, () =>
 				{
 					globalGameRules = Utilities.FindAllEntitiesByDesignerName<CCSGameRulesProxy>("cs_gamerules").First().GameRules;
@@ -79,11 +77,6 @@ namespace K4System
 						ModifyPlayerPoints(player, Config.PointSettings.PlaytimePoints, "k4.phrases.playtime");
 					}
 				}, TimerFlags.STOP_ON_MAPCHANGE | TimerFlags.REPEAT);
-			});
-
-			plugin.RegisterListener<Listeners.OnMapEnd>(() =>
-			{
-				SaveAllPlayerCache(true);
 			});
 
 			plugin.RegisterEventHandler((EventPlayerSpawn @event, GameEventInfo info) =>

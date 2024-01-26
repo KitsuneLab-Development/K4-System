@@ -201,22 +201,13 @@ namespace K4System
 		public void ModifyPlayerStats(CCSPlayerController player, string field, int amount)
 		{
 			if (player is null || !player.IsValid || !player.PlayerPawn.IsValid)
-			{
-				Logger.LogWarning("ModifyPlayerStats > Invalid player controller");
 				return;
-			}
 
 			if (player.IsBot || player.IsHLTV)
-			{
-				Logger.LogWarning($"ModifyPlayerStats > Player controller is BOT or HLTV");
 				return;
-			}
 
 			if (!statCache.ContainsPlayer(player))
-			{
-				Logger.LogWarning($"ModifyPlayerStats > Player is not loaded to the cache ({player.PlayerName})");
 				return;
-			}
 
 			StatData playerData = statCache[player];
 			playerData.StatFields[field] += amount;

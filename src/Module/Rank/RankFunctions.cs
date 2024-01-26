@@ -64,22 +64,13 @@ namespace K4System
                 return;
 
             if (player is null || !player.IsValid || !player.PlayerPawn.IsValid)
-            {
-                Logger.LogWarning("ModifyPlayerPoints > Invalid player controller");
                 return;
-            }
 
             if (player.IsBot || player.IsHLTV)
-            {
-                Logger.LogWarning($"ModifyPlayerPoints > Player controller is BOT or HLTV");
                 return;
-            }
 
             if (!rankCache.ContainsPlayer(player))
-            {
-                Logger.LogWarning($"ModifyPlayerPoints > Player is not loaded to the cache ({player.PlayerName})");
                 return;
-            }
 
             RankData playerData = rankCache[player];
 
