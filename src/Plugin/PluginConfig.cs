@@ -132,6 +132,9 @@ namespace K4System
 		[JsonPropertyName("port")]
 		public int Port { get; set; } = 3306;
 
+		[JsonPropertyName("sslmode")]
+		public string Sslmode { get; set; } = "none";
+
 		[JsonPropertyName("table-prefix")]
 		public string TablePrefix { get; set; } = "";
 
