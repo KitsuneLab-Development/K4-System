@@ -48,7 +48,7 @@
 
             DatabaseSettings dbSettings = config.DatabaseSettings;
 
-            string connectionString = @$"Server={dbSettings.Host};Database={dbSettings.Database};Port={dbSettings.Port};Uid={dbSettings.Username};Password={dbSettings.Password};SslMode=none;";
+            string connectionString = @$"Server={dbSettings.Host};Database={dbSettings.Database};Port={dbSettings.Port};Uid={dbSettings.Username};Password={dbSettings.Password};SslMode={dbSettings.Sslmode};";
 
             try
             {
@@ -66,7 +66,7 @@
 
             //** ? Database Connection */
 
-            Database = new MySqlDb(dbSettings.Host, dbSettings.Username, dbSettings.Password, dbSettings.Database, dbSettings.Port);
+            Database = new MySqlDb(dbSettings.Host, dbSettings.Username, dbSettings.Password, dbSettings.Database, dbSettings.Port, dbSettings.Sslmode);
 
             //** ? Save Config */
 

@@ -31,14 +31,16 @@ namespace K4System
 			if (string.IsNullOrEmpty(this.Config.DatabaseSettings.Host) ||
 				string.IsNullOrEmpty(this.Config.DatabaseSettings.Database) ||
 				string.IsNullOrEmpty(this.Config.DatabaseSettings.Username) ||
-				string.IsNullOrEmpty(this.Config.DatabaseSettings.Password))
+				string.IsNullOrEmpty(this.Config.DatabaseSettings.Password) ||
+				string.IsNullOrEmpty(this.Config.DatabaseSettings.Sslmode))
+
 			{
 				return false;
 			}
 
 			tableName = $"{this.Config.DatabaseSettings.TablePrefix}{tableName}";
 
-			string connectionString = $"Server={this.Config.DatabaseSettings.Host};Database={this.Config.DatabaseSettings.Database};port={this.Config.DatabaseSettings.Port};User Id={this.Config.DatabaseSettings.Username};password={this.Config.DatabaseSettings.Password};SslMode=none;";
+			string connectionString = $"Server={this.Config.DatabaseSettings.Host};Database={this.Config.DatabaseSettings.Database};port={this.Config.DatabaseSettings.Port};User Id={this.Config.DatabaseSettings.Username};password={this.Config.DatabaseSettings.Password};SslMode={this.Config.DatabaseSettings.Sslmode};";
 
 			string checkTableQuery = $@"
 					SELECT COUNT(*)
