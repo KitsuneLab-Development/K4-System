@@ -176,6 +176,11 @@ namespace K4System
 
 				if (player.IsBot || player.IsHLTV)
 					return HookResult.Continue;
+				
+				if(@event.Weapon.Contains("knife") || @event.Weapon.Contains("bayonet"))
+				{
+					return HookResult.Continue;
+				}
 
 				ModifyPlayerStats(player, "shoots", 1);
 				return HookResult.Continue;

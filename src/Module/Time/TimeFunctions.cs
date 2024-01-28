@@ -131,16 +131,23 @@ namespace K4System
 				// ? STEAM_0:0:12345678 -> STEAM_1:0:12345678 just to match lvlranks as we can
 				string lvlSteamID = steamid.SteamId2.Replace("STEAM_0", "STEAM_1");
 
-				await Database.ExecuteNonQueryAsync($@"
-					INSERT INTO `{Config.DatabaseSettings.LvLRanksTableName}`
-					(`steam`, `name`, `playtime`, `lastconnect`)
-					VALUES
-					('{lvlSteamID}', '{escapedName}', {playerData.TimeFields["all"]}, UNIX_TIMESTAMP())
-					ON DUPLICATE KEY UPDATE
-					`name` = '{escapedName}',
-					`playtime` = '{playerData.TimeFields["all"]}',
-					`lastconnect` = UNIX_TIMESTAMP();
-				");
+				try
+				{
+					await Database.ExecuteNonQueryAsync($@"
+						INSERT INTO `{Config.DatabaseSettings.LvLRanksTableName}`
+						(`steam`, `name`, `playtime`, `lastconnect`)
+						VALUES
+						('{lvlSteamID}', '{escapedName}', {playerData.TimeFields["all"]}, {DateTimeOffset.UtcNow.ToUnixTimeSeconds()})
+						ON DUPLICATE KEY UPDATE
+						`name` = '{escapedName}',
+						`playtime` = '{playerData.TimeFields["all"]}',
+						`lastconnect` = {DateTimeOffset.UtcNow.ToUnixTimeSeconds()};
+					");
+				}
+				catch(Exception ex)
+				{
+					Logger.LogError($"SavePlayerRankCache > LevelRanks Query error: {ex.Message}");
+				}
 			}
 
 			if (!remove)

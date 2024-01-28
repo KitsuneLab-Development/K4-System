@@ -195,25 +195,32 @@ namespace K4System
                 // ? STEAM_0:0:12345678 -> STEAM_1:0:12345678 just to match lvlranks as we can
                 string lvlSteamID = steamid.SteamId2.Replace("STEAM_0", "STEAM_1");
 
-                await Database.ExecuteNonQueryAsync($@"
-					INSERT INTO `{Config.DatabaseSettings.LvLRanksTableName}`
-					(`steam`, `name`, `rank`, `lastconnect`, `value`)
-					VALUES
-					('{lvlSteamID}', '{escapedName}', '{playerData.Rank.Id}', CURRENT_TIMESTAMP,
-					CASE
-						WHEN (`value` + {setPoints}) < 0 THEN 0
-						ELSE (`value` + {setPoints})
-					END)
-					ON DUPLICATE KEY UPDATE
-					`name` = '{escapedName}',
-					`rank` = '{playerData.Rank.Id}',
-					`lastconnect` = UNIX_TIMESTAMP(),
-					`value` =
-					CASE
-						WHEN (`value` + {setPoints}) < 0 THEN 0
-						ELSE (`value` + {setPoints})
-					END;
-				");
+                try
+				{
+                    await Database.ExecuteNonQueryAsync($@"
+                        INSERT INTO `{Config.DatabaseSettings.LvLRanksTableName}`
+                        (`steam`, `name`, `rank`, `lastconnect`, `value`)
+                        VALUES
+                        ('{lvlSteamID}', '{escapedName}', '{playerData.Rank.Id}', {DateTimeOffset.UtcNow.ToUnixTimeSeconds()},
+                        CASE
+                            WHEN (`value` + {setPoints}) < 0 THEN 0
+                            ELSE (`value` + {setPoints})
+                        END)
+                        ON DUPLICATE KEY UPDATE
+                        `name` = '{escapedName}',
+                        `rank` = '{playerData.Rank.Id}',
+                        `lastconnect` = {DateTimeOffset.UtcNow.ToUnixTimeSeconds()},
+                        `value` =
+                        CASE
+                            WHEN (`value` + {setPoints}) < 0 THEN 0
+                            ELSE (`value` + {setPoints})
+                        END;
+                    ");
+                }
+                catch(Exception ex)
+				{
+					Logger.LogError($"SavePlayerRankCacheAsync > LevelRanks Query error: {ex.Message}");
+				}
             }
 
             if (!remove)
