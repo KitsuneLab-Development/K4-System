@@ -127,23 +127,30 @@ namespace K4System
 				// ? STEAM_0:0:12345678 -> STEAM_1:0:12345678 just to match lvlranks as we can
 				string lvlSteamID = steamid.SteamId2.Replace("STEAM_0", "STEAM_1");
 
-				await Database.ExecuteNonQueryAsync($@"
-					INSERT INTO `{Config.DatabaseSettings.LvLRanksTableName}`
-					(`steam`, `name`, `kills`, `deaths`, `shoots`, `hits`, `headshots`, `assists`, `round_win`, `round_lose`, `lastconnect`)
-					VALUES
-					('{lvlSteamID}', '{escapedName}', {playerData.StatFields["kills"]}, {playerData.StatFields["deaths"]}, {playerData.StatFields["shoots"]}, {playerData.StatFields["hits_given"]}, {playerData.StatFields["headshots"]}, {playerData.StatFields["assists"]}, {playerData.StatFields["round_win"]}, {playerData.StatFields["round_lose"]}, CURRENT_TIMESTAMP)
-					ON DUPLICATE KEY UPDATE
-					`name` = '{escapedName}',
-					`kills` = {playerData.StatFields["kills"]},
-					`deaths` = {playerData.StatFields["deaths"]},
-					`shoots` = {playerData.StatFields["shoots"]},
-					`hits` = {playerData.StatFields["hits_given"]},
-					`headshots` = {playerData.StatFields["headshots"]},
-					`assists` = {playerData.StatFields["assists"]},
-					`round_win` = {playerData.StatFields["round_win"]},
-					`round_lose` = {playerData.StatFields["round_lose"]},
-					`lastconnect` = UNIX_TIMESTAMP();
-				");
+				try
+				{
+					await Database.ExecuteNonQueryAsync($@"
+						INSERT INTO `{Config.DatabaseSettings.LvLRanksTableName}`
+						(`steam`, `name`, `kills`, `deaths`, `shoots`, `hits`, `headshots`, `assists`, `round_win`, `round_lose`, `lastconnect`)
+						VALUES
+						('{lvlSteamID}', '{escapedName}', {playerData.StatFields["kills"]}, {playerData.StatFields["deaths"]}, {playerData.StatFields["shoots"]}, {playerData.StatFields["hits_given"]}, {playerData.StatFields["headshots"]}, {playerData.StatFields["assists"]}, {playerData.StatFields["round_win"]}, {playerData.StatFields["round_lose"]}, {DateTimeOffset.UtcNow.ToUnixTimeSeconds()})
+						ON DUPLICATE KEY UPDATE
+						`name` = '{escapedName}',
+						`kills` = {playerData.StatFields["kills"]},
+						`deaths` = {playerData.StatFields["deaths"]},
+						`shoots` = {playerData.StatFields["shoots"]},
+						`hits` = {playerData.StatFields["hits_given"]},
+						`headshots` = {playerData.StatFields["headshots"]},
+						`assists` = {playerData.StatFields["assists"]},
+						`round_win` = {playerData.StatFields["round_win"]},
+						`round_lose` = {playerData.StatFields["round_lose"]},
+						`lastconnect` = {DateTimeOffset.UtcNow.ToUnixTimeSeconds()};
+					");
+				}
+				catch(Exception ex)
+				{
+					Logger.LogError($"SavePlayerStatCacheAsync > LevelRanks Query error: {ex.Message}");
+				}
 			}
 
 			if (!remove)
