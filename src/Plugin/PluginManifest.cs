@@ -10,7 +10,7 @@ namespace K4System
 
         public override string ModuleAuthor => "K4ryuu";
 
-        public override string ModuleVersion => "3.1.4 " +
+        public override string ModuleVersion => "3.1.5 " +
 #if RELEASE
             "(release)";
 #else

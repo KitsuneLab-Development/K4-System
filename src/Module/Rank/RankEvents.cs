@@ -178,7 +178,7 @@ namespace K4System
 
 				foreach (CCSPlayerController player in players)
 				{
-					if (player is null || !player.IsValid || !player.PlayerPawn.IsValid || player.Team != CsTeam.Terrorist || player.IsBot || player.IsHLTV)
+					if (player is null || !player.IsValid || !player.PlayerPawn.IsValid || (CsTeam)player.TeamNum != CsTeam.Terrorist || player.IsBot || player.IsHLTV)
 						continue;
 
 					if (!rankCache.ContainsPlayer(player))
