@@ -196,7 +196,8 @@ namespace K4System
 
 					SavePlayerRankCache(target, false);
 
-					Server.PrintToChatAll($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.ranks.resetrank", target.PlayerName, playerName]}");
+					if (playerName != "SERVER")
+						Server.PrintToChatAll($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.ranks.resetrank", target.PlayerName, playerName]}");
 				}
 			});
 
@@ -246,7 +247,8 @@ namespace K4System
 
 					SavePlayerRankCache(target, false);
 
-					Server.PrintToChatAll($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.ranks.setpoints", target.PlayerName, parsedInt, playerName]}");
+					if (playerName != "SERVER")
+						Server.PrintToChatAll($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.ranks.setpoints", target.PlayerName, parsedInt, playerName]}");
 				}
 			});
 
@@ -296,7 +298,8 @@ namespace K4System
 
 					SavePlayerRankCache(target, false);
 
-					Server.PrintToChatAll($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.ranks.givepoints", playerName, parsedInt, target.PlayerName]}");
+					if (playerName != "SERVER")
+						Server.PrintToChatAll($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.ranks.givepoints", playerName, parsedInt, target.PlayerName]}");
 				}
 			});
 
@@ -346,7 +349,8 @@ namespace K4System
 
 					SavePlayerRankCache(target, false);
 
-					Server.PrintToChatAll($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.ranks.removepoints", playerName, parsedInt, target.PlayerName]}");
+					if (playerName != "SERVER")
+						Server.PrintToChatAll($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.ranks.removepoints", playerName, parsedInt, target.PlayerName]}");
 				}
 			});
 		}

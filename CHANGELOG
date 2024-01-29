@@ -1,3 +1,11 @@
+-- 2023.01.29 - V3.1.4
+
+- feat: Added database connection config option SSLMode (by Sandy-Garrido)
+- fix: Fixed lastconnect giving out of range error during LR player stats save query (by Cruze03)
+- fix: Added try-catch in LR player stats save queries (by Cruze03)
+- fix: shoots will no longer increase on knife swings (by Cruze03)
+- fix: Mute Server commands (Private K4-Missions Support)
+
 -- 2023.01.24 - V3.1.2
 
 - feat: Add support for admin groups and command overrides
