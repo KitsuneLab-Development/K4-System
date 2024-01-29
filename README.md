@@ -34,6 +34,7 @@
       <a href="#about-the-project">About The Project</a>
       <ul>
         <li><a href="#dependencies">Dependencies</a></li>
+        <li><a href="#addons">Addons</a></li>
         <li><a href="#support-my-work">Support My Work</a></li>
       </ul>
     </li>
@@ -91,6 +92,14 @@ To use this server addon, you'll need the following dependencies installed:
 
 - [**CounterStrikeSharp**](https://github.com/roflmuffin/CounterStrikeSharp/releases): CounterStrikeSharp allows you to write server plugins in C# for Counter-Strike 2/Source2/CS2
 - **MySQL Database (Version 5.2 or higher):** This project requires a MySQL database to store and manage data. You can host your own MySQL server or use a third-party hosting service. Make sure it's at least version 5.2 or higher.
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+### Addons
+
+You can get these addons to make K4 and your server gameplay much better:
+
+- [**K4-Missions**](https://www.buymeacoffee.com/k4ryuu/e/212956): This masterpiece lets you create your own missions to your server, through a really easy json file (5 line per mission). You don't have to configure big codes or so, just easily add few words and the mission is generated automatically. Normal players have less mission slots than VIPs so it's good to entertain your players and get more rank purchase possibly. The code is really really complex for the basic level of CSS scripts, because the hooks are made "dynamically" to support everything.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
