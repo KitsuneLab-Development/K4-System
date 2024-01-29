@@ -78,7 +78,7 @@ namespace K4System
 
 					info.ReplyToCommand($" {plugin.Localizer["k4.general.prefix"]} The command is disabled for now because of a bug. We are working on it.");
 
-					//ChatMenus.OpenMenu(player, ranksMenu);
+					ChatMenus.OpenMenu(player, ranksMenu);
 				});
 			});
 
