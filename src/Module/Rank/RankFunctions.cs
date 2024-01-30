@@ -24,11 +24,12 @@ namespace K4System
             string escapedName = MySqlHelper.EscapeString(name);
 
             await Database.ExecuteNonQueryAsync($@"
-				INSERT INTO `{Config.DatabaseSettings.TablePrefix}k4ranks` (`name`, `steam_id`, `rank`)
+				INSERT INTO `{Config.DatabaseSettings.TablePrefix}k4ranks` (`name`, `steam_id`, `rank`, `points`)
 				VALUES (
 					'{escapedName}',
 					'{steamid}',
-					'{noneRank!.Name}'
+					'{noneRank!.Name}',
+                    {Config.RankSettings.StartPoints}
 				)
 				ON DUPLICATE KEY UPDATE
 					`name` = '{escapedName}';
@@ -177,8 +178,8 @@ namespace K4System
 				VALUES
 				('{steamid.SteamId64}', '{escapedName}', '{playerData.Rank.Name}',
 				CASE
-					WHEN (`points` + {setPoints}) < 0 THEN 0
-					ELSE (`points` + {setPoints})
+					WHEN (`points` + {Config.RankSettings.StartPoints + setPoints}) < 0 THEN 0
+					ELSE (`points` + {Config.RankSettings.StartPoints + setPoints})
 				END)
 				ON DUPLICATE KEY UPDATE
 				`name` = '{escapedName}',
@@ -196,15 +197,15 @@ namespace K4System
                 string lvlSteamID = steamid.SteamId2.Replace("STEAM_0", "STEAM_1");
 
                 try
-				{
+                {
                     await Database.ExecuteNonQueryAsync($@"
                         INSERT INTO `{Config.DatabaseSettings.LvLRanksTableName}`
                         (`steam`, `name`, `rank`, `lastconnect`, `value`)
                         VALUES
                         ('{lvlSteamID}', '{escapedName}', '{playerData.Rank.Id}', {DateTimeOffset.UtcNow.ToUnixTimeSeconds()},
                         CASE
-                            WHEN (`value` + {setPoints}) < 0 THEN 0
-                            ELSE (`value` + {setPoints})
+                            WHEN (`value` + {Config.RankSettings.StartPoints + setPoints}) < 0 THEN 0
+                            ELSE (`value` + {Config.RankSettings.StartPoints + setPoints})
                         END)
                         ON DUPLICATE KEY UPDATE
                         `name` = '{escapedName}',
@@ -217,10 +218,10 @@ namespace K4System
                         END;
                     ");
                 }
-                catch(Exception ex)
-				{
-					Logger.LogError($"SavePlayerRankCacheAsync > LevelRanks Query error: {ex.Message}");
-				}
+                catch (Exception ex)
+                {
+                    Logger.LogError($"SavePlayerRankCacheAsync > LevelRanks Query error: {ex.Message}");
+                }
             }
 
             if (!remove)

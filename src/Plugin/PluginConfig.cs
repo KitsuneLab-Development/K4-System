@@ -156,6 +156,9 @@ namespace K4System
 
 	public sealed class RankSettings
 	{
+		[JsonPropertyName("start-points")]
+		public int StartPoints { get; set; } = 0;
+
 		[JsonPropertyName("points-for-bots")]
 		public bool PointsForBots { get; set; } = false;
 
@@ -343,6 +346,6 @@ namespace K4System
 		public PointSettings PointSettings { get; set; } = new PointSettings();
 
 		[JsonPropertyName("ConfigVersion")]
-		public override int Version { get; set; } = 7;
+		public override int Version { get; set; } = 8;
 	}
 }
