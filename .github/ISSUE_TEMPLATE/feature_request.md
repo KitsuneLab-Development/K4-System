@@ -1,9 +1,9 @@
 ---
-name: Feature request
-about: Suggest an idea for this project
-title: "[REQ]"
-labels: enhancement
-assignees: K4ryuu
+name: Feature Request
+about: Suggest a new feature idea for this project
+title: '[FEATURE] '
+labels: 'feature request'
+assignees: 'K4ryuu'
 
 ---
 
