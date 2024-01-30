@@ -75,7 +75,7 @@ namespace K4System
 
             RankData playerData = rankCache[player];
 
-            if (Config.RankSettings.RoundEndPoints)
+            if (Config.RankSettings.RoundEndPoints && globalGameRules != null && !globalGameRules.WarmupPeriod)
                 playerData.RoundPoints += amount;
 
             if (amount == 0)
@@ -91,7 +91,7 @@ namespace K4System
             int oldPoints = playerData.Points;
             Server.NextFrame(() =>
             {
-                if (!Config.RankSettings.RoundEndPoints)
+                if (!Config.RankSettings.RoundEndPoints || globalGameRules == null || globalGameRules.WarmupPeriod)
                 {
                     if (amount > 0)
                     {
