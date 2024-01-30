@@ -129,20 +129,3 @@ If you need any help or information about settings, installation, api, update or
 - [ ] Permission based ranks module
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-<!-- LICENSE -->
-
-## License
-
-Distributed under the GPL-3.0 License. See `LICENSE.md` for more information.
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-<!-- CONTACT -->
-
-## Contact
-
-- **Discord:** [Discord Server](https://discord.gg/peBZpwgMHb)
-- **Email:** k4ryuu@icloud.com
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
