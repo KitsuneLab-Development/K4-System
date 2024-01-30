@@ -33,7 +33,6 @@
     <li>
       <a href="#about-the-project">About The Project</a>
       <ul>
-        <li><a href="#dependencies">Dependencies</a></li>
         <li><a href="#addons">Addons</a></li>
         <li><a href="#support-my-work">Support My Work</a></li>
       </ul>
@@ -72,16 +71,7 @@ Your support keeps my creative engine running and allows me to share knowledge w
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-### Dependencies
-
-To use this server addon, you'll need the following dependencies installed:
-
-- [**CounterStrikeSharp**](https://github.com/roflmuffin/CounterStrikeSharp/releases): CounterStrikeSharp allows you to write server plugins in C# for Counter-Strike 2/Source2/CS2
-- **MySQL Database (Version 5.2 or higher):** This project requires a MySQL database to store and manage data. You can host your own MySQL server or use a third-party hosting service. Make sure it's at least version 5.2 or higher.
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-### Addons
+### Official Addons
 
 You can get these addons to make K4 and your server gameplay much better:
 
@@ -97,8 +87,7 @@ You can get these addons to make K4 and your server gameplay much better:
 
 ### Third Party Addons
 
-- [**sdg12321**](https://github.com/sdg12321): [A simple website for the K4-System plugin that displays ranks, statistics, and time, currently](https://github.com/sdg12321/K4-System-Website)
-- [**PorcusorulMagic**](https://github.com/PorcusorulMagic): [A website which connects to mysql stats from K4-System plugin.](https://github.com/PorcusorulMagic/K4-System-Time-Played-Website)
+- The list of third party addons can be seen [here](https://github.com/K4ryuu/K4-System/wiki/Extensions) on the [Wikipedia of K4-System](https://github.com/K4ryuu/K4-System/wiki)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
