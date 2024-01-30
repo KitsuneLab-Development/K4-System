@@ -235,6 +235,8 @@ namespace K4System
 					rankCache[player].PlayedRound = true;
 				}
 
+				Server.PrintToChatAll($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.ranks.notenoughplayers", Config.RankSettings.MinPlayers]}");
+
 				return HookResult.Continue;
 			});
 

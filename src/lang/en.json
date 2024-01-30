@@ -33,6 +33,7 @@
   "k4.ranks.summarypoints.nochange": "{silver}No point changes in this round.",
   "k4.ranks.demote": "{silver}You have been {lightred}demoted {silver}to {0}{1}{silver}.",
   "k4.ranks.promote": "{silver}You have been {green}promoted {silver}to {0}{1}{silver}.",
+  "k4.ranks.notenoughplayers": "{silver}There are not enough players on the server to gain points. You need at least {lime}{0} {silver}players.",
 
   "k4.ranks.listitem": "{0}{1} - {2} Points",
   "k4.ranks.listdefault": "{0}{1} - Default Rank",
