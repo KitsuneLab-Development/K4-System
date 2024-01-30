@@ -4,6 +4,7 @@
 - feat: Option to show playernames in kill/death messages ([#128](https://github.com/K4ryuu/K4-System/issues/128))
 - feat: Add notification for not enough players to gain points ([#127](https://github.com/K4ryuu/K4-System/issues/127))
 - fix: Admin list problems ([#131](https://github.com/K4ryuu/K4-System/issues/131))
+- fix: Round summary for WarmupPeriod disabled ([#115](https://github.com/K4ryuu/K4-System/issues/115))
 
 -- 2023.01.29 - V3.1.5
 
