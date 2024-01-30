@@ -38,22 +38,8 @@
         <li><a href="#support-my-work">Support My Work</a></li>
       </ul>
     </li>
-    <li>
-      <a href="#getting-started">Getting Started</a>
-      <ul>
-        <li><a href="#prerequisites">Prerequisites</a></li>
-        <li><a href="#installation">Installation</a></li>
-      </ul>
-    </li>
-    <li>
-        <a href="#usage">Usage</a>
-        <ul>
-            <li><a href="#commands">Commands</a></li>
-            <li><a href="#console-variables-(convars)">ConVars</a></li>
-      </ul>
-    </li>
+    <li><a href="#wiki">Wiki</a></li>
     <li><a href="#roadmap">Roadmap</a></li>
-    <li><a href="#contributing">Contributing</a></li>
     <li><a href="#license">License</a></li>
     <li><a href="#contact">Contact</a></li>
   </ol>
@@ -131,52 +117,11 @@ I really appreciate the help of the following people who translated the plugin i
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-<!-- GETTING STARTED -->
+<!-- Wiki -->
 
-## Getting Started
+## Wikipedia
 
-Follow these steps to install and use the addon:
-
-### Prerequisites
-
-Before you begin, ensure you have the following prerequisites:
-
-- A working CS2 (Counter-Strike 2) server.
-- CounterStrikeSharp is up to date and is running on your server.
-- A compatible MySQL database (Version 5.2 or higher) set up and configured.
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-### Installation
-
-1. **Download the Addon:** Start by downloading the addon from the [GitHub Releases Page](https://github.com/K4ryuu/K4-System/releases). Choose the latest release version.
-
-2. **Extract the Addon:** After downloading, extract the contents of the addon to the counterstrikesharp/plugins directory on your server. Inside the plugins folder, you should have a folder named exactly as the project dll. From the releases, you find it pre zipped with the correct name.
-
-3. **Configuration:** The config is being generated after the first start of the plugin, to configs/plugins/K4-System/ folder.
-
-4. **Permissions:** You can set the permissions as you need in the counterstrikesharp/configs/admins.json
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-<!-- USAGE EXAMPLES -->
-
-## Usage
-
-The addon provides several commands and console variables (convars) to customize and interact with its features. Here is the list of the key commands and convars you can use:
-
-### Commands
-
-- Can be customized in the config file.
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-### Permissions
-
-- **@k4system/vip/points-multiplier** VIP Point Multiplier Permission
-- **@k4system/admin** All K4 Admin Commands
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
+If you need any help or information about settings, installation, api, update or much more, you should definitely cehck out the [Wikipedia](https://github.com/K4ryuu/K4-System/wiki) page of the project.
 
 <!-- ROADMAP -->
 
@@ -193,23 +138,6 @@ The addon provides several commands and console variables (convars) to customize
 - [ ] Create FAQ
 - [ ] Automate release build as pre
 - [ ] Permission based ranks module
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-<!-- CONTRIBUTING -->
-
-## Contributing
-
-Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
-
-If you have a suggestion that would make this better, please fork the repo and create a pull request. You can also simply open an issue with the tag "enhancement".
-Don't forget to give the project a star! Thanks again!
-
-1. Fork the Project
-2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the Branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
