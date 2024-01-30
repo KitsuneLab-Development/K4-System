@@ -159,6 +159,9 @@ namespace K4System
 		[JsonPropertyName("start-points")]
 		public int StartPoints { get; set; } = 0;
 
+		[JsonPropertyName("playername-in-kill-messages")]
+		public bool PlayerNameKillMessages { get; set; } = false;
+
 		[JsonPropertyName("points-for-bots")]
 		public bool PointsForBots { get; set; } = false;
 

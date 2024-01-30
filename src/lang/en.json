@@ -63,6 +63,7 @@
 
   "k4.phrases.suicide": "Suicide",
   "k4.phrases.dying": "Dying",
+  "k4.phrases.dying.extra": "to {lightred}{0}",
   "k4.phrases.playtime": "Playtime",
   "k4.phrases.hostagerescued": "Hostage Rescued",
   "k4.phrases.hostagerescuedall": "All Hostage Rescued",
@@ -78,6 +79,7 @@
   "k4.phrases.roundlose": "Round Loss",
   "k4.phrases.teamkill": "Team Kill",
   "k4.phrases.kill": "Kill",
+  "k4.phrases.kill.extra": "for {lime}{0}",
   "k4.phrases.headshot": "Headshot",
   "k4.phrases.penetrated": "Penetrated",
   "k4.phrases.noscope": "No Scope",

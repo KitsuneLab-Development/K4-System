@@ -59,7 +59,7 @@ namespace K4System
             return rankDictionary.LastOrDefault(kv => points >= kv.Value.Point).Value ?? noneRank!;
         }
 
-        public void ModifyPlayerPoints(CCSPlayerController player, int amount, string reason)
+        public void ModifyPlayerPoints(CCSPlayerController player, int amount, string reason, string? extraInfo = null)
         {
             if (!IsPointsAllowed())
                 return;
@@ -95,11 +95,25 @@ namespace K4System
                 {
                     if (amount > 0)
                     {
-                        player.PrintToChat($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.ranks.points.gain", oldPoints, amount, plugin.Localizer[reason]]}");
+                        if (extraInfo != null)
+                        {
+                            player.PrintToChat($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.ranks.points.gain", oldPoints, amount, plugin.Localizer[reason]]}{extraInfo}");
+                        }
+                        else
+                        {
+                            player.PrintToChat($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.ranks.points.gain", oldPoints, amount, plugin.Localizer[reason]]}");
+                        }
                     }
                     else if (amount < 0)
                     {
-                        player.PrintToChat($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.ranks.points.loss", oldPoints, Math.Abs(amount), plugin.Localizer[reason]]}");
+                        if (extraInfo != null)
+                        {
+                            player.PrintToChat($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.ranks.points.loss", oldPoints, Math.Abs(amount), plugin.Localizer[reason]]}{extraInfo}");
+                        }
+                        else
+                        {
+                            player.PrintToChat($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.ranks.points.loss", oldPoints, Math.Abs(amount), plugin.Localizer[reason]]}");
+                        }
                     }
                 }
             });

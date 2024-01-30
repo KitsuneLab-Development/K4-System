@@ -1,3 +1,9 @@
+-- 2023.01.30 - V3.2.0
+
+- feat: Add starting point settings for new players ([#129](https://github.com/K4ryuu/K4-System/issues/129))
+- feat: Option to show playernames in kill/death messages ([#128](https://github.com/K4ryuu/K4-System/issues/128))
+- fix: Admin list problems ([#131](https://github.com/K4ryuu/K4-System/issues/131))
+
 -- 2023.01.29 - V3.1.5
 
 - fix: points only for T's if bomb explode (by stefanx111)
