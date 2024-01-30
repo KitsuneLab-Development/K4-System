@@ -1,9 +1,9 @@
 ---
-name: Bug report
+name: Bug Report
 about: Create a report to help us improve
-title: "[BUG]"
-labels: bug
-assignees: K4ryuu
+title: '[BUG] '
+labels: 'bug'
+assignees: 'K4ryuu'
 
 ---
 
@@ -11,19 +11,19 @@ assignees: K4ryuu
 A clear and concise description of what the bug is.
 
 **To Reproduce**
-Steps to reproduce the behavior:
-1. Go to '...'
-2. Click on '....'
-3. See error
+Steps to reproduce the behavior...
 
 **Expected behavior**
 A clear and concise description of what you expected to happen.
 
-**Media (Optional)**
-If applicable, add screenshots or videos to help explain your problem.
+**Screenshots**
+If applicable, add screenshots to help explain your problem.
 
-**Logs (Optional)**
-If applicable, add logs to help explain your problem.
+**Environment (please complete the following information):**
+- OS: [e.g., Ubuntu]
+- CSS Version [e.g., v153]
+- Plugin Version [e.g., v3.1.5]
+- Configs [OPTIONAL depending on the context of the bug]
 
-**Additional context (Optional)**
+**Additional context**
 Add any other context about the problem here.
