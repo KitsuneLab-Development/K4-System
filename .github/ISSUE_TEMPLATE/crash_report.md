@@ -2,7 +2,7 @@
 name: Crash Report
 about: Report a crash to help us resolve issues faster
 title: '[CRASH] '
-labels: 'crash'
+labels: 'Crash'
 assignees: 'K4ryuu'
 
 ---
