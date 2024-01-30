@@ -2,7 +2,7 @@
 name: Bug Report
 about: Create a report to help us improve
 title: '[BUG] '
-labels: 'bug'
+labels: 'Bug'
 assignees: 'K4ryuu'
 
 ---
