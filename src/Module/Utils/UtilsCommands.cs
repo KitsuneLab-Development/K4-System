@@ -20,41 +20,24 @@ namespace K4System
 					if (player == null || !player.IsValid || player.PlayerPawn.Value == null)
 						return;
 
-					List<string> onlineAdmins = new List<string>();
-					List<CCSPlayerController> players = Utilities.GetPlayers();
-
-					foreach (CCSPlayerController adminPlayer in players)
-					{
-						foreach (AdminSettingsEntry adminSettings in Config.GeneralSettings.AdminSettingsList)
+					List<string> onlineAdmins = Utilities.GetPlayers()
+						.SelectMany(adminPlayer => Config.GeneralSettings.AdminSettingsList.Where(adminSettings =>
 						{
-							string color = adminSettings.ListColor ?? "default";
+							if (adminSettings.ListColor == null)
+								return false;
 
 							switch (adminSettings.Permission[0])
 							{
 								case '@':
-									if (AdminManager.PlayerHasPermissions(adminPlayer, adminSettings.Permission))
-									{
-										string adminName = $"{plugin.ApplyPrefixColors(color)}{adminPlayer.PlayerName}";
-										onlineAdmins.Add(adminName);
-									}
-									break;
+									return AdminManager.PlayerHasPermissions(adminPlayer, adminSettings.Permission);
 								case '#':
-									if (AdminManager.PlayerInGroup(adminPlayer, adminSettings.Permission))
-									{
-										string adminName = $"{plugin.ApplyPrefixColors(color)}{adminPlayer.PlayerName}";
-										onlineAdmins.Add(adminName);
-									}
-									break;
+									return AdminManager.PlayerInGroup(adminPlayer, adminSettings.Permission);
 								default:
-									if (AdminManager.PlayerHasCommandOverride(adminPlayer, adminSettings.Permission))
-									{
-										string adminName = $"{plugin.ApplyPrefixColors(color)}{adminPlayer.PlayerName}";
-										onlineAdmins.Add(adminName);
-									}
-									break;
+									return AdminManager.PlayerHasCommandOverride(adminPlayer, adminSettings.Permission);
 							}
-						}
-					}
+						}).Select(adminSettings => new { adminPlayer, adminSettings }))
+						.Select(x => $"{plugin.ApplyPrefixColors(x.adminSettings.ListColor ?? "default")}{x.adminPlayer.PlayerName}")
+						.ToList();
 
 					if (onlineAdmins.Count > 0)
 					{
