@@ -24,23 +24,7 @@ namespace K4System
 			Plugin plugin = (this.PluginContext.Plugin as Plugin)!;
 
 			this.Config = plugin.Config;
-			this.Database = plugin.Database;
 			this.ModuleDirectory = plugin._ModuleDirectory;
-
-			//** ? Initialize Database */
-
-			if (!plugin.InitializeDatabase("k4ranks", $@"
-			CREATE TABLE IF NOT EXISTS `{this.Config.DatabaseSettings.TablePrefix}k4ranks` (
-				`id` INT AUTO_INCREMENT PRIMARY KEY,
-				`steam_id` VARCHAR(32) COLLATE 'utf8mb4_unicode_ci' UNIQUE NOT NULL,
-				`name` VARCHAR(255) COLLATE 'utf8mb4_unicode_ci' NOT NULL,
-				`rank` VARCHAR(255) COLLATE 'utf8mb4_unicode_ci' NOT NULL,
-				`points` INT NOT NULL DEFAULT 0,
-				UNIQUE (`steam_id`)
-			) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"))
-			{
-				return;
-			}
 
 			//** ? Register Module Parts */
 
@@ -53,8 +37,6 @@ namespace K4System
 
 			if (hotReload)
 			{
-				LoadAllPlayerCache();
-
 				globalGameRules = Utilities.FindAllEntitiesByDesignerName<CCSGameRulesProxy>("cs_gamerules").First().GameRules;
 
 				plugin.AddTimer(Config.PointSettings.PlaytimeMinutes * 60, () =>
@@ -78,10 +60,6 @@ namespace K4System
 		public void Release(bool hotReload)
 		{
 			this.Logger.LogInformation("Releasing '{0}'", this.GetType().Name);
-
-			//** ? Save Player Caches */
-
-			SaveAllPlayerCache(true);
 		}
 	}
 }

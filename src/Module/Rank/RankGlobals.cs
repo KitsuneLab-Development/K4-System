@@ -4,7 +4,6 @@ namespace K4System
 	using CounterStrikeSharp.API.Core.Plugin;
 
 	using Microsoft.Extensions.Logging;
-	using Nexd.MySQL;
 
 	public partial class ModuleRank : IModuleRank
 	{
@@ -36,13 +35,12 @@ namespace K4System
 		public readonly ILogger<ModuleRank> Logger;
 
 		public required PluginConfig Config { get; set; }
-		public required MySqlDb Database { get; set; }
 		public required string ModuleDirectory { get; set; }
 
 		public Dictionary<string, Rank> rankDictionary = new Dictionary<string, Rank>();
 		internal static PlayerCache<RankData> rankCache = new PlayerCache<RankData>();
 		public CCSGameRules? globalGameRules = null;
 		public Dictionary<int, (int killStreak, DateTime lastKillTime)> playerKillStreaks = new Dictionary<int, (int, DateTime)>();
-		internal Rank? noneRank;
+		public Rank? noneRank;
 	}
 }

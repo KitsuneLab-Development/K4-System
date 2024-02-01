@@ -4,31 +4,11 @@ namespace K4System
 	using CounterStrikeSharp.API;
 	using CounterStrikeSharp.API.Core;
 	using CounterStrikeSharp.API.Modules.Utils;
-	using Microsoft.Extensions.Logging;
 
 	public partial class ModuleStat : IModuleStat
 	{
 		public void Initialize_Events(Plugin plugin)
 		{
-			plugin.RegisterEventHandler((EventPlayerConnectFull @event, GameEventInfo info) =>
-			{
-				CCSPlayerController player = @event.Userid;
-
-				if (player is null || !player.IsValid || player.IsBot || player.IsHLTV)
-					return HookResult.Continue;
-
-				int slot = player.Slot;
-				string playerName = player.PlayerName;
-				string steamId = player.SteamID.ToString();
-
-				Task.Run(async () =>
-				{
-					await LoadStatData(slot, playerName, steamId);
-				});
-
-				return HookResult.Continue;
-			});
-
 			plugin.RegisterListener<Listeners.OnMapStart>((mapName) =>
 			{
 				plugin.AddTimer(1.0f, () =>
@@ -129,39 +109,6 @@ namespace K4System
 				return HookResult.Continue;
 			});
 
-			plugin.RegisterEventHandler((EventRoundEnd @event, GameEventInfo info) =>
-			{
-				if (!IsStatsAllowed())
-				{
-					return HookResult.Continue;
-				}
-
-				int winnerTeam = @event.Winner;
-
-				if (winnerTeam > (int)CsTeam.Spectator)
-				{
-					List<CCSPlayerController> players = Utilities.GetPlayers();
-
-					foreach (CCSPlayerController player in players)
-					{
-						if (player is null || !player.IsValid || !player.PlayerPawn.IsValid)
-							continue;
-
-						if (player.IsBot || player.IsHLTV)
-							continue;
-
-						if (player.TeamNum <= (int)CsTeam.Spectator)
-							continue;
-
-						ModifyPlayerStats(player, player.TeamNum == winnerTeam ? "round_win" : "round_lose", 1);
-					}
-				}
-
-				SaveAllPlayerCache(false);
-
-				return HookResult.Continue;
-			});
-
 			plugin.RegisterEventHandler((EventWeaponFire @event, GameEventInfo info) =>
 			{
 				if (!IsStatsAllowed())
@@ -176,8 +123,8 @@ namespace K4System
 
 				if (player.IsBot || player.IsHLTV)
 					return HookResult.Continue;
-				
-				if(@event.Weapon.Contains("knife") || @event.Weapon.Contains("bayonet"))
+
+				if (@event.Weapon.Contains("knife") || @event.Weapon.Contains("bayonet"))
 				{
 					return HookResult.Continue;
 				}
@@ -202,24 +149,6 @@ namespace K4System
 					return HookResult.Continue;
 
 				ModifyPlayerStats(player, "mvp", 1);
-				return HookResult.Continue;
-			});
-
-			plugin.RegisterEventHandler((EventPlayerDisconnect @event, GameEventInfo info) =>
-			{
-				CCSPlayerController player = @event.Userid;
-
-				if (player is null || !player.IsValid || !player.PlayerPawn.IsValid)
-					return HookResult.Continue;
-
-				if (player.IsBot || player.IsHLTV)
-					return HookResult.Continue;
-
-				if (!statCache.ContainsPlayer(player))
-					return HookResult.Continue;
-
-				SavePlayerStatCache(player, true);
-
 				return HookResult.Continue;
 			});
 
@@ -275,8 +204,6 @@ namespace K4System
 						}
 					}
 				}
-
-				SaveAllPlayerCache(false);
 
 				return HookResult.Continue;
 			});

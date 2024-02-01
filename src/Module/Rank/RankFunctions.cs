@@ -1,13 +1,11 @@
 namespace K4System
 {
+    using MySqlConnector;
+
     using CounterStrikeSharp.API;
     using CounterStrikeSharp.API.Core;
-
-    using MySqlConnector;
-    using Nexd.MySQL;
-    using Microsoft.Extensions.Logging;
     using CounterStrikeSharp.API.Modules.Admin;
-    using CounterStrikeSharp.API.Modules.Entities;
+    using CounterStrikeSharp.API.Modules.Utils;
 
     public partial class ModuleRank : IModuleRank
     {
@@ -19,30 +17,63 @@ namespace K4System
             return globalGameRules != null && (!globalGameRules.WarmupPeriod || Config.RankSettings.WarmupPoints) && (Config.RankSettings.MinPlayers <= notBots);
         }
 
-        public async Task LoadRankData(int slot, string name, string steamid)
+        public Rank GetNoneRank()
         {
-            string escapedName = MySqlHelper.EscapeString(name);
+            return noneRank!;
+        }
 
-            await Database.ExecuteNonQueryAsync($@"
-				INSERT INTO `{Config.DatabaseSettings.TablePrefix}k4ranks` (`name`, `steam_id`, `rank`, `points`)
-				VALUES (
-					'{escapedName}',
-					'{steamid}',
-					'{noneRank!.Name}',
-                    {Config.RankSettings.StartPoints}
-				)
-				ON DUPLICATE KEY UPDATE
-					`name` = '{escapedName}';
-			");
+        public void BeforeRoundEnd(int winnerTeam)
+        {
+            List<CCSPlayerController> players = Utilities.GetPlayers();
 
-            MySqlQueryResult result = await Database.ExecuteQueryAsync($@"
-				SELECT `points`
-				FROM `{Config.DatabaseSettings.TablePrefix}k4ranks`
-				WHERE `steam_id` = '{steamid}';
-			");
+            foreach (CCSPlayerController player in players)
+            {
+                if (player is null || !player.IsValid || !player.PlayerPawn.IsValid || player.IsBot || player.IsHLTV)
+                    continue;
 
-            int points = result.Rows > 0 ? result.Get<int>(0, "points") : 0;
+                if (!rankCache.ContainsPlayer(player))
+                    continue;
 
+                if (!player.PawnIsAlive)
+                    playerKillStreaks[player.Slot] = (0, DateTime.Now);
+
+                RankData playerData = rankCache[player];
+
+                if (!playerData.PlayedRound)
+                    continue;
+
+                if (player.TeamNum <= (int)CsTeam.Spectator)
+                    continue;
+
+                if (winnerTeam == player.TeamNum)
+                {
+                    ModifyPlayerPoints(player, Config.PointSettings.RoundWin, "k4.phrases.roundwin");
+                }
+                else
+                {
+                    ModifyPlayerPoints(player, Config.PointSettings.RoundLose, "k4.phrases.roundlose");
+                }
+
+                Plugin plugin = (this.PluginContext.Plugin as Plugin)!;
+
+                if (Config.RankSettings.RoundEndPoints)
+                {
+                    if (playerData.RoundPoints > 0)
+                    {
+                        player.PrintToChat($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.ranks.summarypoints.gain", playerData.RoundPoints]}");
+                    }
+                    else if (playerData.RoundPoints < 0)
+                    {
+                        player.PrintToChat($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.ranks.summarypoints.loss", Math.Abs(playerData.RoundPoints)]}");
+                    }
+                    else
+                        player.PrintToChat($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.ranks.summarypoints.nochange"]}");
+                }
+            }
+        }
+
+        public void LoadRankData(int slot, int points)
+        {
             RankData playerData = new RankData
             {
                 Points = points,
@@ -159,151 +190,37 @@ namespace K4System
             }
         }
 
-        public void SavePlayerRankCache(CCSPlayerController player, bool remove)
+        public async Task<(int playerPlace, int totalPlayers)> GetPlayerPlaceAndCountAsync(string steamID)
         {
-            int savedSlot = player.Slot;
-            string savedName = player.PlayerName;
+            string query = $@"SELECT
+                (SELECT COUNT(*) FROM `{Config.DatabaseSettings.TablePrefix}k4ranks`
+                WHERE `points` >
+                    (SELECT `points` FROM `{Config.DatabaseSettings.TablePrefix}k4ranks` WHERE `steam_id` = @steamId)) AS playerPlace,
+                (SELECT COUNT(*) FROM `{Config.DatabaseSettings.TablePrefix}k4ranks`) AS totalPlayers";
 
-            SteamID steamID = new SteamID(player.SteamID);
-
-            Task.Run(async () =>
+            try
             {
-                await SavePlayerRankCacheAsync(savedSlot, savedName, steamID, remove);
-            });
-        }
-
-        public async Task SavePlayerRankCacheAsync(int slot, string name, SteamID steamid, bool remove)
-        {
-            if (!rankCache.ContainsKey(slot))
-            {
-                Logger.LogWarning($"SavePlayerRankCache > Player is not loaded to the cache ({name})");
-                return;
-            }
-
-            string escapedName = MySqlHelper.EscapeString(name);
-
-            RankData playerData = rankCache[slot];
-
-            int setPoints = playerData.RoundPoints;
-
-            await Database.ExecuteNonQueryAsync($@"
-				INSERT INTO `{Config.DatabaseSettings.TablePrefix}k4ranks`
-				(`steam_id`, `name`, `rank`, `points`)
-				VALUES
-				('{steamid.SteamId64}', '{escapedName}', '{playerData.Rank.Name}',
-				CASE
-					WHEN (`points` + {Config.RankSettings.StartPoints + setPoints}) < 0 THEN 0
-					ELSE (`points` + {Config.RankSettings.StartPoints + setPoints})
-				END)
-				ON DUPLICATE KEY UPDATE
-				`name` = '{escapedName}',
-				`rank` = '{playerData.Rank.Name}',
-				`points` =
-				CASE
-					WHEN (`points` + {setPoints}) < 0 THEN 0
-					ELSE (`points` + {setPoints})
-				END;
-			");
-
-            if (Config.GeneralSettings.LevelRanksCompatibility)
-            {
-                // ? STEAM_0:0:12345678 -> STEAM_1:0:12345678 just to match lvlranks as we can
-                string lvlSteamID = steamid.SteamId2.Replace("STEAM_0", "STEAM_1");
-
-                try
+                using (MySqlCommand command = new MySqlCommand(query))
                 {
-                    await Database.ExecuteNonQueryAsync($@"
-                        INSERT INTO `{Config.DatabaseSettings.LvLRanksTableName}`
-                        (`steam`, `name`, `rank`, `lastconnect`, `value`)
-                        VALUES
-                        ('{lvlSteamID}', '{escapedName}', '{playerData.Rank.Id}', {DateTimeOffset.UtcNow.ToUnixTimeSeconds()},
-                        CASE
-                            WHEN (`value` + {Config.RankSettings.StartPoints + setPoints}) < 0 THEN 0
-                            ELSE (`value` + {Config.RankSettings.StartPoints + setPoints})
-                        END)
-                        ON DUPLICATE KEY UPDATE
-                        `name` = '{escapedName}',
-                        `rank` = '{playerData.Rank.Id}',
-                        `lastconnect` = {DateTimeOffset.UtcNow.ToUnixTimeSeconds()},
-                        `value` =
-                        CASE
-                            WHEN (`value` + {setPoints}) < 0 THEN 0
-                            ELSE (`value` + {setPoints})
-                        END;
-                    ");
-                }
-                catch (Exception ex)
-                {
-                    Logger.LogError($"SavePlayerRankCacheAsync > LevelRanks Query error: {ex.Message}");
+                    command.Parameters.AddWithValue("@steamId", steamID);
+
+                    using (MySqlDataReader? reader = await Database.Instance.ExecuteReaderAsync(command.CommandText, command.Parameters.Cast<MySqlParameter>().ToArray()))
+                    {
+                        if (reader != null && reader.HasRows && await reader.ReadAsync())
+                        {
+                            int playerPlace = reader.GetInt32(0) + 1;
+                            int totalPlayers = reader.GetInt32(1);
+                            return (playerPlace, totalPlayers);
+                        }
+                    }
                 }
             }
-
-            if (!remove)
+            catch (Exception ex)
             {
-                MySqlQueryResult result = await Database.ExecuteQueryAsync($@"
-					SELECT `points`
-					FROM `{Config.DatabaseSettings.TablePrefix}k4ranks`
-					WHERE `steam_id` = '{steamid.SteamId64}';
-				");
-
-                playerData.Points = result.Rows > 0 ? result.Get<int>(0, "points") : 0;
-
-                playerData.RoundPoints = 0;
-                playerData.Rank = GetPlayerRank(playerData.Points);
-            }
-            else
-            {
-                rankCache.Remove(slot);
-            }
-        }
-
-        public void LoadAllPlayerCache()
-        {
-            List<CCSPlayerController> players = Utilities.GetPlayers();
-
-            List<Task> loadTasks = players
-                .Where(player => player != null && player.IsValid && player.PlayerPawn.IsValid && !player.IsBot && !player.IsHLTV)
-                .Select(player => LoadRankData(player.Slot, player.PlayerName, player.SteamID.ToString()))
-                .ToList();
-
-            Task.Run(async () =>
-            {
-                await Task.WhenAll(loadTasks);
-            });
-        }
-
-        public void SaveAllPlayerCache(bool clear)
-        {
-            List<CCSPlayerController> players = Utilities.GetPlayers();
-
-            List<Task> saveTasks = players
-                .Where(player => player != null && player.IsValid && player.PlayerPawn.IsValid && !player.IsBot && !player.IsHLTV && rankCache.ContainsPlayer(player))
-                .Select(player => SavePlayerRankCacheAsync(player.Slot, player.PlayerName, new SteamID(player.SteamID), clear))
-                .ToList();
-
-            Task.Run(async () =>
-            {
-                await Task.WhenAll(saveTasks);
-
-                if (clear)
-                    rankCache.Clear();
-            });
-        }
-
-        public async Task<(int playerPlace, int totalPlayers)> GetPlayerPlaceAndCount(string steamID)
-        {
-            MySqlQueryResult result = await Database.Table($"{Config.DatabaseSettings.TablePrefix}k4ranks")
-                .ExecuteQueryAsync($"SELECT (SELECT COUNT(*) FROM `{Config.DatabaseSettings.TablePrefix}k4ranks` WHERE `points` > (SELECT `points` FROM `{Config.DatabaseSettings.TablePrefix}k4ranks` WHERE `steam_id` = '{steamID}')) AS playerCount, COUNT(*) AS totalPlayers FROM `{Config.DatabaseSettings.TablePrefix}k4ranks`;")!;
-
-            if (result.Count > 0)
-            {
-                int playersWithMorePoints = result.Get<int>(0, "playerCount");
-                int totalPlayers = result.Get<int>(0, "totalPlayers");
-
-                return (playersWithMorePoints + 1, totalPlayers);
+                Console.WriteLine($"An error occurred while executing GetPlayerPlaceAndCountAsync: {ex.Message}");
             }
 
-            return (0, 0);
+            return (0, 0); // Ha valami hiba történt, vagy nem találhatók adatok
         }
 
         public int CalculateDynamicPoints(CCSPlayerController from, CCSPlayerController to, int amount)

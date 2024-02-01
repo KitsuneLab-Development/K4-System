@@ -1,34 +1,13 @@
 
 namespace K4System
 {
-	using CounterStrikeSharp.API;
 	using CounterStrikeSharp.API.Core;
 	using CounterStrikeSharp.API.Modules.Utils;
-	using Microsoft.Extensions.Logging;
 
 	public partial class ModuleTime : IModuleTime
 	{
 		public void Initialize_Events(Plugin plugin)
 		{
-			plugin.RegisterEventHandler((EventPlayerConnectFull @event, GameEventInfo info) =>
-			{
-				CCSPlayerController player = @event.Userid;
-
-				if (player is null || !player.IsValid || player.IsBot || player.IsHLTV)
-					return HookResult.Continue;
-
-				int slot = player.Slot;
-				string playerName = player.PlayerName;
-				string steamId = player.SteamID.ToString();
-
-				Task.Run(async () =>
-				{
-					await LoadTimeData(slot, playerName, steamId);
-				});
-
-				return HookResult.Continue;
-			});
-
 			plugin.RegisterEventHandler((EventPlayerTeam @event, GameEventInfo info) =>
 			{
 				CCSPlayerController player = @event.Userid;
@@ -94,37 +73,6 @@ namespace K4System
 				playerData.TimeFields["alive"] += (int)(DateTime.UtcNow - playerData.Times["Death"]).TotalSeconds;
 				playerData.Times["Death"] = DateTime.UtcNow;
 
-				return HookResult.Continue;
-			});
-
-			plugin.RegisterEventHandler((EventPlayerDisconnect @event, GameEventInfo info) =>
-			{
-				CCSPlayerController player = @event.Userid;
-
-				if (player is null || !player.IsValid || !player.PlayerPawn.IsValid)
-					return HookResult.Continue;
-
-				if (player.IsBot || player.IsHLTV || !timeCache.ContainsPlayer(player))
-					return HookResult.Continue;
-
-				DateTime now = DateTime.UtcNow;
-
-				TimeData playerData = timeCache[player];
-
-				playerData.TimeFields["all"] += (int)Math.Round((now - playerData.Times["Connect"]).TotalSeconds);
-				playerData.TimeFields[GetFieldForTeam((CsTeam)player.TeamNum)] += (int)Math.Round((now - playerData.Times["Team"]).TotalSeconds);
-
-				if ((CsTeam)player.TeamNum > CsTeam.Spectator)
-					playerData.TimeFields[player.PawnIsAlive ? "alive" : "dead"] += (int)Math.Round((now - playerData.Times["Death"]).TotalSeconds);
-
-				SavePlayerTimeCache(player, true);
-
-				return HookResult.Continue;
-			});
-
-			plugin.RegisterEventHandler((EventRoundEnd @event, GameEventInfo info) =>
-			{
-				SaveAllPlayerCache(false);
 				return HookResult.Continue;
 			});
 		}

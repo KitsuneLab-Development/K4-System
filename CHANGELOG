@@ -1,3 +1,17 @@
+-- 2023.01.30 - V3.3.0
+
+- feat: Add MySQL pooling support
+- feat: Add custom MySQL wrapper
+- feat: Add transaction support for save/load
+- feat: Customizable no permission message
+- feat: Customizable client only command message
+- feat: Customizable server only command message
+- fix: Commands not deleted on hotReload
+- refactor: Create global cache loader
+- refactor: Create global cache saver
+- refactor: Use reusable MySQL connection
+- refactor: Replace lambda command helpers with custom logic
+
 -- 2023.01.30 - V3.2.0
 
 - feat: Add starting point settings for new players ([#129](https://github.com/K4ryuu/K4-System/issues/129))

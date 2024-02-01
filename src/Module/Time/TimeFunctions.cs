@@ -1,45 +1,19 @@
 namespace K4System
 {
-	using CounterStrikeSharp.API;
+	using System.Text;
+
 	using CounterStrikeSharp.API.Core;
 	using CounterStrikeSharp.API.Modules.Utils;
 
-	using MySqlConnector;
-	using Nexd.MySQL;
-	using Microsoft.Extensions.Logging;
-	using System.Text;
-	using CounterStrikeSharp.API.Modules.Entities;
-	using CounterStrikeSharp.API.Modules.Timers;
-
 	public partial class ModuleTime : IModuleTime
 	{
-		public async Task LoadTimeData(int slot, string name, string steamid)
+		public void LoadTimeData(int slot, Dictionary<string, int> timeData)
 		{
-			string escapedName = MySqlHelper.EscapeString(name);
-
-			await Database.ExecuteNonQueryAsync($@"
-				INSERT INTO `{Config.DatabaseSettings.TablePrefix}k4times` (`name`, `steam_id`)
-				VALUES (
-					'{escapedName}',
-					'{steamid}'
-				)
-				ON DUPLICATE KEY UPDATE
-					`name` = '{escapedName}';
-			");
-
-			MySqlQueryResult result = await Database.ExecuteQueryAsync($@"
-				SELECT *
-				FROM `{Config.DatabaseSettings.TablePrefix}k4times`
-				WHERE `steam_id` = '{steamid}';
-			");
-
-			string[] timeFieldNames = { "all", "ct", "t", "spec", "alive", "dead" };
-
 			DateTime now = DateTime.UtcNow;
 
 			TimeData playerData = new TimeData
 			{
-				TimeFields = new Dictionary<string, int>(),
+				TimeFields = timeData,
 				Times = new Dictionary<string, DateTime>
 				{
 					{ "Connect", now },
@@ -48,154 +22,20 @@ namespace K4System
 				}
 			};
 
-			foreach (string timeField in timeFieldNames)
-			{
-				playerData.TimeFields[timeField] = result.Rows > 0 ? result.Get<int>(0, timeField) : 0;
-			}
-
 			timeCache[slot] = playerData;
 		}
 
-		public void SavePlayerTimeCache(CCSPlayerController player, bool remove)
+		public void BeforeDisconnect(CCSPlayerController player)
 		{
-			var savedSlot = player.Slot;
-			var savedName = player.PlayerName;
+			DateTime now = DateTime.UtcNow;
 
-			SteamID steamid = new SteamID(player.SteamID);
+			TimeData playerData = timeCache[player];
 
-			Task.Run(async () =>
-			{
-				await SavePlayerTimeCacheAsync(savedSlot, savedName, steamid, remove);
-			});
-		}
+			playerData.TimeFields["all"] += (int)Math.Round((now - playerData.Times["Connect"]).TotalSeconds);
+			playerData.TimeFields[GetFieldForTeam((CsTeam)player.TeamNum)] += (int)Math.Round((now - playerData.Times["Team"]).TotalSeconds);
 
-		public async Task SavePlayerTimeCacheAsync(int slot, string name, SteamID steamid, bool remove)
-		{
-			if (!timeCache.ContainsKey(slot))
-			{
-				Logger.LogWarning($"SavePlayerTimeCache > Player is not loaded to the cache ({name})");
-				return;
-			}
-
-			string escapedName = MySqlHelper.EscapeString(name);
-
-			StringBuilder queryBuilder = new StringBuilder();
-			queryBuilder.Append($@"
-   				INSERT INTO `{Config.DatabaseSettings.TablePrefix}k4times` (`steam_id`, `name`");
-
-			TimeData playerData = timeCache[slot];
-
-			foreach (var field in playerData.TimeFields)
-			{
-				queryBuilder.Append($", `{field.Key}`");
-			}
-
-			queryBuilder.Append($@")
-				VALUES ('{steamid.SteamId64}', '{escapedName}'");
-
-			foreach (var field in playerData.TimeFields)
-			{
-				queryBuilder.Append($", {field.Value}");
-			}
-
-			queryBuilder.Append($@")
-				ON DUPLICATE KEY UPDATE");
-
-			// Here, we modify the loop to correctly handle the comma
-			int fieldCount = playerData.TimeFields.Count;
-			int i = 0;
-			foreach (var field in playerData.TimeFields)
-			{
-				queryBuilder.Append($"`{field.Key}` = VALUES(`{field.Key}`)");
-				if (++i < fieldCount)
-				{
-					queryBuilder.Append(", ");
-				}
-			}
-
-			queryBuilder.Append(";");
-
-			if (!remove)
-			{
-				queryBuilder.Append($@"
-				SELECT * FROM `{Config.DatabaseSettings.TablePrefix}k4times`
-				WHERE `steam_id` = '{steamid.SteamId64}';");
-			}
-
-			string insertOrUpdateQuery = queryBuilder.ToString();
-
-			MySqlQueryResult result = await Database.ExecuteQueryAsync(insertOrUpdateQuery);
-
-			if (Config.GeneralSettings.LevelRanksCompatibility)
-			{
-				// ? STEAM_0:0:12345678 -> STEAM_1:0:12345678 just to match lvlranks as we can
-				string lvlSteamID = steamid.SteamId2.Replace("STEAM_0", "STEAM_1");
-
-				try
-				{
-					await Database.ExecuteNonQueryAsync($@"
-						INSERT INTO `{Config.DatabaseSettings.LvLRanksTableName}`
-						(`steam`, `name`, `playtime`, `lastconnect`)
-						VALUES
-						('{lvlSteamID}', '{escapedName}', {playerData.TimeFields["all"]}, {DateTimeOffset.UtcNow.ToUnixTimeSeconds()})
-						ON DUPLICATE KEY UPDATE
-						`name` = '{escapedName}',
-						`playtime` = '{playerData.TimeFields["all"]}',
-						`lastconnect` = {DateTimeOffset.UtcNow.ToUnixTimeSeconds()};
-					");
-				}
-				catch(Exception ex)
-				{
-					Logger.LogError($"SavePlayerRankCache > LevelRanks Query error: {ex.Message}");
-				}
-			}
-
-			if (!remove)
-			{
-				var allKeys = playerData.TimeFields.Keys.ToList();
-
-				foreach (string statField in allKeys)
-				{
-					playerData.TimeFields[statField] = result.Rows > 0 ? result.Get<int>(0, statField) : 0;
-				}
-			}
-			else
-			{
-				timeCache.Remove(slot);
-			}
-		}
-
-		public void LoadAllPlayerCache()
-		{
-			List<CCSPlayerController> players = Utilities.GetPlayers();
-
-			List<Task> loadTasks = players
-				.Where(player => player != null && player.IsValid && player.PlayerPawn.IsValid && !player.IsBot && !player.IsHLTV)
-				.Select(player => LoadTimeData(player.Slot, player.PlayerName, player.SteamID.ToString()))
-				.ToList();
-
-			Task.Run(async () =>
-			{
-				await Task.WhenAll(loadTasks);
-			});
-		}
-
-		public void SaveAllPlayerCache(bool clear)
-		{
-			List<CCSPlayerController> players = Utilities.GetPlayers();
-
-			List<Task> saveTasks = players
-				.Where(player => player != null && player.IsValid && player.PlayerPawn.IsValid && !player.IsBot && !player.IsHLTV && player.SteamID != 0 && timeCache.ContainsPlayer(player))
-				.Select(player => SavePlayerTimeCacheAsync(player.Slot, player.PlayerName, new SteamID(player.SteamID), clear))
-				.ToList();
-
-			Task.Run(async () =>
-			{
-				await Task.WhenAll(saveTasks);
-
-				if (clear)
-					timeCache.Clear();
-			});
+			if ((CsTeam)player.TeamNum > CsTeam.Spectator)
+				playerData.TimeFields[player.PawnIsAlive ? "alive" : "dead"] += (int)Math.Round((now - playerData.Times["Death"]).TotalSeconds);
 		}
 
 		public string GetFieldForTeam(CsTeam team)

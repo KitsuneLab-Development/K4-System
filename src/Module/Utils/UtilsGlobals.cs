@@ -1,10 +1,8 @@
 namespace K4System
 {
-	using CounterStrikeSharp.API.Core;
-	using CounterStrikeSharp.API.Core.Plugin;
-
 	using Microsoft.Extensions.Logging;
-	using Nexd.MySQL;
+
+	using CounterStrikeSharp.API.Core.Plugin;
 
 	public partial class ModuleUtils : IModuleUtils
 	{

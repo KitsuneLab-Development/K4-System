@@ -1,10 +1,13 @@
 namespace K4System
 {
 	using System.Text;
+	using MySqlConnector;
+
 	using CounterStrikeSharp.API;
 	using CounterStrikeSharp.API.Core;
 	using CounterStrikeSharp.API.Modules.Commands;
 	using CounterStrikeSharp.API.Modules.Utils;
+	using Microsoft.Extensions.Logging;
 
 	public sealed partial class Plugin : BasePlugin
 	{
@@ -74,6 +77,36 @@ namespace K4System
 
 		public void Initialize_Events()
 		{
+			RegisterEventHandler((EventPlayerConnectFull @event, GameEventInfo info) =>
+			{
+				CCSPlayerController player = @event.Userid;
+
+				if (player is null || !player.IsValid || player.IsBot || player.IsHLTV)
+					return HookResult.Continue;
+
+				LoadPlayerCache(player);
+
+				return HookResult.Continue;
+			});
+
+			RegisterEventHandler((EventPlayerDisconnect @event, GameEventInfo info) =>
+			{
+				CCSPlayerController player = @event.Userid;
+
+				if (player is null || !player.IsValid || !player.PlayerPawn.IsValid)
+					return HookResult.Continue;
+
+				if (player.IsBot || player.IsHLTV)
+					return HookResult.Continue;
+
+				ModuleTime.BeforeDisconnect(player);
+
+				SavePlayerCache(player);
+
+				return HookResult.Continue;
+			}, HookMode.Post);
+
+
 			RegisterEventHandler((EventRoundStart @event, GameEventInfo info) =>
 			{
 				if (!Config.GeneralSettings.SpawnMessage)
@@ -92,6 +125,15 @@ namespace K4System
 					player.PrintToChat($" {Localizer["k4.general.prefix"]} {ChatColors.Lime}{Localizer["k4.general.spawnmessage"]}");
 				}
 
+				return HookResult.Continue;
+			});
+
+			RegisterEventHandler((EventRoundEnd @event, GameEventInfo info) =>
+			{
+				ModuleStat.BeforeRoundEnd(@event.Winner);
+				ModuleRank.BeforeRoundEnd(@event.Winner);
+
+				SaveAllPlayersCacheAsync();
 				return HookResult.Continue;
 			});
 		}

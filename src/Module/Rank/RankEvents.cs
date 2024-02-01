@@ -36,25 +36,6 @@ namespace K4System
 				return HookResult.Continue;
 			}, HookMode.Pre);
 
-			plugin.RegisterEventHandler((EventPlayerConnectFull @event, GameEventInfo info) =>
-			{
-				CCSPlayerController player = @event.Userid;
-
-				if (player is null || !player.IsValid || player.IsBot || player.IsHLTV)
-					return HookResult.Continue;
-
-				int slot = player.Slot;
-				string playerName = player.PlayerName;
-				string steamId = player.SteamID.ToString();
-
-				Task.Run(async () =>
-				{
-					await LoadRankData(slot, playerName, steamId);
-				});
-
-				return HookResult.Continue;
-			});
-
 			plugin.RegisterListener<Listeners.OnMapStart>((mapName) =>
 			{
 				plugin.AddTimer(1.0f, () =>
@@ -235,61 +216,8 @@ namespace K4System
 					rankCache[player].PlayedRound = true;
 				}
 
-				Server.PrintToChatAll($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.ranks.notenoughplayers", Config.RankSettings.MinPlayers]}");
-
-				return HookResult.Continue;
-			});
-
-			plugin.RegisterEventHandler((EventRoundEnd @event, GameEventInfo info) =>
-			{
-				int winnerTeam = @event.Winner;
-
-				List<CCSPlayerController> players = Utilities.GetPlayers();
-
-				foreach (CCSPlayerController player in players)
-				{
-					if (player is null || !player.IsValid || !player.PlayerPawn.IsValid || player.IsBot || player.IsHLTV)
-						continue;
-
-					if (!rankCache.ContainsPlayer(player))
-						continue;
-
-					if (!player.PawnIsAlive)
-						playerKillStreaks[player.Slot] = (0, DateTime.Now);
-
-					RankData playerData = rankCache[player];
-
-					if (!playerData.PlayedRound)
-						continue;
-
-					if (player.TeamNum <= (int)CsTeam.Spectator)
-						continue;
-
-					if (winnerTeam == player.TeamNum)
-					{
-						ModifyPlayerPoints(player, Config.PointSettings.RoundWin, "k4.phrases.roundwin");
-					}
-					else
-					{
-						ModifyPlayerPoints(player, Config.PointSettings.RoundLose, "k4.phrases.roundlose");
-					}
-
-					if (Config.RankSettings.RoundEndPoints)
-					{
-						if (playerData.RoundPoints > 0)
-						{
-							player.PrintToChat($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.ranks.summarypoints.gain", playerData.RoundPoints]}");
-						}
-						else if (playerData.RoundPoints < 0)
-						{
-							player.PrintToChat($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.ranks.summarypoints.loss", Math.Abs(playerData.RoundPoints)]}");
-						}
-						else
-							player.PrintToChat($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.ranks.summarypoints.nochange"]}");
-					}
-				}
-
-				SaveAllPlayerCache(false);
+				if (players.Count < Config.RankSettings.MinPlayers)
+					Server.PrintToChatAll($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.ranks.notenoughplayers", Config.RankSettings.MinPlayers]}");
 
 				return HookResult.Continue;
 			});
@@ -464,21 +392,6 @@ namespace K4System
 						ModifyPlayerPoints(assiter, Config.PointSettings.AssistFlash, "k4.phrases.assistflash");
 					}
 				}
-
-				return HookResult.Continue;
-			});
-
-			plugin.RegisterEventHandler((EventPlayerDisconnect @event, GameEventInfo info) =>
-			{
-				CCSPlayerController player = @event.Userid;
-
-				if (player is null || !player.IsValid || !player.PlayerPawn.IsValid)
-					return HookResult.Continue;
-
-				if (player.IsBot || player.IsHLTV || !rankCache.ContainsPlayer(player))
-					return HookResult.Continue;
-
-				SavePlayerRankCache(player, true);
 
 				return HookResult.Continue;
 			});

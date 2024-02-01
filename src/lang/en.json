@@ -12,6 +12,10 @@
   "k4.general.availablecommands.rank": "Rank Commands",
   "k4.general.availablecommands.time": "Time Commands",
   "k4.general.availablecommands.other": "Other Commands",
+  "k4.general.commandhelp": "{silver}Expected Usage: {lime}!{0} {1}",
+  "k4.general.commandnoperm": "{lightred}You do not have permission to use this command.",
+  "k4.general.commandserveronly": "{lightred}This command can only be used by the server.",
+  "k4.general.commandclientonly": "{lightred}This command can only be used by clients.",
 
   "k4.ranks.rank.title": "{lime}{0}{silver}'s Rank",
   "k4.ranks.rank.line1": "--- {silver}You have {lime}{0} {silver}points and are currently {1}{2} {silver}({3} out of {4})",

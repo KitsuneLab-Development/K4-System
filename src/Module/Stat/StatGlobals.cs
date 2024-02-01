@@ -4,7 +4,6 @@ namespace K4System
 	using CounterStrikeSharp.API.Core.Plugin;
 
 	using Microsoft.Extensions.Logging;
-	using Nexd.MySQL;
 
 	public partial class ModuleStat : IModuleStat
 	{
@@ -17,7 +16,6 @@ namespace K4System
 		public readonly ILogger<ModuleStat> Logger;
 
 		public required PluginConfig Config { get; set; }
-		public required MySqlDb Database { get; set; }
 
 		public CCSGameRules? globalGameRules = null;
 		internal static PlayerCache<StatData> statCache = new PlayerCache<StatData>();
