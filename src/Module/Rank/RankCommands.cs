@@ -8,6 +8,7 @@ namespace K4System
 	using CounterStrikeSharp.API.Modules.Commands;
 	using CounterStrikeSharp.API.Modules.Commands.Targeting;
 	using CounterStrikeSharp.API.Modules.Menu;
+	using Microsoft.Extensions.Logging;
 
 	public partial class ModuleRank : IModuleRank
 	{
@@ -43,50 +44,65 @@ namespace K4System
 
 		public void OnCommandRank(CCSPlayerController? player, CommandInfo info)
 		{
-			Plugin plugin = (this.PluginContext.Plugin as Plugin)!;
-
-			if (!plugin.CommandHelper(player, info, CommandUsage.CLIENT_ONLY))
+			if (player == null || !player.IsValid || player.PlayerPawn.Value == null)
 				return;
 
-			if (!rankCache.ContainsPlayer(player!))
+			Plugin plugin = (this.PluginContext.Plugin as Plugin)!;
+
+			if (!rankCache.ContainsPlayer(player))
 			{
 				info.ReplyToCommand($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.general.loading"]}");
 				return;
 			}
 
-			string steamID = player!.SteamID.ToString();
-			string tablePrefix = Config.DatabaseSettings.TablePrefix;
+			int printCount = 5;
 
-			Task<(int playerPlace, int totalPlayers)> getPlayerPlaceAndCountTask = Task.Run(async () =>
+			if (int.TryParse(info.ArgByIndex(1), out int parsedInt))
 			{
-				return await GetPlayerPlaceAndCountAsync(steamID);
-			});
-
-			getPlayerPlaceAndCountTask.Wait();
-
-			var (playerPlace, totalPlayers) = getPlayerPlaceAndCountTask.Result;
-
-			RankData playerData = rankCache[player];
-
-			int higherRanksCount = rankDictionary.Count(kv => kv.Value.Point > playerData.Points);
-
-			info.ReplyToCommand($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.ranks.rank.title", player.PlayerName]}");
-			info.ReplyToCommand(plugin.Localizer["k4.ranks.rank.line1", playerData.Points, playerData.Rank.Color, playerData.Rank.Name, rankDictionary.Count - higherRanksCount, rankDictionary.Count]);
-
-			var nextRankEntry = rankDictionary
-						.Where(kv => kv.Value.Point > playerData.Rank.Point)
-						.OrderBy(kv => kv.Value.Point)
-						.FirstOrDefault();
-
-			if (nextRankEntry.Value != null)
-			{
-				Rank nextRank = nextRankEntry.Value;
-
-				info.ReplyToCommand(plugin.Localizer["k4.ranks.rank.line2", nextRank.Color, nextRank.Name]);
-				info.ReplyToCommand(plugin.Localizer["k4.ranks.rank.line3", nextRank.Point - playerData.Points]);
+				printCount = Math.Clamp(parsedInt, 1, 25);
 			}
 
-			info.ReplyToCommand(plugin.Localizer["k4.ranks.rank.line4", playerPlace, totalPlayers]);
+			string steamID = player!.SteamID.ToString();
+
+			FetchRankDataAsync(steamID, playerPlaceAndTotalPlayers =>
+			{
+				(int playerPlace, int totalPlayers) = playerPlaceAndTotalPlayers;
+
+				RankData playerData = rankCache[player];
+
+				int higherRanksCount = rankDictionary.Count(kv => kv.Value.Point > playerData.Points);
+
+				info.ReplyToCommand($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.ranks.rank.title", player.PlayerName]}");
+				info.ReplyToCommand(plugin.Localizer["k4.ranks.rank.line1", playerData.Points, playerData.Rank.Color, playerData.Rank.Name, rankDictionary.Count - higherRanksCount, rankDictionary.Count]);
+
+				KeyValuePair<string, Rank> nextRankEntry = rankDictionary
+							.Where(kv => kv.Value.Point > playerData.Rank.Point)
+							.OrderBy(kv => kv.Value.Point)
+							.FirstOrDefault();
+
+				if (nextRankEntry.Value != null)
+				{
+					Rank nextRank = nextRankEntry.Value;
+
+					info.ReplyToCommand(plugin.Localizer["k4.ranks.rank.line2", nextRank.Color, nextRank.Name]);
+					info.ReplyToCommand(plugin.Localizer["k4.ranks.rank.line3", nextRank.Point - playerData.Points]);
+				}
+
+				info.ReplyToCommand(plugin.Localizer["k4.ranks.rank.line4", playerPlace, totalPlayers]);
+			});
+		}
+
+		public async void FetchRankDataAsync(string steamID, Action<(int playerPlace, int totalPlayers)> callback)
+		{
+			try
+			{
+				var (playerPlace, totalPlayers) = await GetPlayerPlaceAndCountAsync(steamID);
+				callback((playerPlace, totalPlayers));
+			}
+			catch (Exception ex)
+			{
+				Logger.LogError($"Error fetching rank data: {ex.Message}");
+			}
 		}
 
 		public void OnCommandRanks(CCSPlayerController? player, CommandInfo info)
@@ -144,14 +160,38 @@ namespace K4System
 
 			CCSPlayerController savedPlayer = player;
 
-			plugin.SaveAllPlayersCacheAsync(true);
+			FetchTopDataAsync(plugin, printCount, rankData =>
+			{
+				if (rankData.Count > 0)
+				{
+					for (int i = 0; i < rankData.Count; i++)
+					{
+						int points = rankData[i].points;
+						string name = rankData[i].name;
 
+						Rank rank = GetPlayerRank(points);
+
+						player.PrintToChat($" {plugin.Localizer["k4.ranks.top.line", i + 1, rank.Color, rank.Name, name, points]}");
+					}
+				}
+				else
+				{
+					player.PrintToChat($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.ranks.top.notfound", printCount]}");
+				}
+			});
+		}
+
+		public async void FetchTopDataAsync(Plugin plugin, int printCount, Action<List<(int points, string name)>> callback)
+		{
+			List<PlayerData> playersData = plugin.PreparePlayersData();
 			string query = $"SELECT `points`, `name` FROM `{Config.DatabaseSettings.TablePrefix}k4ranks` ORDER BY `points` DESC LIMIT {printCount};";
 
 			List<(int points, string name)> rankData = new List<(int points, string name)>();
 
-			Task.Run(async () =>
+			try
 			{
+				await plugin.SaveAllPlayersCacheAsync(playersData);
+
 				using (MySqlCommand command = new MySqlCommand(query))
 				{
 					using (MySqlDataReader? reader = await Database.Instance.ExecuteReaderAsync(command.CommandText, command.Parameters.Cast<MySqlParameter>().ToArray()))
@@ -167,23 +207,12 @@ namespace K4System
 						}
 					}
 				}
-			}).Wait();
 
-			if (rankData.Count > 0)
-			{
-				for (int i = 0; i < rankData.Count; i++)
-				{
-					int points = rankData[i].points;
-					string name = rankData[i].name;
-
-					Rank rank = GetPlayerRank(points);
-
-					player.PrintToChat($" {plugin.Localizer["k4.ranks.top.line", i + 1, rank.Color, rank.Name, name, points]}");
-				}
+				callback(rankData);
 			}
-			else
+			catch (Exception ex)
 			{
-				player.PrintToChat($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.ranks.top.notfound", printCount]}");
+				Logger.LogError($"Error fetching top data: {ex.Message}");
 			}
 		}
 

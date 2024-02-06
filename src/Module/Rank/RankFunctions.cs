@@ -220,7 +220,7 @@ namespace K4System
                 Console.WriteLine($"An error occurred while executing GetPlayerPlaceAndCountAsync: {ex.Message}");
             }
 
-            return (0, 0); // Ha valami hiba történt, vagy nem találhatók adatok
+            return (0, 0);
         }
 
         public int CalculateDynamicPoints(CCSPlayerController from, CCSPlayerController to, int amount)

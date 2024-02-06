@@ -61,7 +61,7 @@
                 {
                     base.Logger.LogCritical("Database connection error: {0}", ex.Message);
                 }
-            }).Wait();
+            });
 
             //** ? Save Config */
 
@@ -100,21 +100,22 @@
 
             //** ? Initialize Database tables */
 
-            Task.Run(CreateMultipleTablesAsync).Wait();
-
-            if (hotReload)
+            CreateMultipleTablesAsync(() =>
             {
-                //** ? Load Player Caches */
+                if (hotReload)
+                {
+                    //** ? Load Player Caches */
 
-                LoadAllPlayersCache();
-            }
+                    LoadAllPlayersCache();
+                }
+            });
         }
 
         public override void Unload(bool hotReload)
         {
             //** ? Save Player Caches */
 
-            SaveAllPlayersCacheAsync();
+            SaveAllPlayersCache();
 
             //** ? Release Modules */
 
@@ -133,7 +134,7 @@
             this.Dispose();
         }
 
-        public async Task CreateMultipleTablesAsync()
+        public async void CreateMultipleTablesAsync(Action callback)
         {
             string timesModuleTable = @$"CREATE TABLE IF NOT EXISTS `{this.Config.DatabaseSettings.TablePrefix}k4times` (
 					`id` INT AUTO_INCREMENT PRIMARY KEY,
@@ -210,6 +211,8 @@
 
                 // Commit the transaction
                 await Database.Instance.CommitTransactionAsync();
+
+                callback();
             }
             catch (Exception ex)
             {

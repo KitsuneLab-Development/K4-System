@@ -1,3 +1,8 @@
+-- 2023.02.06 - V3.3.1
+
+- fix: Missing CallbackAnonymizer
+- fix: MySQL deadlocks (already in use)
+
 -- 2023.01.30 - V3.3.0
 
 - feat: Add MySQL pooling support

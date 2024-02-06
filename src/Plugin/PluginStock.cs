@@ -80,44 +80,44 @@ namespace K4System
 			return playersData;
 		}
 
-		public void SaveAllPlayersCacheAsync(bool wait = false)
+		public void SaveAllPlayersCache()
 		{
 			List<PlayerData> playersData = PreparePlayersData();
 
 			Task.Run(async () =>
 			{
-				try
-				{
-					await Database.Instance.BeginTransactionAsync();
-
-					foreach (PlayerData playerData in playersData)
-					{
-						if (playerData.RankData != null)
-							await ExecuteRankUpdateAsync(playerData.PlayerName, playerData.SteamId, playerData.RankData);
-
-						if (playerData.StatData != null)
-							await ExecuteStatUpdateAsync(playerData.PlayerName, playerData.SteamId, playerData.StatData);
-
-						if (playerData.TimeData != null)
-							await ExecuteTimeUpdateAsync(playerData.PlayerName, playerData.SteamId, playerData.TimeData);
-					}
-
-					await Database.Instance.CommitTransactionAsync();
-				}
-				catch (Exception ex)
-				{
-					await Database.Instance.RollbackTransactionAsync();
-					Logger.LogError($"Error saving all player caches: {ex.Message}");
-				}
+				await SaveAllPlayersCacheAsync(playersData);
 			});
+		}
 
-			if (wait)
+		public async Task SaveAllPlayersCacheAsync(List<PlayerData> playersData)
+		{
+			try
 			{
-				Task.WaitAll();
+				await Database.Instance.BeginTransactionAsync();
+
+				foreach (PlayerData playerData in playersData)
+				{
+					if (playerData.RankData != null)
+						await ExecuteRankUpdateAsync(playerData.PlayerName, playerData.SteamId, playerData.RankData);
+
+					if (playerData.StatData != null)
+						await ExecuteStatUpdateAsync(playerData.PlayerName, playerData.SteamId, playerData.StatData);
+
+					if (playerData.TimeData != null)
+						await ExecuteTimeUpdateAsync(playerData.PlayerName, playerData.SteamId, playerData.TimeData);
+				}
+
+				await Database.Instance.CommitTransactionAsync();
+			}
+			catch (Exception ex)
+			{
+				await Database.Instance.RollbackTransactionAsync();
+				Logger.LogError($"Error saving all player caches: {ex.Message}");
 			}
 		}
 
-		public void SavePlayerCache(CCSPlayerController player, bool delete = false)
+		public void SavePlayerCache(CCSPlayerController player)
 		{
 			string steamId = player.SteamID.ToString();
 			string playerName = player.PlayerName;
@@ -126,13 +126,7 @@ namespace K4System
 			StatData? statData = statCache.ContainsKey(player.Slot) ? statCache[player.Slot] : null;
 			TimeData? timeData = timeCache.ContainsKey(player.Slot) ? timeCache[player.Slot] : null;
 
-			if (delete)
-			{
-				Task.Run(() => SavePlayerDataAsync(playerName, steamId, rankData, statData, timeData)).Wait();
-
-			}
-			else
-				Task.Run(() => SavePlayerDataAsync(playerName, steamId, rankData, statData, timeData));
+			Task.Run(() => SavePlayerDataAsync(playerName, steamId, rankData, statData, timeData));
 		}
 
 		private async Task SavePlayerDataAsync(string playerName, string steamId, RankData? rankData, StatData? statData, TimeData? timeData)
