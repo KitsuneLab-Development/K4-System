@@ -32,7 +32,7 @@ namespace K4System
 
 			commands.TopCommands.ForEach(commandString =>
 			{
-				plugin.AddCommand($"css_{commandString}", "Check the top players by points", OnCommandTop);
+				plugin.AddCommand($"css_{commandString}", "Check the top players by points", plugin.CallbackAnonymizer(OnCommandTop));
 			});
 
 			plugin.AddCommand("css_resetrank", "Resets the targeted player's points to zero", plugin.CallbackAnonymizer(OnCommandResetRank));
