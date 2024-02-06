@@ -61,7 +61,7 @@
                 {
                     base.Logger.LogCritical("Database connection error: {0}", ex.Message);
                 }
-            });
+            }).Wait();
 
             //** ? Save Config */
 
@@ -100,7 +100,7 @@
 
             //** ? Initialize Database tables */
 
-            CreateMultipleTablesAsync(() =>
+            ThreadHelper.ExecuteAsync(CreateMultipleTablesAsync, () =>
             {
                 if (hotReload)
                 {
@@ -134,7 +134,7 @@
             this.Dispose();
         }
 
-        public async void CreateMultipleTablesAsync(Action callback)
+        public async Task CreateMultipleTablesAsync()
         {
             string timesModuleTable = @$"CREATE TABLE IF NOT EXISTS `{this.Config.DatabaseSettings.TablePrefix}k4times` (
 					`id` INT AUTO_INCREMENT PRIMARY KEY,
@@ -211,14 +211,12 @@
 
                 // Commit the transaction
                 await Database.Instance.CommitTransactionAsync();
-
-                callback();
             }
             catch (Exception ex)
             {
                 // Roll back the transaction in case of an error
-                await Database.Instance.RollbackTransactionAsync();
                 Logger.LogError("Error creating tables: {0}", ex.Message);
+                await Database.Instance.RollbackTransactionAsync();
             }
         }
 

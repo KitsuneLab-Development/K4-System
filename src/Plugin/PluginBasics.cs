@@ -133,7 +133,7 @@ namespace K4System
 				ModuleStat.BeforeRoundEnd(@event.Winner);
 				ModuleRank.BeforeRoundEnd(@event.Winner);
 
-				SaveAllPlayersCacheAsync();
+				SaveAllPlayersCache();
 				return HookResult.Continue;
 			});
 		}

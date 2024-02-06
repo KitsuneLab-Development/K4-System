@@ -17,52 +17,56 @@ namespace K4System
 				ranksMenu.AddMenuOption(rank.Point == -1 ? plugin.Localizer["k4.ranks.listdefault", rank.Color, rank.Name] : plugin.Localizer["k4.ranks.listitem", rank.Color, rank.Name, rank.Point],
 					(player, option) =>
 				{
-					FetchRanksMenuDataAsync(rank.Name, (data) =>
-					{
-						(int playerCount, float percentage) = data;
 
-						RankData playerData = rankCache[player];
-
-						int pointsDifference = Math.Abs(rank.Point - playerData.Points);
-
-						player.PrintToChat($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.ranks.selected.title", rank.Color, rank.Name]}");
-						player.PrintToChat($" {plugin.Localizer["k4.ranks.selected.line1", playerCount, percentage]}");
-
-						if (rank.Name == playerData.Rank.Name)
-							player.PrintToChat($" {plugin.Localizer["k4.ranks.selected.line2.current", rank.Point]}");
-						else
-							player.PrintToChat($" {plugin.Localizer[rank.Point > playerData.Rank.Point ? "k4.ranks.selected.line2" : "k4.ranks.selected.line2.passed", rank.Point == -1 ? "None" : rank.Point, pointsDifference]}");
-
-						if (rank.Permissions != null && rank.Permissions.Count > 0)
+					ThreadHelper.ExecuteAsync(
+						async () => await FetchRanksMenuDataAsync(rank.Name),
+						(data) =>
 						{
-							player.PrintToChat($" {plugin.Localizer["k4.ranks.selected.benefitline"]}");
+							(int playerCount, float percentage) = data;
 
-							int permissionCount = 0;
-							string permissionLine = "";
+							RankData playerData = rankCache[player];
 
-							foreach (Permission permission in rank.Permissions)
+							int pointsDifference = Math.Abs(rank.Point - playerData.Points);
+
+							player.PrintToChat($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.ranks.selected.title", rank.Color, rank.Name]}");
+							player.PrintToChat($" {plugin.Localizer["k4.ranks.selected.line1", playerCount, percentage]}");
+
+							if (rank.Name == playerData.Rank.Name)
+								player.PrintToChat($" {plugin.Localizer["k4.ranks.selected.line2.current", rank.Point]}");
+							else
+								player.PrintToChat($" {plugin.Localizer[rank.Point > playerData.Rank.Point ? "k4.ranks.selected.line2" : "k4.ranks.selected.line2.passed", rank.Point == -1 ? "None" : rank.Point, pointsDifference]}");
+
+							if (rank.Permissions != null && rank.Permissions.Count > 0)
 							{
-								permissionLine += $"{ChatColors.Lime}{permission.DisplayName}{ChatColors.Silver}, ";
-								permissionCount++;
+								player.PrintToChat($" {plugin.Localizer["k4.ranks.selected.benefitline"]}");
 
-								if (permissionCount % 3 == 0)
+								int permissionCount = 0;
+								string permissionLine = "";
+
+								foreach (Permission permission in rank.Permissions)
+								{
+									permissionLine += $"{ChatColors.Lime}{permission.DisplayName}{ChatColors.Silver}, ";
+									permissionCount++;
+
+									if (permissionCount % 3 == 0)
+									{
+										player.PrintToChat($" {permissionLine.TrimEnd(',', ' ')}");
+										permissionLine = "";
+									}
+								}
+
+								if (!string.IsNullOrEmpty(permissionLine))
 								{
 									player.PrintToChat($" {permissionLine.TrimEnd(',', ' ')}");
-									permissionLine = "";
 								}
 							}
-
-							if (!string.IsNullOrEmpty(permissionLine))
-							{
-								player.PrintToChat($" {permissionLine.TrimEnd(',', ' ')}");
-							}
 						}
-					});
+					);
 				});
 			}
 		}
 
-		public async void FetchRanksMenuDataAsync(string rankName, Action<(int playerCount, float percentage)> callback)
+		public async Task<(int playerCount, float percentage)> FetchRanksMenuDataAsync(string rankName)
 		{
 			int playerCount = 0;
 			float percentage = 0.0f;
@@ -96,11 +100,12 @@ namespace K4System
 					}
 				}
 
-				callback((playerCount, percentage));
+				return (playerCount, percentage);
 			}
 			catch (Exception ex)
 			{
 				Logger.LogError($"Error fetching rank data: {ex.Message}");
+				return (0, 0);
 			}
 		}
 	}
