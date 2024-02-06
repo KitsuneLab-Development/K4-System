@@ -100,7 +100,7 @@
 
             //** ? Initialize Database tables */
 
-            ThreadHelper.ExecuteAsync(CreateMultipleTablesAsync, () =>
+            ThreadHelper.ExecuteAsync(CreateMultipleTablesAsync, (_) =>
             {
                 if (hotReload)
                 {
@@ -134,7 +134,7 @@
             this.Dispose();
         }
 
-        public async Task CreateMultipleTablesAsync()
+        public async Task<bool> CreateMultipleTablesAsync()
         {
             string timesModuleTable = @$"CREATE TABLE IF NOT EXISTS `{this.Config.DatabaseSettings.TablePrefix}k4times` (
 					`id` INT AUTO_INCREMENT PRIMARY KEY,
@@ -211,12 +211,14 @@
 
                 // Commit the transaction
                 await Database.Instance.CommitTransactionAsync();
+                return true;
             }
             catch (Exception ex)
             {
                 // Roll back the transaction in case of an error
-                Logger.LogError("Error creating tables: {0}", ex.Message);
                 await Database.Instance.RollbackTransactionAsync();
+                Logger.LogError("Error creating tables: {0}", ex.Message);
+                return false;
             }
         }
 
