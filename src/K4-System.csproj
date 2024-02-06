@@ -3,6 +3,7 @@
     <DebugSymbols>False</DebugSymbols>
     <DebugType>None</DebugType>
     <GenerateDependencyFile>false</GenerateDependencyFile>
+    <PublishDir>./bin/K4-System/</PublishDir>
   </PropertyGroup>
   <PropertyGroup>
     <TargetFramework>net7.0</TargetFramework>
