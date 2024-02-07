@@ -8,7 +8,5 @@ namespace K4System
 		public void Initialize(bool hotReload);
 
 		public void Release(bool hotReload);
-
-		public void OnCommandAdmins(CCSPlayerController? player, CommandInfo info);
 	}
 }

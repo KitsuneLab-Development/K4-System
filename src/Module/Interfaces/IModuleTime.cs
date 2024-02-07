@@ -12,7 +12,5 @@ namespace K4System
 		public void LoadTimeData(int slot, Dictionary<string, int> timeData);
 
 		public void BeforeDisconnect(CCSPlayerController player);
-
-		public void OnCommandTime(CCSPlayerController? player, CommandInfo info);
 	}
 }

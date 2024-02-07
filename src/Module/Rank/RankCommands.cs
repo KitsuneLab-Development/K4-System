@@ -64,35 +64,34 @@ namespace K4System
 
 			string steamID = player!.SteamID.ToString();
 
-			ThreadHelper.ExecuteAsync(
-				async () => await FetchRankDataAsync(steamID),
-				(result) =>
-				{
-					(int playerPlace, int totalPlayers) = result;
+			Task<(int playerPlace, int totalPlayers)> task = Task.Run(() => FetchRankDataAsync(steamID));
+			task.Wait();
+			var result = task.Result;
 
-					RankData playerData = rankCache[player];
+			int playerPlace = result.playerPlace;
+			int totalPlayers = result.totalPlayers;
 
-					int higherRanksCount = rankDictionary.Count(kv => kv.Value.Point > playerData.Points);
+			RankData playerData = rankCache[player];
 
-					info.ReplyToCommand($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.ranks.rank.title", player.PlayerName]}");
-					info.ReplyToCommand(plugin.Localizer["k4.ranks.rank.line1", playerData.Points, playerData.Rank.Color, playerData.Rank.Name, rankDictionary.Count - higherRanksCount, rankDictionary.Count]);
+			int higherRanksCount = rankDictionary.Count(kv => kv.Value.Point > playerData.Points);
 
-					KeyValuePair<string, Rank> nextRankEntry = rankDictionary
-								.Where(kv => kv.Value.Point > playerData.Rank.Point)
-								.OrderBy(kv => kv.Value.Point)
-								.FirstOrDefault();
+			info.ReplyToCommand($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.ranks.rank.title", player.PlayerName]}");
+			info.ReplyToCommand(plugin.Localizer["k4.ranks.rank.line1", playerData.Points, playerData.Rank.Color, playerData.Rank.Name, rankDictionary.Count - higherRanksCount, rankDictionary.Count]);
 
-					if (nextRankEntry.Value != null)
-					{
-						Rank nextRank = nextRankEntry.Value;
+			KeyValuePair<string, Rank> nextRankEntry = rankDictionary
+						.Where(kv => kv.Value.Point > playerData.Rank.Point)
+						.OrderBy(kv => kv.Value.Point)
+						.FirstOrDefault();
 
-						info.ReplyToCommand(plugin.Localizer["k4.ranks.rank.line2", nextRank.Color, nextRank.Name]);
-						info.ReplyToCommand(plugin.Localizer["k4.ranks.rank.line3", nextRank.Point - playerData.Points]);
-					}
+			if (nextRankEntry.Value != null)
+			{
+				Rank nextRank = nextRankEntry.Value;
 
-					info.ReplyToCommand(plugin.Localizer["k4.ranks.rank.line4", playerPlace, totalPlayers]);
-				}
-			);
+				info.ReplyToCommand(plugin.Localizer["k4.ranks.rank.line2", nextRank.Color, nextRank.Name]);
+				info.ReplyToCommand(plugin.Localizer["k4.ranks.rank.line3", nextRank.Point - playerData.Points]);
+			}
+
+			info.ReplyToCommand(plugin.Localizer["k4.ranks.rank.line4", playerPlace, totalPlayers]);
 		}
 
 		public async Task<(int, int)> FetchRankDataAsync(string steamID)
@@ -165,28 +164,26 @@ namespace K4System
 			CCSPlayerController savedPlayer = player;
 			List<PlayerData> playersData = plugin.PreparePlayersData();
 
-			ThreadHelper.ExecuteAsync(
-				async () => await FetchTopDataAsync(plugin, printCount, playersData),
-				(rankData) =>
+			Task<List<(int points, string name)>?> task = Task.Run(() => FetchTopDataAsync(plugin, printCount, playersData));
+			task.Wait();
+			List<(int points, string name)>? rankData = task.Result;
+
+			if (rankData?.Count > 0)
+			{
+				for (int i = 0; i < rankData.Count; i++)
 				{
-					if (rankData?.Count > 0)
-					{
-						for (int i = 0; i < rankData.Count; i++)
-						{
-							int points = rankData[i].points;
-							string name = rankData[i].name;
+					int points = rankData[i].points;
+					string name = rankData[i].name;
 
-							Rank rank = GetPlayerRank(points);
+					Rank rank = GetPlayerRank(points);
 
-							player.PrintToChat($" {plugin.Localizer["k4.ranks.top.line", i + 1, rank.Color, rank.Name, name, points]}");
-						}
-					}
-					else
-					{
-						player.PrintToChat($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.ranks.top.notfound", printCount]}");
-					}
+					player.PrintToChat($" {plugin.Localizer["k4.ranks.top.line", i + 1, rank.Color, rank.Name, name, points]}");
 				}
-			);
+			}
+			else
+			{
+				player.PrintToChat($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.ranks.top.notfound", printCount]}");
+			}
 		}
 
 		public async Task<List<(int points, string name)>?> FetchTopDataAsync(Plugin plugin, int printCount, List<PlayerData> playersData)

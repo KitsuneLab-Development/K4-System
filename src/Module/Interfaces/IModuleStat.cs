@@ -12,7 +12,5 @@ namespace K4System
 		public void LoadStatData(int slot, Dictionary<string, int> statData);
 
 		public void BeforeRoundEnd(int winnerTeam);
-
-		public void OnCommandStats(CCSPlayerController? player, CommandInfo info);
 	}
 }

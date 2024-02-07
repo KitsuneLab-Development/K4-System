@@ -7,7 +7,6 @@ namespace K4System
 	using CounterStrikeSharp.API.Core;
 	using CounterStrikeSharp.API.Modules.Commands;
 	using CounterStrikeSharp.API.Modules.Utils;
-	using Microsoft.Extensions.Logging;
 
 	public sealed partial class Plugin : BasePlugin
 	{
@@ -85,6 +84,7 @@ namespace K4System
 					return HookResult.Continue;
 
 				LoadPlayerCache(player);
+				AdjustDatabasePooling();
 
 				return HookResult.Continue;
 			});
@@ -102,6 +102,7 @@ namespace K4System
 				ModuleTime.BeforeDisconnect(player);
 
 				SavePlayerCache(player);
+				AdjustDatabasePooling();
 
 				return HookResult.Continue;
 			}, HookMode.Post);

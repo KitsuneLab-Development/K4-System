@@ -1,131 +1,113 @@
+using System;
+using System.Data;
+using MySqlConnector;
+using System.Threading.Tasks;
+
 namespace K4System
 {
-	using System.Data;
-	using MySqlConnector;
-
 	public sealed class Database
 	{
 		private static readonly Lazy<Database> instance = new Lazy<Database>(() => new Database());
 		public static Database Instance => instance.Value;
 
-		private MySqlConnection? connection;
-		private MySqlTransaction? transaction;
+		private string? connectionString;
 
 		private Database() { }
 
-		public async Task InitializeAsync(string connectionString)
+		public void Initialize(string server, string database, string userId, string password, int port = 3306, string sslMode = "None", bool usePooling = true, uint minPoolSize = 10, uint maxPoolSize = 50)
 		{
-			if (connection != null)
-			{
-				if (connection.State == ConnectionState.Open)
-				{
-					Console.WriteLine("Warning: Attempting to initialize an already open connection.");
-					return;
-				}
-
-				if (connection.State == ConnectionState.Connecting)
-				{
-					throw new InvalidOperationException("The database connection is currently being established.");
-				}
-
-				if (connection.State != ConnectionState.Closed)
-				{
-					await connection.CloseAsync();
-				}
-			}
-
-			connection = new MySqlConnection(connectionString);
-			await connection.OpenAsync();
+			connectionString = BuildConnectionString(server, database, userId, password, port, sslMode, usePooling, minPoolSize, maxPoolSize);
 		}
 
-		public async Task BeginTransactionAsync()
+		public void AdjustPoolingBasedOnPlayerCount(int playerCount)
 		{
-			if (connection == null || connection.State != ConnectionState.Open)
-			{
-				throw new InvalidOperationException("The database connection has not been initialized or is not open.");
-			}
+			if (connectionString == null) throw new InvalidOperationException("Connection string has not been initialized.");
 
-			transaction = await connection.BeginTransactionAsync();
+			uint minPoolSize = (uint)Math.Max(2, 2 + (playerCount / 10));
+			uint maxPoolSize = (uint)Math.Max(3, 3 + (playerCount / 3));
+
+			var builder = new MySqlConnectionStringBuilder(connectionString)
+			{
+				MinimumPoolSize = minPoolSize,
+				MaximumPoolSize = maxPoolSize,
+			};
+
+			connectionString = builder.ConnectionString;
 		}
 
-		public async Task CommitTransactionAsync()
+		private static string BuildConnectionString(string server, string database, string userId, string password, int port, string sslMode, bool usePooling, uint minPoolSize, uint maxPoolSize)
 		{
-			if (transaction == null)
+			var builder = new MySqlConnectionStringBuilder
 			{
-				throw new InvalidOperationException("No transaction to commit.");
-			}
+				Server = server,
+				Database = database,
+				UserID = userId,
+				Password = password,
+				Port = (uint)port,
+				SslMode = Enum.Parse<MySqlSslMode>(sslMode, true),
+				Pooling = usePooling,
+				MinimumPoolSize = minPoolSize,
+				MaximumPoolSize = maxPoolSize
+			};
 
-			await transaction.CommitAsync();
-			transaction = null;
-		}
-
-		public async Task RollbackTransactionAsync()
-		{
-			if (transaction == null)
-			{
-				throw new InvalidOperationException("No transaction to rollback.");
-			}
-
-			await transaction.RollbackAsync();
-			transaction = null;
+			return builder.ConnectionString;
 		}
 
 		public async Task ExecuteNonQueryAsync(string query, params MySqlParameter[] parameters)
 		{
-			if (connection == null || connection.State != ConnectionState.Open)
+			using (var connection = new MySqlConnection(connectionString))
 			{
-				throw new InvalidOperationException("Database has not been initialized or is not open.");
-			}
-
-			using (var command = new MySqlCommand(query, connection, transaction))
-			{
-				command.Parameters.AddRange(parameters);
-				int affectedRows = await command.ExecuteNonQueryAsync();
+				await connection.OpenAsync();
+				using (var command = new MySqlCommand(query, connection))
+				{
+					command.Parameters.AddRange(parameters);
+					await command.ExecuteNonQueryAsync();
+				}
 			}
 		}
 
 		public async Task<object?> ExecuteScalarAsync(string query, params MySqlParameter[] parameters)
 		{
-			if (connection == null || connection.State != ConnectionState.Open)
+			using (var connection = new MySqlConnection(connectionString))
 			{
-				throw new InvalidOperationException("Database has not been initialized or is not open.");
-			}
-
-			using (var command = new MySqlCommand(query, connection, transaction))
-			{
-				command.Parameters.AddRange(parameters);
-				return await command.ExecuteScalarAsync();
+				await connection.OpenAsync();
+				using (var command = new MySqlCommand(query, connection))
+				{
+					command.Parameters.AddRange(parameters);
+					return await command.ExecuteScalarAsync();
+				}
 			}
 		}
 
-		public async Task<MySqlDataReader?> ExecuteReaderAsync(string query, params MySqlParameter[] parameters)
+		public async Task<MySqlDataReader> ExecuteReaderAsync(string query, params MySqlParameter[] parameters)
 		{
-			if (connection == null || connection.State != ConnectionState.Open)
-			{
-				throw new InvalidOperationException("Database has not been initialized or is not open.");
-			}
+			var connection = new MySqlConnection(connectionString);
+			await connection.OpenAsync();
 
-			var command = new MySqlCommand(query, connection, transaction);
+			var command = new MySqlCommand(query, connection);
 			command.Parameters.AddRange(parameters);
-			return await command.ExecuteReaderAsync() as MySqlDataReader;
+			return await command.ExecuteReaderAsync(CommandBehavior.CloseConnection);
 		}
 
-		public static string BuildConnectionString(string server, string database, string userId, string password, int port = 3306, string sslMode = "None", bool usePooling = true, uint minPoolSize = 10, uint maxPoolSize = 50)
+		public async Task ExecuteWithTransactionAsync(Func<MySqlConnection, MySqlTransaction, Task> executeActions)
 		{
-			var builder = new MySqlConnectionStringBuilder
+			using (var connection = new MySqlConnection(connectionString))
 			{
-				Server = server,
-				Port = (uint)port,
-				Database = database,
-				UserID = userId,
-				Password = password,
-				Pooling = usePooling,
-				MinimumPoolSize = minPoolSize,
-				MaximumPoolSize = maxPoolSize,
-				SslMode = (MySqlSslMode)Enum.Parse(typeof(MySqlSslMode), sslMode, true)
-			};
-
-			return builder.ConnectionString;
+				await connection.OpenAsync();
+				using (var transaction = await connection.BeginTransactionAsync())
+				{
+					try
+					{
+						await executeActions(connection, transaction);
+						await transaction.CommitAsync();
+					}
+					catch
+					{
+						await transaction.RollbackAsync();
+						throw;
+					}
+				}
+			}
 		}
 	}
 }

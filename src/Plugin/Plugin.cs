@@ -4,6 +4,8 @@
 
     using CounterStrikeSharp.API.Core;
     using CounterStrikeSharp.API.Core.Attributes;
+    using MySqlConnector;
+    using CounterStrikeSharp.API;
 
     [MinimumApiVersion(153)]
     public sealed partial class Plugin : BasePlugin, IPluginConfig<PluginConfig>
@@ -17,9 +19,6 @@
         private readonly IModuleStat ModuleStat;
         private readonly IModuleTime ModuleTime;
         private readonly IModuleUtils ModuleUtils;
-
-        //** ? HELPERS */
-        private bool isDatabaseValid = false;
 
         public Plugin(ModuleRank moduleRank, ModuleStat moduleStat, ModuleTime moduleTime, ModuleUtils moduleUtils)
         {
@@ -42,26 +41,20 @@
                 config.GeneralSettings.LevelRanksCompatibility = false;
             }
 
-            //** ? Database Connection */
+            //** ? Database Connection Init */
 
-            DatabaseSettings dbSettings = config.DatabaseSettings;
+            DatabaseSettings databaseSettings = config.DatabaseSettings;
 
-            string connectionString = Database.BuildConnectionString(dbSettings.Host, dbSettings.Database, dbSettings.Username, dbSettings.Password, dbSettings.Port, dbSettings.Sslmode);
-
-            Task.Run(async () =>
-            {
-                try
-                {
-                    await Database.Instance.InitializeAsync(connectionString);
-                    isDatabaseValid = true;
-
-                    Logger.LogInformation("Database connection established.");
-                }
-                catch (Exception ex)
-                {
-                    base.Logger.LogCritical("Database connection error: {0}", ex.Message);
-                }
-            }).Wait();
+            Database.Instance.Initialize(
+                server: databaseSettings.Host,
+                database: databaseSettings.Database,
+                userId: databaseSettings.Username,
+                password: databaseSettings.Password,
+                port: databaseSettings.Port,
+                sslMode: databaseSettings.Sslmode,
+                usePooling: true,
+                minPoolSize: 2,
+                maxPoolSize: 2);
 
             //** ? Save Config */
 
@@ -71,12 +64,6 @@
         public override void Load(bool hotReload)
         {
             _ModuleDirectory = ModuleDirectory;
-
-            if (!isDatabaseValid)
-            {
-                base.Logger.LogCritical("Plugin load has been terminated due to a database connection error. Please check your configuration and try again.");
-                return;
-            }
 
             //** ? Core */
 
@@ -100,15 +87,15 @@
 
             //** ? Initialize Database tables */
 
-            ThreadHelper.ExecuteAsync(CreateMultipleTablesAsync, (_) =>
-            {
-                if (hotReload)
-                {
-                    //** ? Load Player Caches */
+            Task.Run(() => CreateMultipleTablesAsync()).Wait();
 
-                    LoadAllPlayersCache();
-                }
-            });
+            if (hotReload)
+            {
+                //** ? Load Player Caches */
+
+                LoadAllPlayersCache();
+                AdjustDatabasePooling();
+            }
         }
 
         public override void Unload(bool hotReload)
@@ -197,30 +184,25 @@
                     `lastconnect` INT NOT NULL DEFAULT 0
                 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;";
 
-            try
+            await Database.Instance.ExecuteWithTransactionAsync(async (connection, transaction) =>
             {
-                await Database.Instance.BeginTransactionAsync();
+                MySqlCommand? command1 = new MySqlCommand(timesModuleTable, connection, transaction);
+                await command1.ExecuteNonQueryAsync();
 
-                // Execute the CREATE TABLE statements within a transaction
-                await Database.Instance.ExecuteNonQueryAsync(timesModuleTable);
-                await Database.Instance.ExecuteNonQueryAsync(statsModuleTable);
-                await Database.Instance.ExecuteNonQueryAsync(ranksModuleTable);
+                MySqlCommand? command2 = new MySqlCommand(statsModuleTable, connection, transaction);
+                await command2.ExecuteNonQueryAsync();
+
+                MySqlCommand? command3 = new MySqlCommand(ranksModuleTable, connection, transaction);
+                await command3.ExecuteNonQueryAsync();
 
                 if (Config.GeneralSettings.LevelRanksCompatibility)
-                    await Database.Instance.ExecuteNonQueryAsync(lvlranksModuleTable);
+                {
+                    MySqlCommand? command4 = new MySqlCommand(lvlranksModuleTable, connection, transaction);
+                    await command4.ExecuteNonQueryAsync();
+                }
+            });
 
-                // Commit the transaction
-                await Database.Instance.CommitTransactionAsync();
-                return true;
-            }
-            catch (Exception ex)
-            {
-                // Roll back the transaction in case of an error
-                await Database.Instance.RollbackTransactionAsync();
-                Logger.LogError("Error creating tables: {0}", ex.Message);
-                return false;
-            }
+            return true;
         }
-
     }
 }

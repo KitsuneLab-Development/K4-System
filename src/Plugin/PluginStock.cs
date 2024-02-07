@@ -14,11 +14,13 @@ namespace K4System
 	using static K4System.ModuleTime;
 	using CounterStrikeSharp.API.Modules.Commands;
 	using CounterStrikeSharp.API.Modules.Admin;
+	using CounterStrikeSharp.API.Modules.Entities;
 
 	public class PlayerData
 	{
 		public required string PlayerName { get; set; }
 		public required string SteamId { get; set; }
+		public required string lvlSteamId { get; set; }
 		public RankData? RankData { get; set; }
 		public StatData? StatData { get; set; }
 		public TimeData? TimeData { get; set; }
@@ -26,6 +28,11 @@ namespace K4System
 
 	public sealed partial class Plugin : BasePlugin
 	{
+		public void AdjustDatabasePooling()
+		{
+			Database.Instance.AdjustPoolingBasedOnPlayerCount(Utilities.GetPlayers().Where(p => p?.IsValid == true && p.PlayerPawn?.IsValid == true && !p.IsBot && !p.IsHLTV).Count());
+		}
+
 		public CommandInfo.CommandCallback CallbackAnonymizer(Action<CCSPlayerController?, CommandInfo> action)
 		{
 			return new CommandInfo.CommandCallback(action);
@@ -59,7 +66,8 @@ namespace K4System
 					PlayerData data = new PlayerData
 					{
 						PlayerName = player.PlayerName,
-						SteamId = player.SteamID.ToString()
+						SteamId = player.SteamID.ToString(),
+						lvlSteamId = new SteamID(player.SteamID).SteamId2.Replace("STEAM_0", "STEAM_1")
 					};
 
 					if (rankCache.ContainsKey(player.Slot))
@@ -92,10 +100,8 @@ namespace K4System
 
 		public async Task SaveAllPlayersCacheAsync(List<PlayerData> playersData)
 		{
-			try
+			await Database.Instance.ExecuteWithTransactionAsync(async (connection, transaction) =>
 			{
-				await Database.Instance.BeginTransactionAsync();
-
 				foreach (PlayerData playerData in playersData)
 				{
 					if (playerData.RankData != null)
@@ -106,15 +112,11 @@ namespace K4System
 
 					if (playerData.TimeData != null)
 						await ExecuteTimeUpdateAsync(playerData.PlayerName, playerData.SteamId, playerData.TimeData);
-				}
 
-				await Database.Instance.CommitTransactionAsync();
-			}
-			catch (Exception ex)
-			{
-				await Database.Instance.RollbackTransactionAsync();
-				Logger.LogError($"Error saving all player caches: {ex.Message}");
-			}
+					if (Config.GeneralSettings.LevelRanksCompatibility)
+						await ExecuteLvlRanksUpdateAsync(playerData.PlayerName, playerData.lvlSteamId, playerData.RankData, playerData.StatData, playerData.TimeData);
+				}
+			});
 		}
 
 		public void SavePlayerCache(CCSPlayerController player)
@@ -126,15 +128,15 @@ namespace K4System
 			StatData? statData = statCache.ContainsKey(player.Slot) ? statCache[player.Slot] : null;
 			TimeData? timeData = timeCache.ContainsKey(player.Slot) ? timeCache[player.Slot] : null;
 
-			Task.Run(() => SavePlayerDataAsync(playerName, steamId, rankData, statData, timeData));
+			string lvlSteamId = new SteamID(player.SteamID).SteamId2.Replace("STEAM_0", "STEAM_1");
+
+			Task.Run(() => SavePlayerDataAsync(playerName, steamId, lvlSteamId, rankData, statData, timeData));
 		}
 
-		private async Task SavePlayerDataAsync(string playerName, string steamId, RankData? rankData, StatData? statData, TimeData? timeData)
+		private async Task SavePlayerDataAsync(string playerName, string steamId, string lvlSteamId, RankData? rankData, StatData? statData, TimeData? timeData)
 		{
-			try
+			await Database.Instance.ExecuteWithTransactionAsync(async (connection, transaction) =>
 			{
-				await Database.Instance.BeginTransactionAsync();
-
 				if (rankData != null)
 					await ExecuteRankUpdateAsync(playerName, steamId, rankData);
 
@@ -144,13 +146,52 @@ namespace K4System
 				if (timeData != null)
 					await ExecuteTimeUpdateAsync(playerName, steamId, timeData);
 
-				await Database.Instance.CommitTransactionAsync();
-			}
-			catch (Exception ex)
+				if (Config.GeneralSettings.LevelRanksCompatibility)
+					await ExecuteLvlRanksUpdateAsync(playerName, lvlSteamId, rankData, statData, timeData);
+			});
+		}
+
+		private async Task ExecuteLvlRanksUpdateAsync(string playerName, string lvlSteamId, RankData? rankData, StatData? statData, TimeData? timeData)
+		{
+			string query = $@"
+				INSERT INTO `{Config.DatabaseSettings.LvLRanksTableName}`
+				(`steam`, `name`, `kills`, `deaths`, `shoots`, `hits`, `headshots`, `assists`, `round_win`, `round_lose`, `lastconnect`, `value`, `rank`, `playtime`)
+				VALUES
+				(@steamid, @playerName, @kills, @deaths, @shoots, @hits, @headshots, @assists, @roundWin, @roundLose, {DateTimeOffset.UtcNow.ToUnixTimeSeconds()}, @points, @rank, @playtime)
+				ON DUPLICATE KEY UPDATE
+				`name` = @playerName,
+				`kills` = @kills,
+				`deaths` = @deaths,
+				`shoots` = @shoots,
+				`hits` = @hits,
+				`headshots` = @headshots,
+				`assists` = @assists,
+				`round_win` = @roundWin,
+				`round_lose` = @roundLose,
+				`lastconnect` = {DateTimeOffset.UtcNow.ToUnixTimeSeconds()},
+				`value` = @points,
+				`rank` = @rank,
+				`playtime` = @playtime;
+			";
+
+			MySqlParameter[] parameters = new MySqlParameter[]
 			{
-				await Database.Instance.RollbackTransactionAsync();
-				Logger.LogError($"SavePlayerDataAsync > {ex.Message}");
-			}
+				new MySqlParameter("@playerName", playerName),
+				new MySqlParameter("@steamId", lvlSteamId),
+				new MySqlParameter("@kills", statData?.StatFields["kills"] ?? 0),
+				new MySqlParameter("@deaths", statData?.StatFields["deaths"] ?? 0),
+				new MySqlParameter("@shoots", statData?.StatFields["shoots"] ?? 0),
+				new MySqlParameter("@hits", statData?.StatFields["hits_given"] ?? 0),
+				new MySqlParameter("@headshots", statData?.StatFields["headshots"] ?? 0),
+				new MySqlParameter("@assists", statData?.StatFields["assists"] ?? 0),
+				new MySqlParameter("@roundWin", statData?.StatFields["round_win"] ?? 0),
+				new MySqlParameter("@roundLose", statData?.StatFields["round_lose"] ?? 0),
+				new MySqlParameter("@points", rankData?.Points ?? 0),
+				new MySqlParameter("@rank", rankData?.Rank?.Id ?? -1),
+				new MySqlParameter("@playtime", timeData?.TimeFields["all"] ?? 0),
+			};
+
+			await Database.Instance.ExecuteNonQueryAsync(query, parameters);
 		}
 
 		private async Task ExecuteRankUpdateAsync(string playerName, string steamId, RankData rankData)
@@ -415,10 +456,6 @@ namespace K4System
 
 							ModuleTime.LoadTimeData(slot, TimeFields);
 						}
-					}
-					else
-					{
-						Console.WriteLine("LoadAllPlayersCache > No rows found.");
 					}
 				}
 			});
