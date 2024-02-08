@@ -321,10 +321,10 @@ namespace K4System
 
 			var parameters = new MySqlParameter[]
 			{
-					new MySqlParameter("@escapedName", player.PlayerName),
-					new MySqlParameter("@steamid", player.SteamID),
-					new MySqlParameter("@noneRankName", ModuleRank.GetNoneRank().Name),
-					new MySqlParameter("@startPoints", Config.RankSettings.StartPoints)
+				new MySqlParameter("@escapedName", player.PlayerName),
+				new MySqlParameter("@steamid", player.SteamID),
+				new MySqlParameter("@noneRankName", ModuleRank.GetNoneRank()?.Name ?? "none"),
+				new MySqlParameter("@startPoints", Config.RankSettings.StartPoints)
 			};
 
 			Task.Run(async () =>
