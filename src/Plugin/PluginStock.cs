@@ -15,6 +15,7 @@ namespace K4System
 	using CounterStrikeSharp.API.Modules.Commands;
 	using CounterStrikeSharp.API.Modules.Admin;
 	using CounterStrikeSharp.API.Modules.Entities;
+	using CounterStrikeSharp.API.Modules.Entities.Constants;
 
 	public class PlayerData
 	{
@@ -81,8 +82,10 @@ namespace K4System
 
 					playersData.Add(data);
 				}
-				catch (Exception ex) { Logger.LogError($"PreparePlayersData > {player.PlayerName} > {ex.Message}"); }
-
+				catch (Exception ex)
+				{
+					Logger.LogError($"PreparePlayersData > {player.PlayerName} > {ex.Message}");
+				}
 			}
 
 			return playersData;
@@ -337,34 +340,43 @@ namespace K4System
 						{
 							/** ? Load Rank to Cache */
 
-							int points = reader.GetInt32("points");
-							ModuleRank.LoadRankData(slot, points);
+							if (Config.GeneralSettings.ModuleRanks)
+							{
+								int points = reader.GetInt32("points");
+								ModuleRank.LoadRankData(slot, points);
+							}
 
 							/** ? Load Stat to Cache */
 
-							Dictionary<string, int> NewStatFields = new Dictionary<string, int>();
-
-							string[] statFieldNames = { "kills", "shoots", "firstblood", "deaths", "hits_given", "hits_taken", "headshots", "grenades", "mvp", "round_win", "round_lose", "game_win", "game_lose", "assists" };
-
-							foreach (string statField in statFieldNames)
+							if (Config.GeneralSettings.ModuleStats)
 							{
-								NewStatFields[statField] = reader.GetInt32(statField);
-							}
+								Dictionary<string, int> NewStatFields = new Dictionary<string, int>();
 
-							ModuleStat.LoadStatData(slot, NewStatFields);
+								string[] statFieldNames = { "kills", "shoots", "firstblood", "deaths", "hits_given", "hits_taken", "headshots", "grenades", "mvp", "round_win", "round_lose", "game_win", "game_lose", "assists" };
+
+								foreach (string statField in statFieldNames)
+								{
+									NewStatFields[statField] = reader.GetInt32(statField);
+								}
+
+								ModuleStat.LoadStatData(slot, NewStatFields);
+							}
 
 							/** ? Load Time to Cache */
 
-							Dictionary<string, int> TimeFields = new Dictionary<string, int>();
-
-							string[] timeFieldNames = { "all", "ct", "t", "spec", "alive", "dead" };
-
-							foreach (string timeField in timeFieldNames)
+							if (Config.GeneralSettings.ModuleTimes)
 							{
-								TimeFields[timeField] = reader.GetInt32(timeField);
-							}
+								Dictionary<string, int> TimeFields = new Dictionary<string, int>();
 
-							ModuleTime.LoadTimeData(slot, TimeFields);
+								string[] timeFieldNames = { "all", "ct", "t", "spec", "alive", "dead" };
+
+								foreach (string timeField in timeFieldNames)
+								{
+									TimeFields[timeField] = reader.GetInt32(timeField);
+								}
+
+								ModuleTime.LoadTimeData(slot, TimeFields);
+							}
 						}
 					}
 				}
@@ -427,34 +439,43 @@ namespace K4System
 
 							/** ? Load Rank to Cache */
 
-							int points = reader.GetInt32("points");
-							ModuleRank.LoadRankData(slot, points);
+							if (Config.GeneralSettings.ModuleRanks)
+							{
+								int points = reader.GetInt32("points");
+								ModuleRank.LoadRankData(slot, points);
+							}
 
 							/** ? Load Stat to Cache */
 
-							Dictionary<string, int> NewStatFields = new Dictionary<string, int>();
-
-							string[] statFieldNames = { "kills", "shoots", "firstblood", "deaths", "hits_given", "hits_taken", "headshots", "grenades", "mvp", "round_win", "round_lose", "game_win", "game_lose", "assists" };
-
-							foreach (string statField in statFieldNames)
+							if (Config.GeneralSettings.ModuleStats)
 							{
-								NewStatFields[statField] = reader.GetInt32(statField);
-							}
+								Dictionary<string, int> NewStatFields = new Dictionary<string, int>();
 
-							ModuleStat.LoadStatData(slot, NewStatFields);
+								string[] statFieldNames = { "kills", "shoots", "firstblood", "deaths", "hits_given", "hits_taken", "headshots", "grenades", "mvp", "round_win", "round_lose", "game_win", "game_lose", "assists" };
+
+								foreach (string statField in statFieldNames)
+								{
+									NewStatFields[statField] = reader.GetInt32(statField);
+								}
+
+								ModuleStat.LoadStatData(slot, NewStatFields);
+							}
 
 							/** ? Load Time to Cache */
 
-							Dictionary<string, int> TimeFields = new Dictionary<string, int>();
-
-							string[] timeFieldNames = { "all", "ct", "t", "spec", "alive", "dead" };
-
-							foreach (string timeField in timeFieldNames)
+							if (Config.GeneralSettings.ModuleTimes)
 							{
-								TimeFields[timeField] = reader.GetInt32(timeField);
-							}
+								Dictionary<string, int> TimeFields = new Dictionary<string, int>();
 
-							ModuleTime.LoadTimeData(slot, TimeFields);
+								string[] timeFieldNames = { "all", "ct", "t", "spec", "alive", "dead" };
+
+								foreach (string timeField in timeFieldNames)
+								{
+									TimeFields[timeField] = reader.GetInt32(timeField);
+								}
+
+								ModuleTime.LoadTimeData(slot, TimeFields);
+							}
 						}
 					}
 				}

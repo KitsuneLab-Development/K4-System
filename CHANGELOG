@@ -1,3 +1,14 @@
+-- 2023.02.06 - V3.3.3
+
+- fix: Crash on mapchange because of gamedata change (SetStateChanged)
+- fix: Error log if rank module disabled
+- fix: Remove LevelRanksCompatibility disable if any of the required modules are not running
+- fix: Data load for not used modules
+- fix: Lag spikes on !top command
+- fix: T gets point for EventHostageRescuedAll
+- refactor: Removed unnecessary operators from ranks module
+- refactor: Optimised rank module player loops
+
 -- 2023.02.06 - V3.3.2
 
 - feat: Add MySQL pooling support fully

@@ -1,7 +1,5 @@
-using System;
 using System.Data;
 using MySqlConnector;
-using System.Threading.Tasks;
 
 namespace K4System
 {

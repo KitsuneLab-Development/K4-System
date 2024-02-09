@@ -1,10 +1,10 @@
 ﻿namespace K4System
 {
     using Microsoft.Extensions.Logging;
+    using MySqlConnector;
 
     using CounterStrikeSharp.API.Core;
     using CounterStrikeSharp.API.Core.Attributes;
-    using MySqlConnector;
     using CounterStrikeSharp.API;
 
     [MinimumApiVersion(153)]
@@ -13,6 +13,7 @@
         //** ? PLUGIN GLOBALS */
         public required PluginConfig Config { get; set; } = new PluginConfig();
         public required string _ModuleDirectory { get; set; }
+        public CCSGameRules? GameRules = null;
 
         //** ? MODULES */
         private readonly IModuleRank ModuleRank;
@@ -33,12 +34,6 @@
             if (config.Version < Config.Version)
             {
                 base.Logger.LogWarning("Configuration version mismatch (Expected: {0} | Current: {1})", this.Config.Version, config.Version);
-            }
-
-            if (config.GeneralSettings.LevelRanksCompatibility && (!config.GeneralSettings.ModuleRanks || !config.GeneralSettings.ModuleStats || !config.GeneralSettings.ModuleTimes))
-            {
-                base.Logger.LogWarning("LevelRanks Compatibility is enabled but one or more of the required modules are disabled. Disabling LevelRanks Compatibility.");
-                config.GeneralSettings.LevelRanksCompatibility = false;
             }
 
             //** ? Database Connection Init */
@@ -95,6 +90,8 @@
 
                 LoadAllPlayersCache();
                 AdjustDatabasePooling();
+
+                GameRules = Utilities.FindAllEntitiesByDesignerName<CCSGameRulesProxy>("cs_gamerules").First().GameRules;
             }
         }
 

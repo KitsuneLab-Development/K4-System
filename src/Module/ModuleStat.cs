@@ -1,10 +1,8 @@
 namespace K4System
 {
-	using CounterStrikeSharp.API;
-	using CounterStrikeSharp.API.Core;
-	using CounterStrikeSharp.API.Core.Plugin;
-
 	using Microsoft.Extensions.Logging;
+
+	using CounterStrikeSharp.API.Core.Plugin;
 
 	public partial class ModuleStat : IModuleStat
 	{
@@ -28,13 +26,6 @@ namespace K4System
 
 			Initialize_Events(plugin);
 			Initialize_Commands(plugin);
-
-			//** ? Hot Reload Events */
-
-			if (hotReload)
-			{
-				globalGameRules = Utilities.FindAllEntitiesByDesignerName<CCSGameRulesProxy>("cs_gamerules").First().GameRules;
-			}
 		}
 
 		public void Release(bool hotReload)

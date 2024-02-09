@@ -1,6 +1,5 @@
 namespace K4System
 {
-	using CounterStrikeSharp.API.Core;
 	using CounterStrikeSharp.API.Core.Plugin;
 
 	using Microsoft.Extensions.Logging;
@@ -39,7 +38,6 @@ namespace K4System
 
 		public Dictionary<string, Rank> rankDictionary = new Dictionary<string, Rank>();
 		internal static PlayerCache<RankData> rankCache = new PlayerCache<RankData>();
-		public CCSGameRules? globalGameRules = null;
 		public Dictionary<int, (int killStreak, DateTime lastKillTime)> playerKillStreaks = new Dictionary<int, (int, DateTime)>();
 		public Rank? noneRank;
 	}

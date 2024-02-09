@@ -1,7 +1,6 @@
 namespace K4System
 {
 	using System.Text;
-	using MySqlConnector;
 
 	using CounterStrikeSharp.API;
 	using CounterStrikeSharp.API.Core;
@@ -80,7 +79,7 @@ namespace K4System
 			{
 				CCSPlayerController player = @event.Userid;
 
-				if (player is null || !player.IsValid || player.IsBot || player.IsHLTV)
+				if (player is null || !player.IsValid || !player.PlayerPawn.IsValid || player.IsBot || player.IsHLTV)
 					return HookResult.Continue;
 
 				LoadPlayerCache(player);
@@ -99,13 +98,14 @@ namespace K4System
 				if (player.IsBot || player.IsHLTV)
 					return HookResult.Continue;
 
-				ModuleTime.BeforeDisconnect(player);
+				if (Config.GeneralSettings.ModuleTimes)
+					ModuleTime.BeforeDisconnect(player);
 
 				SavePlayerCache(player);
 				AdjustDatabasePooling();
 
 				return HookResult.Continue;
-			}, HookMode.Post);
+			});
 
 
 			RegisterEventHandler((EventRoundStart @event, GameEventInfo info) =>
@@ -131,11 +131,27 @@ namespace K4System
 
 			RegisterEventHandler((EventRoundEnd @event, GameEventInfo info) =>
 			{
-				ModuleStat.BeforeRoundEnd(@event.Winner);
-				ModuleRank.BeforeRoundEnd(@event.Winner);
+				if (Config.GeneralSettings.ModuleStats)
+					ModuleStat.BeforeRoundEnd(@event.Winner);
+
+				if (Config.GeneralSettings.ModuleRanks)
+					ModuleRank.BeforeRoundEnd(@event.Winner);
 
 				SaveAllPlayersCache();
 				return HookResult.Continue;
+			});
+
+			RegisterListener<Listeners.OnMapStart>((mapName) =>
+			{
+				AddTimer(1.0f, () =>
+				{
+					GameRules = Utilities.FindAllEntitiesByDesignerName<CCSGameRulesProxy>("cs_gamerules").First().GameRules;
+				});
+			});
+
+			RegisterListener<Listeners.OnMapEnd>(() =>
+			{
+				GameRules = null;
 			});
 		}
 	}

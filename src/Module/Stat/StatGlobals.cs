@@ -1,6 +1,5 @@
 namespace K4System
 {
-	using CounterStrikeSharp.API.Core;
 	using CounterStrikeSharp.API.Core.Plugin;
 
 	using Microsoft.Extensions.Logging;
@@ -14,10 +13,7 @@ namespace K4System
 
 		public readonly PluginContext PluginContext;
 		public readonly ILogger<ModuleStat> Logger;
-
 		public required PluginConfig Config { get; set; }
-
-		public CCSGameRules? globalGameRules = null;
 		internal static PlayerCache<StatData> statCache = new PlayerCache<StatData>();
 		public bool FirstBlood = false;
 	}

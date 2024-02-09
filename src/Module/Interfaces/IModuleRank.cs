@@ -1,19 +1,16 @@
-using CounterStrikeSharp.API.Core;
-using CounterStrikeSharp.API.Modules.Commands;
 using static K4System.ModuleRank;
 
-namespace K4System
+namespace K4System;
+
+public interface IModuleRank
 {
-	public interface IModuleRank
-	{
-		public void Initialize(bool hotReload);
+	public void Initialize(bool hotReload);
 
-		public void Release(bool hotReload);
+	public void Release(bool hotReload);
 
-		public Rank GetNoneRank();
+	public Rank GetNoneRank();
 
-		public void LoadRankData(int slot, int points);
+	public void LoadRankData(int slot, int points);
 
-		public void BeforeRoundEnd(int winnerTeam);
-	}
+	public void BeforeRoundEnd(int winnerTeam);
 }

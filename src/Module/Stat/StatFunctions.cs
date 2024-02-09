@@ -8,10 +8,10 @@ namespace K4System
 	{
 		public bool IsStatsAllowed()
 		{
-			List<CCSPlayerController> players = Utilities.GetPlayers();
-			int notBots = players.Count(player => !player.IsBot);
+			int notBots = Utilities.GetPlayers().Count(player => !player.IsBot);
 
-			return globalGameRules != null && (!globalGameRules.WarmupPeriod || Config.StatisticSettings.WarmupStats) && (Config.StatisticSettings.MinPlayers <= notBots);
+			Plugin plugin = (this.PluginContext.Plugin as Plugin)!;
+			return plugin.GameRules != null && (!plugin.GameRules.WarmupPeriod || Config.StatisticSettings.WarmupStats) && (Config.StatisticSettings.MinPlayers <= notBots);
 		}
 
 		public void LoadStatData(int slot, Dictionary<string, int> statData)

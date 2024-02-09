@@ -4,8 +4,8 @@ namespace K4System
 	using CounterStrikeSharp.API;
 	using CounterStrikeSharp.API.Core;
 	using CounterStrikeSharp.API.Modules.Admin;
-	using CounterStrikeSharp.API.Modules.Timers;
 	using CounterStrikeSharp.API.Modules.Utils;
+	using Microsoft.Extensions.Logging;
 
 	public partial class ModuleRank : IModuleRank
 	{
@@ -15,7 +15,7 @@ namespace K4System
 			{
 				CCSPlayerController player = @event.Userid;
 
-				if (player is null || !player.IsValid || player.IsBot || player.IsHLTV || !rankCache.ContainsPlayer(player))
+				if (player is null || !player.IsValid || !player.PlayerPawn.IsValid || player.IsBot || player.IsHLTV || !rankCache.ContainsPlayer(player))
 					return HookResult.Continue;
 
 				RankData playerData = rankCache[player];
@@ -34,30 +34,6 @@ namespace K4System
 				}
 
 				return HookResult.Continue;
-			}, HookMode.Pre);
-
-			plugin.RegisterListener<Listeners.OnMapStart>((mapName) =>
-			{
-				plugin.AddTimer(1.0f, () =>
-				{
-					globalGameRules = Utilities.FindAllEntitiesByDesignerName<CCSGameRulesProxy>("cs_gamerules").First().GameRules;
-				});
-
-				plugin.AddTimer(Config.PointSettings.PlaytimeMinutes * 60, () =>
-				{
-					List<CCSPlayerController> players = Utilities.GetPlayers();
-
-					foreach (CCSPlayerController player in players)
-					{
-						if (player is null || !player.IsValid || !player.PlayerPawn.IsValid || player.IsBot || player.IsHLTV)
-							continue;
-
-						if (!rankCache.ContainsPlayer(player))
-							continue;
-
-						ModifyPlayerPoints(player, Config.PointSettings.PlaytimePoints, "k4.phrases.playtime");
-					}
-				}, TimerFlags.STOP_ON_MAPCHANGE | TimerFlags.REPEAT);
 			});
 
 			plugin.RegisterEventHandler((EventPlayerSpawn @event, GameEventInfo info) =>
@@ -84,107 +60,59 @@ namespace K4System
 			plugin.RegisterEventHandler((EventHostageRescued @event, GameEventInfo info) =>
 			{
 				CCSPlayerController player = @event.Userid;
-
-				if (player is null || !player.IsValid || !player.PlayerPawn.IsValid || player.IsBot || player.IsHLTV)
-					return HookResult.Continue;
-
 				ModifyPlayerPoints(player, Config.PointSettings.HostageRescue, "k4.phrases.hostagerescued");
-
 				return HookResult.Continue;
 			});
 
 			plugin.RegisterEventHandler((EventHostageKilled @event, GameEventInfo info) =>
 			{
 				CCSPlayerController player = @event.Userid;
-
-				if (player is null || !player.IsValid || !player.PlayerPawn.IsValid || player.IsBot || player.IsHLTV)
-					return HookResult.Continue;
-
 				ModifyPlayerPoints(player, Config.PointSettings.HostageKill, "k4.phrases.hostagekilled");
-
 				return HookResult.Continue;
 			});
 
 			plugin.RegisterEventHandler((EventHostageHurt @event, GameEventInfo info) =>
 			{
 				CCSPlayerController player = @event.Userid;
-
-				if (player is null || !player.IsValid || !player.PlayerPawn.IsValid || player.IsBot || player.IsHLTV)
-					return HookResult.Continue;
-
 				ModifyPlayerPoints(player, Config.PointSettings.HostageHurt, "k4.phrases.hostagehurt");
-
 				return HookResult.Continue;
 			});
 
 			plugin.RegisterEventHandler((EventBombPickup @event, GameEventInfo info) =>
 			{
 				CCSPlayerController player = @event.Userid;
-
-				if (player is null || !player.IsValid || !player.PlayerPawn.IsValid || player.IsBot || player.IsHLTV)
-					return HookResult.Continue;
-
 				ModifyPlayerPoints(player, Config.PointSettings.BombPickup, "k4.phrases.bombpickup");
-
 				return HookResult.Continue;
 			});
 
 			plugin.RegisterEventHandler((EventBombDefused @event, GameEventInfo info) =>
 			{
 				CCSPlayerController player = @event.Userid;
-
-				if (player is null || !player.IsValid || !player.PlayerPawn.IsValid || player.IsBot || player.IsHLTV)
-					return HookResult.Continue;
-
 				ModifyPlayerPoints(player, Config.PointSettings.BombDefused, "k4.phrases.bombdefused");
-
 				return HookResult.Continue;
 			});
 
 			plugin.RegisterEventHandler((EventBombDropped @event, GameEventInfo info) =>
 			{
 				CCSPlayerController player = @event.Userid;
-
-				if (player is null || !player.IsValid || !player.PlayerPawn.IsValid || player.IsBot || player.IsHLTV)
-					return HookResult.Continue;
-
 				ModifyPlayerPoints(player, Config.PointSettings.BombDrop, "k4.phrases.bombdropped");
-
 				return HookResult.Continue;
 			});
 
 			plugin.RegisterEventHandler((EventBombExploded @event, GameEventInfo info) =>
 			{
-				List<CCSPlayerController> players = Utilities.GetPlayers();
-
-				foreach (CCSPlayerController player in players)
-				{
-					if (player is null || !player.IsValid || !player.PlayerPawn.IsValid || (CsTeam)player.TeamNum != CsTeam.Terrorist || player.IsBot || player.IsHLTV)
-						continue;
-
-					if (!rankCache.ContainsPlayer(player))
-						continue;
-
-					ModifyPlayerPoints(player, Config.PointSettings.BombExploded, "k4.phrases.bombexploded");
-				}
+				Utilities.GetPlayers().Where(p => p.TeamNum == (int)CsTeam.Terrorist)
+					.ToList()
+					.ForEach(p => ModifyPlayerPoints(p, Config.PointSettings.HostageRescueAll, "k4.phrases.bombexploded"));
 
 				return HookResult.Continue;
 			});
 
 			plugin.RegisterEventHandler((EventHostageRescuedAll @event, GameEventInfo info) =>
 			{
-				List<CCSPlayerController> players = Utilities.GetPlayers();
-
-				foreach (CCSPlayerController player in players)
-				{
-					if (player is null || !player.IsValid || !player.PlayerPawn.IsValid || player.IsBot || player.IsHLTV)
-						continue;
-
-					if (!rankCache.ContainsPlayer(player))
-						continue;
-
-					ModifyPlayerPoints(player, Config.PointSettings.HostageRescueAll, "k4.phrases.hostagerescuedall");
-				}
+				Utilities.GetPlayers().Where(p => p.TeamNum == (int)CsTeam.CounterTerrorist)
+					.ToList()
+					.ForEach(p => ModifyPlayerPoints(p, Config.PointSettings.HostageRescueAll, "k4.phrases.hostagerescuedall"));
 
 				return HookResult.Continue;
 			});
@@ -192,12 +120,7 @@ namespace K4System
 			plugin.RegisterEventHandler((EventRoundMvp @event, GameEventInfo info) =>
 			{
 				CCSPlayerController player = @event.Userid;
-
-				if (player is null || !player.IsValid || !player.PlayerPawn.IsValid || player.IsBot || player.IsHLTV)
-					return HookResult.Continue;
-
 				ModifyPlayerPoints(player, Config.PointSettings.MVP, "k4.phrases.mvp");
-
 				return HookResult.Continue;
 			});
 
@@ -205,16 +128,9 @@ namespace K4System
 			{
 				List<CCSPlayerController> players = Utilities.GetPlayers();
 
-				foreach (CCSPlayerController player in players)
-				{
-					if (player is null || !player.IsValid || !player.PlayerPawn.IsValid || player.IsBot || player.IsHLTV || !player.PawnIsAlive)
-						continue;
-
-					if (!rankCache.ContainsPlayer(player))
-						continue;
-
-					rankCache[player].PlayedRound = true;
-				}
+				players.Where(p => p?.IsValid == true && p.PlayerPawn?.IsValid == true && !p.IsBot && !p.IsHLTV && !p.PawnIsAlive && rankCache.ContainsPlayer(p))
+					.ToList()
+					.ForEach(p => rankCache[p].PlayedRound = true);
 
 				if (players.Count < Config.RankSettings.MinPlayers)
 					Server.PrintToChatAll($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.ranks.notenoughplayers", Config.RankSettings.MinPlayers]}");
@@ -225,12 +141,7 @@ namespace K4System
 			plugin.RegisterEventHandler((EventBombPlanted @event, GameEventInfo info) =>
 			{
 				CCSPlayerController player = @event.Userid;
-
-				if (player is null || !player.IsValid || !player.PlayerPawn.IsValid || player.IsBot || player.IsHLTV)
-					return HookResult.Continue;
-
 				ModifyPlayerPoints(player, Config.PointSettings.BombPlant, "k4.phrases.bombplanted");
-
 				return HookResult.Continue;
 			});
 

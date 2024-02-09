@@ -1,11 +1,11 @@
 namespace K4System
 {
+	using Microsoft.Extensions.Logging;
+
 	using CounterStrikeSharp.API;
-	using CounterStrikeSharp.API.Core;
 	using CounterStrikeSharp.API.Core.Plugin;
 	using CounterStrikeSharp.API.Modules.Timers;
-
-	using Microsoft.Extensions.Logging;
+	using CounterStrikeSharp.API.Modules.Utils;
 
 	public partial class ModuleRank : IModuleRank
 	{
@@ -33,28 +33,14 @@ namespace K4System
 			Initialize_Events(plugin);
 			Initialize_Commands(plugin);
 
-			//** ? Hot Reload Events */
+			//** ? Register Timers */
 
-			if (hotReload)
+			plugin.AddTimer(Config.PointSettings.PlaytimeMinutes * 60, () =>
 			{
-				globalGameRules = Utilities.FindAllEntitiesByDesignerName<CCSGameRulesProxy>("cs_gamerules").First().GameRules;
-
-				plugin.AddTimer(Config.PointSettings.PlaytimeMinutes * 60, () =>
-				{
-					List<CCSPlayerController> players = Utilities.GetPlayers();
-
-					foreach (CCSPlayerController player in players)
-					{
-						if (player is null || !player.IsValid || !player.PlayerPawn.IsValid || player.IsBot || player.IsHLTV)
-							continue;
-
-						if (!rankCache.ContainsPlayer(player))
-							continue;
-
-						ModifyPlayerPoints(player, Config.PointSettings.PlaytimePoints, "k4.phrases.playtime");
-					}
-				}, TimerFlags.STOP_ON_MAPCHANGE | TimerFlags.REPEAT);
-			}
+				Utilities.GetPlayers().Where(p => p.TeamNum == (int)CsTeam.Terrorist)
+					.ToList()
+					.ForEach(p => ModifyPlayerPoints(p, Config.PointSettings.PlaytimePoints, "k4.phrases.playtime"));
+			}, TimerFlags.REPEAT);
 		}
 
 		public void Release(bool hotReload)

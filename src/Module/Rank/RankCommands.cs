@@ -164,7 +164,7 @@ namespace K4System
 			CCSPlayerController savedPlayer = player;
 			List<PlayerData> playersData = plugin.PreparePlayersData();
 
-			Task<List<(int points, string name)>?> task = Task.Run(() => FetchTopDataAsync(plugin, printCount, playersData));
+			Task<List<(int points, string name)>?> task = Task.Run(() => FetchTopDataAsync(printCount));
 			task.Wait();
 			List<(int points, string name)>? rankData = task.Result;
 
@@ -186,7 +186,7 @@ namespace K4System
 			}
 		}
 
-		public async Task<List<(int points, string name)>?> FetchTopDataAsync(Plugin plugin, int printCount, List<PlayerData> playersData)
+		public async Task<List<(int points, string name)>?> FetchTopDataAsync(int printCount)
 		{
 			string query = $"SELECT `points`, `name` FROM `{Config.DatabaseSettings.TablePrefix}k4ranks` ORDER BY `points` DESC LIMIT {printCount};";
 
@@ -194,8 +194,6 @@ namespace K4System
 
 			try
 			{
-				await plugin.SaveAllPlayersCacheAsync(playersData);
-
 				using (MySqlCommand command = new MySqlCommand(query))
 				{
 					using (MySqlDataReader? reader = await Database.Instance.ExecuteReaderAsync(command.CommandText, command.Parameters.Cast<MySqlParameter>().ToArray()))

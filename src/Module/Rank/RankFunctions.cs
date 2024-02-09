@@ -11,10 +11,14 @@ namespace K4System
     {
         public bool IsPointsAllowed()
         {
-            List<CCSPlayerController> players = Utilities.GetPlayers();
-            int notBots = players.Count(player => !player.IsBot);
+            Plugin plugin = (this.PluginContext.Plugin as Plugin)!;
 
-            return globalGameRules != null && (!globalGameRules.WarmupPeriod || Config.RankSettings.WarmupPoints) && (Config.RankSettings.MinPlayers <= notBots);
+            if (plugin.GameRules == null)
+                return false;
+
+            int notBots = Utilities.GetPlayers().Count(player => !player.IsBot);
+
+            return (!plugin.GameRules.WarmupPeriod || Config.RankSettings.WarmupPoints) && (Config.RankSettings.MinPlayers <= notBots);
         }
 
         public Rank GetNoneRank()
@@ -106,7 +110,9 @@ namespace K4System
 
             RankData playerData = rankCache[player];
 
-            if (Config.RankSettings.RoundEndPoints && globalGameRules != null && !globalGameRules.WarmupPeriod)
+            Plugin plugin = (this.PluginContext.Plugin as Plugin)!;
+
+            if (Config.RankSettings.RoundEndPoints && plugin.GameRules != null && !plugin.GameRules.WarmupPeriod)
                 playerData.RoundPoints += amount;
 
             if (amount == 0)
@@ -117,12 +123,10 @@ namespace K4System
                 amount = (int)Math.Round(amount * Config.RankSettings.VipMultiplier);
             }
 
-            Plugin plugin = (this.PluginContext.Plugin as Plugin)!;
-
             int oldPoints = playerData.Points;
             Server.NextFrame(() =>
             {
-                if (!Config.RankSettings.RoundEndPoints || globalGameRules == null || globalGameRules.WarmupPeriod)
+                if (!Config.RankSettings.RoundEndPoints || plugin.GameRules == null || plugin.GameRules.WarmupPeriod)
                 {
                     if (amount > 0)
                     {
@@ -237,8 +241,6 @@ namespace K4System
 
         public void SetPlayerClanTag(CCSPlayerController player, string tag)
         {
-            Plugin plugin = (this.PluginContext.Plugin as Plugin)!;
-
             foreach (AdminSettingsEntry adminSettings in Config.GeneralSettings.AdminSettingsList)
             {
                 if (adminSettings.ClanTag == null)
@@ -263,11 +265,13 @@ namespace K4System
 
             player.Clan = tag;
 
+            /*Plugin plugin = (this.PluginContext.Plugin as Plugin)!;
+
             plugin.AddTimer(0.2f, () =>
             {
                 Utilities.SetStateChanged(player, "CCSPlayerController", "m_szClan");
                 Utilities.SetStateChanged(player, "CBasePlayerController", "m_iszPlayerName");
-            });
+            });*/
         }
     }
 }

@@ -1,12 +1,8 @@
-using CounterStrikeSharp.API.Core;
-using CounterStrikeSharp.API.Modules.Commands;
+namespace K4System;
 
-namespace K4System
+public interface IModuleUtils
 {
-	public interface IModuleUtils
-	{
-		public void Initialize(bool hotReload);
+	public void Initialize(bool hotReload);
 
-		public void Release(bool hotReload);
-	}
+	public void Release(bool hotReload);
 }

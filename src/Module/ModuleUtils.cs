@@ -1,8 +1,8 @@
 namespace K4System
 {
-	using CounterStrikeSharp.API.Core.Plugin;
-
 	using Microsoft.Extensions.Logging;
+
+	using CounterStrikeSharp.API.Core.Plugin;
 
 	public partial class ModuleUtils : IModuleUtils
 	{

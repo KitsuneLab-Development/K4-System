@@ -9,14 +9,6 @@ namespace K4System
 	{
 		public void Initialize_Events(Plugin plugin)
 		{
-			plugin.RegisterListener<Listeners.OnMapStart>((mapName) =>
-			{
-				plugin.AddTimer(1.0f, () =>
-				{
-					globalGameRules = Utilities.FindAllEntitiesByDesignerName<CCSGameRulesProxy>("cs_gamerules").First().GameRules;
-				});
-			});
-
 			plugin.RegisterEventHandler((EventPlayerDeath @event, GameEventInfo info) =>
 			{
 				if (!IsStatsAllowed())
@@ -191,17 +183,9 @@ namespace K4System
 
 					if ((int)winnerTeam > (int)CsTeam.Spectator)
 					{
-						List<CCSPlayerController> players = Utilities.GetPlayers();
-
-						foreach (CCSPlayerController player in players.Where(p => p != null && p.IsValid && p.PlayerPawn.IsValid && !p.IsBot && !p.IsHLTV))
-						{
-							CsTeam playerTeam = (CsTeam)player.TeamNum;
-
-							if (playerTeam > CsTeam.Spectator)
-							{
-								ModifyPlayerStats(player, playerTeam == winnerTeam ? "game_win" : "game_lose", 1);
-							}
-						}
+						Utilities.GetPlayers().Where(p => p.TeamNum > (int)CsTeam.Spectator)
+							.ToList()
+							.ForEach(p => ModifyPlayerStats(p, (CsTeam)p.TeamNum == winnerTeam ? "game_win" : "game_lose", 1));
 					}
 				}
 
