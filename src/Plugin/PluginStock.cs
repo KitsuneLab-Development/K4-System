@@ -65,7 +65,13 @@ namespace K4System
 			{
 				try
 				{
-					SteamID steamId = new SteamID(player.SteamID);
+					if (!ulong.TryParse(player.SteamID.ToString(), out ulong steamIdValue))
+					{
+						Logger.LogError($"Invalid SteamID for {player.PlayerName} > {player.SteamID}");
+						continue;
+					}
+
+					SteamID steamId = new SteamID(steamIdValue);
 
 					if (!steamId.IsValid())
 						continue;

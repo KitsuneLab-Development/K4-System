@@ -6,7 +6,6 @@ namespace K4System
     using CounterStrikeSharp.API.Core;
     using CounterStrikeSharp.API.Modules.Admin;
     using CounterStrikeSharp.API.Modules.Utils;
-    using Microsoft.Extensions.Logging;
 
     public partial class ModuleRank : IModuleRank
     {
