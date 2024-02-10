@@ -82,7 +82,7 @@
 
             //** ? Initialize Database tables */
 
-            Task.Run(() => CreateMultipleTablesAsync()).Wait();
+            Task.Run(CreateMultipleTablesAsync).Wait();
 
             if (hotReload)
             {

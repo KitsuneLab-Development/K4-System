@@ -103,7 +103,7 @@ namespace K4System
 			{
 				Utilities.GetPlayers().Where(p => p.TeamNum == (int)CsTeam.Terrorist)
 					.ToList()
-					.ForEach(p => ModifyPlayerPoints(p, Config.PointSettings.HostageRescueAll, "k4.phrases.bombexploded"));
+					.ForEach(p => ModifyPlayerPoints(p, Config.PointSettings.BombExploded, "k4.phrases.bombexploded"));
 
 				return HookResult.Continue;
 			});
@@ -128,7 +128,7 @@ namespace K4System
 			{
 				List<CCSPlayerController> players = Utilities.GetPlayers();
 
-				players.Where(p => p?.IsValid == true && p.PlayerPawn?.IsValid == true && !p.IsBot && !p.IsHLTV && !p.PawnIsAlive && rankCache.ContainsPlayer(p))
+				players.Where(p => p?.IsValid == true && p.PlayerPawn?.IsValid == true && !p.IsBot && !p.IsHLTV && p.PawnIsAlive && rankCache.ContainsPlayer(p))
 					.ToList()
 					.ForEach(p => rankCache[p].PlayedRound = true);
 

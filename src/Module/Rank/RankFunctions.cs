@@ -6,6 +6,7 @@ namespace K4System
     using CounterStrikeSharp.API.Core;
     using CounterStrikeSharp.API.Modules.Admin;
     using CounterStrikeSharp.API.Modules.Utils;
+    using Microsoft.Extensions.Logging;
 
     public partial class ModuleRank : IModuleRank
     {
@@ -28,16 +29,10 @@ namespace K4System
 
         public void BeforeRoundEnd(int winnerTeam)
         {
-            List<CCSPlayerController> players = Utilities.GetPlayers();
+            List<CCSPlayerController> players = Utilities.GetPlayers().Where(player => player?.IsValid == true && player.PlayerPawn?.IsValid == true && !player.IsBot && !player.IsHLTV && rankCache.ContainsPlayer(player)).ToList();
 
             foreach (CCSPlayerController player in players)
             {
-                if (player is null || !player.IsValid || !player.PlayerPawn.IsValid || player.IsBot || player.IsHLTV)
-                    continue;
-
-                if (!rankCache.ContainsPlayer(player))
-                    continue;
-
                 if (!player.PawnIsAlive)
                     playerKillStreaks[player.Slot] = (0, DateTime.Now);
 

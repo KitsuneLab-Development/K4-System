@@ -15,7 +15,6 @@ namespace K4System
 	using CounterStrikeSharp.API.Modules.Commands;
 	using CounterStrikeSharp.API.Modules.Admin;
 	using CounterStrikeSharp.API.Modules.Entities;
-	using CounterStrikeSharp.API.Modules.Entities.Constants;
 
 	public class PlayerData
 	{
@@ -58,17 +57,26 @@ namespace K4System
 		public List<PlayerData> PreparePlayersData()
 		{
 			List<PlayerData> playersData = new List<PlayerData>();
-			List<CCSPlayerController> players = Utilities.GetPlayers().Where(player => player != null && player.IsValid && player.PlayerPawn.IsValid && !player.IsBot && !player.IsHLTV).ToList();
+			List<CCSPlayerController> players = Utilities.GetPlayers()
+				.Where(p => p?.IsValid == true && p.PlayerPawn?.IsValid == true && !p.IsBot && !p.IsHLTV && p.Connected == PlayerConnectedState.PlayerConnected)
+				.ToList();
 
 			foreach (CCSPlayerController player in players)
 			{
 				try
 				{
+					SteamID steamId = new SteamID(player.SteamID);
+
+					if (!steamId.IsValid())
+						continue;
+
+					string playerSteamId = steamId.SteamId64.ToString();
+
 					PlayerData data = new PlayerData
 					{
 						PlayerName = player.PlayerName,
-						SteamId = player.SteamID.ToString(),
-						lvlSteamId = new SteamID(player.SteamID).SteamId2.Replace("STEAM_0", "STEAM_1")
+						SteamId = playerSteamId,
+						lvlSteamId = steamId.SteamId2.Replace("STEAM_0", "STEAM_1")
 					};
 
 					if (rankCache.ContainsKey(player.Slot))
@@ -94,11 +102,7 @@ namespace K4System
 		public void SaveAllPlayersCache()
 		{
 			List<PlayerData> playersData = PreparePlayersData();
-
-			Task.Run(async () =>
-			{
-				await SaveAllPlayersCacheAsync(playersData);
-			});
+			_ = SaveAllPlayersCacheAsync(playersData);
 		}
 
 		public async Task SaveAllPlayersCacheAsync(List<PlayerData> playersData)
@@ -124,7 +128,7 @@ namespace K4System
 
 		public void SavePlayerCache(CCSPlayerController player)
 		{
-			string steamId = player.SteamID.ToString();
+			string playerSteamId = player.SteamID.ToString();
 			string playerName = player.PlayerName;
 
 			RankData? rankData = rankCache.ContainsKey(player.Slot) ? rankCache[player.Slot] : null;
@@ -133,7 +137,7 @@ namespace K4System
 
 			string lvlSteamId = new SteamID(player.SteamID).SteamId2.Replace("STEAM_0", "STEAM_1");
 
-			Task.Run(() => SavePlayerDataAsync(playerName, steamId, lvlSteamId, rankData, statData, timeData));
+			_ = SavePlayerDataAsync(playerName, playerSteamId, lvlSteamId, rankData, statData, timeData);
 		}
 
 		private async Task SavePlayerDataAsync(string playerName, string steamId, string lvlSteamId, RankData? rankData, StatData? statData, TimeData? timeData)
@@ -259,7 +263,6 @@ namespace K4System
 		private void LoadPlayerCache(CCSPlayerController player)
 		{
 			int slot = player.Slot;
-			string steamId = player.SteamID.ToString();
 
 			string combinedQuery = $@"
 					INSERT INTO `{Config.DatabaseSettings.TablePrefix}k4ranks` (`name`, `steam_id`, `rank`, `points`)
@@ -322,7 +325,7 @@ namespace K4System
 						r.`steam_id` = @steamid;
 				";
 
-			var parameters = new MySqlParameter[]
+			MySqlParameter[] parameters = new MySqlParameter[]
 			{
 				new MySqlParameter("@escapedName", player.PlayerName),
 				new MySqlParameter("@steamid", player.SteamID),
@@ -330,57 +333,59 @@ namespace K4System
 				new MySqlParameter("@startPoints", Config.RankSettings.StartPoints)
 			};
 
-			Task.Run(async () =>
+			_ = LoadPlayerCacheAsync(slot, combinedQuery, parameters);
+		}
+
+		public async Task LoadPlayerCacheAsync(int slot, string combinedQuery, MySqlParameter[] parameters)
+		{
+			using (MySqlDataReader? reader = await Database.Instance.ExecuteReaderAsync(combinedQuery, parameters))
 			{
-				using (var reader = await Database.Instance.ExecuteReaderAsync(combinedQuery, parameters))
+				if (reader != null && reader.HasRows)
 				{
-					if (reader != null && reader.HasRows)
+					while (await reader.ReadAsync())
 					{
-						while (reader.Read())
+						/** ? Load Rank to Cache */
+
+						if (Config.GeneralSettings.ModuleRanks)
 						{
-							/** ? Load Rank to Cache */
+							int points = reader.GetInt32("points");
+							ModuleRank.LoadRankData(slot, points);
+						}
 
-							if (Config.GeneralSettings.ModuleRanks)
+						/** ? Load Stat to Cache */
+
+						if (Config.GeneralSettings.ModuleStats)
+						{
+							Dictionary<string, int> NewStatFields = new Dictionary<string, int>();
+
+							string[] statFieldNames = { "kills", "shoots", "firstblood", "deaths", "hits_given", "hits_taken", "headshots", "grenades", "mvp", "round_win", "round_lose", "game_win", "game_lose", "assists" };
+
+							foreach (string statField in statFieldNames)
 							{
-								int points = reader.GetInt32("points");
-								ModuleRank.LoadRankData(slot, points);
+								NewStatFields[statField] = reader.GetInt32(statField);
 							}
 
-							/** ? Load Stat to Cache */
+							ModuleStat.LoadStatData(slot, NewStatFields);
+						}
 
-							if (Config.GeneralSettings.ModuleStats)
+						/** ? Load Time to Cache */
+
+						if (Config.GeneralSettings.ModuleTimes)
+						{
+							Dictionary<string, int> TimeFields = new Dictionary<string, int>();
+
+							string[] timeFieldNames = { "all", "ct", "t", "spec", "alive", "dead" };
+
+							foreach (string timeField in timeFieldNames)
 							{
-								Dictionary<string, int> NewStatFields = new Dictionary<string, int>();
-
-								string[] statFieldNames = { "kills", "shoots", "firstblood", "deaths", "hits_given", "hits_taken", "headshots", "grenades", "mvp", "round_win", "round_lose", "game_win", "game_lose", "assists" };
-
-								foreach (string statField in statFieldNames)
-								{
-									NewStatFields[statField] = reader.GetInt32(statField);
-								}
-
-								ModuleStat.LoadStatData(slot, NewStatFields);
+								TimeFields[timeField] = reader.GetInt32(timeField);
 							}
 
-							/** ? Load Time to Cache */
-
-							if (Config.GeneralSettings.ModuleTimes)
-							{
-								Dictionary<string, int> TimeFields = new Dictionary<string, int>();
-
-								string[] timeFieldNames = { "all", "ct", "t", "spec", "alive", "dead" };
-
-								foreach (string timeField in timeFieldNames)
-								{
-									TimeFields[timeField] = reader.GetInt32(timeField);
-								}
-
-								ModuleTime.LoadTimeData(slot, TimeFields);
-							}
+							ModuleTime.LoadTimeData(slot, TimeFields);
 						}
 					}
 				}
-			});
+			}
 		}
 
 		private void LoadAllPlayersCache()
@@ -424,62 +429,64 @@ namespace K4System
 				WHERE
 					r.`steam_id` IN (" + string.Join(",", players.Select(player => $"'{player.SteamID}'")) + ");";
 
-			Task.Run(async () =>
+			_ = LoadAllPlayersCacheAsync(combinedQuery, steamIdToSlot);
+		}
+
+		public async Task LoadAllPlayersCacheAsync(string combinedQuery, Dictionary<string, int> steamIdToSlot)
+		{
+			using (var reader = await Database.Instance.ExecuteReaderAsync(combinedQuery))
 			{
-				using (var reader = await Database.Instance.ExecuteReaderAsync(combinedQuery))
+				if (reader != null && reader.HasRows)
 				{
-					if (reader != null && reader.HasRows)
+					while (await reader.ReadAsync())
 					{
-						while (reader.Read())
+						string steamId = reader["steam_id"].ToString()!;
+
+						// A Slot információk lekérése a SteamID alapján a Dictionary-ből
+						int slot = steamIdToSlot[steamId];
+
+						/** ? Load Rank to Cache */
+
+						if (Config.GeneralSettings.ModuleRanks)
 						{
-							string steamId = reader["steam_id"].ToString()!;
+							int points = reader.GetInt32("points");
+							ModuleRank.LoadRankData(slot, points);
+						}
 
-							// A Slot információk lekérése a SteamID alapján a Dictionary-ből
-							int slot = steamIdToSlot[steamId];
+						/** ? Load Stat to Cache */
 
-							/** ? Load Rank to Cache */
+						if (Config.GeneralSettings.ModuleStats)
+						{
+							Dictionary<string, int> NewStatFields = new Dictionary<string, int>();
 
-							if (Config.GeneralSettings.ModuleRanks)
+							string[] statFieldNames = { "kills", "shoots", "firstblood", "deaths", "hits_given", "hits_taken", "headshots", "grenades", "mvp", "round_win", "round_lose", "game_win", "game_lose", "assists" };
+
+							foreach (string statField in statFieldNames)
 							{
-								int points = reader.GetInt32("points");
-								ModuleRank.LoadRankData(slot, points);
+								NewStatFields[statField] = reader.GetInt32(statField);
 							}
 
-							/** ? Load Stat to Cache */
+							ModuleStat.LoadStatData(slot, NewStatFields);
+						}
 
-							if (Config.GeneralSettings.ModuleStats)
+						/** ? Load Time to Cache */
+
+						if (Config.GeneralSettings.ModuleTimes)
+						{
+							Dictionary<string, int> TimeFields = new Dictionary<string, int>();
+
+							string[] timeFieldNames = { "all", "ct", "t", "spec", "alive", "dead" };
+
+							foreach (string timeField in timeFieldNames)
 							{
-								Dictionary<string, int> NewStatFields = new Dictionary<string, int>();
-
-								string[] statFieldNames = { "kills", "shoots", "firstblood", "deaths", "hits_given", "hits_taken", "headshots", "grenades", "mvp", "round_win", "round_lose", "game_win", "game_lose", "assists" };
-
-								foreach (string statField in statFieldNames)
-								{
-									NewStatFields[statField] = reader.GetInt32(statField);
-								}
-
-								ModuleStat.LoadStatData(slot, NewStatFields);
+								TimeFields[timeField] = reader.GetInt32(timeField);
 							}
 
-							/** ? Load Time to Cache */
-
-							if (Config.GeneralSettings.ModuleTimes)
-							{
-								Dictionary<string, int> TimeFields = new Dictionary<string, int>();
-
-								string[] timeFieldNames = { "all", "ct", "t", "spec", "alive", "dead" };
-
-								foreach (string timeField in timeFieldNames)
-								{
-									TimeFields[timeField] = reader.GetInt32(timeField);
-								}
-
-								ModuleTime.LoadTimeData(slot, TimeFields);
-							}
+							ModuleTime.LoadTimeData(slot, TimeFields);
 						}
 					}
 				}
-			});
+			}
 		}
 
 		public bool CommandHelper(CCSPlayerController? player, CommandInfo info, CommandUsage usage, int argCount = 0, string? help = null, string? permission = null)

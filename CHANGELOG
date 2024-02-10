@@ -1,4 +1,10 @@
--- 2023.02.06 - V3.3.3
+-- 2023.02.10 - V3.3.4
+
+- fix: Bomb explode using HostageRescueAll points
+- fix: Round win/loss not changing points
+- fix: Invalid SteamID saves
+
+-- 2023.02.09 - V3.3.3
 
 - fix: Crash on mapchange because of gamedata change (SetStateChanged)
 - fix: Error log if rank module disabled
