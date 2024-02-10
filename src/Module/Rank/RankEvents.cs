@@ -128,7 +128,7 @@ namespace K4System
 			{
 				List<CCSPlayerController> players = Utilities.GetPlayers();
 
-				players.Where(p => p?.IsValid == true && p.PlayerPawn?.IsValid == true && !p.IsBot && !p.IsHLTV && p.PawnIsAlive && rankCache.ContainsPlayer(p))
+				players.Where(p => p?.IsValid == true && p.PlayerPawn?.IsValid == true && !p.IsBot && !p.IsHLTV && p.PawnIsAlive && rankCache.ContainsPlayer(p) && p.SteamID.ToString().Length == 17)
 					.ToList()
 					.ForEach(p => rankCache[p].PlayedRound = true);
 

@@ -16,7 +16,7 @@ namespace K4System
             if (plugin.GameRules == null)
                 return false;
 
-            int notBots = Utilities.GetPlayers().Count(player => !player.IsBot);
+            int notBots = Utilities.GetPlayers().Count(p => !p.IsBot && p.SteamID.ToString().Length == 17);
 
             return (!plugin.GameRules.WarmupPeriod || Config.RankSettings.WarmupPoints) && (Config.RankSettings.MinPlayers <= notBots);
         }
@@ -28,7 +28,7 @@ namespace K4System
 
         public void BeforeRoundEnd(int winnerTeam)
         {
-            List<CCSPlayerController> players = Utilities.GetPlayers().Where(player => player?.IsValid == true && player.PlayerPawn?.IsValid == true && !player.IsBot && !player.IsHLTV && rankCache.ContainsPlayer(player)).ToList();
+            List<CCSPlayerController> players = Utilities.GetPlayers().Where(p => p?.IsValid == true && p.PlayerPawn?.IsValid == true && !p.IsBot && !p.IsHLTV && rankCache.ContainsPlayer(p) && p.SteamID.ToString().Length == 17).ToList();
 
             foreach (CCSPlayerController player in players)
             {
@@ -97,6 +97,9 @@ namespace K4System
                 return;
 
             if (player.IsBot || player.IsHLTV)
+                return;
+
+            if (player.SteamID.ToString().Length == 17)
                 return;
 
             if (!rankCache.ContainsPlayer(player))

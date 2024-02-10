@@ -121,7 +121,6 @@
         public async Task<bool> CreateMultipleTablesAsync()
         {
             string timesModuleTable = @$"CREATE TABLE IF NOT EXISTS `{this.Config.DatabaseSettings.TablePrefix}k4times` (
-					`id` INT AUTO_INCREMENT PRIMARY KEY,
 					`steam_id` VARCHAR(32) COLLATE 'utf8mb4_unicode_ci' UNIQUE NOT NULL,
 					`name` VARCHAR(255) COLLATE 'utf8mb4_unicode_ci' NOT NULL,
 					`all` INT NOT NULL DEFAULT 0,
@@ -134,7 +133,6 @@
 				) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;";
 
             string statsModuleTable = $@"CREATE TABLE IF NOT EXISTS `{this.Config.DatabaseSettings.TablePrefix}k4stats` (
-                    `id` INT AUTO_INCREMENT PRIMARY KEY,
                     `steam_id` VARCHAR(32) COLLATE 'utf8mb4_unicode_ci' UNIQUE NOT NULL,
                     `name` VARCHAR(255) COLLATE 'utf8mb4_unicode_ci' NOT NULL,
                     `lastseen` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -156,7 +154,6 @@
                 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;";
 
             string ranksModuleTable = $@"CREATE TABLE IF NOT EXISTS `{this.Config.DatabaseSettings.TablePrefix}k4ranks` (
-                    `id` INT AUTO_INCREMENT PRIMARY KEY,
                     `steam_id` VARCHAR(32) COLLATE 'utf8mb4_unicode_ci' UNIQUE NOT NULL,
                     `name` VARCHAR(255) COLLATE 'utf8mb4_unicode_ci' NOT NULL,
                     `rank` VARCHAR(255) COLLATE 'utf8mb4_unicode_ci' NOT NULL,

@@ -58,20 +58,14 @@ namespace K4System
 		{
 			List<PlayerData> playersData = new List<PlayerData>();
 			List<CCSPlayerController> players = Utilities.GetPlayers()
-				.Where(p => p?.IsValid == true && p.PlayerPawn?.IsValid == true && !p.IsBot && !p.IsHLTV && p.Connected == PlayerConnectedState.PlayerConnected)
+				.Where(p => p?.IsValid == true && p.PlayerPawn?.IsValid == true && !p.IsBot && !p.IsHLTV && p.Connected == PlayerConnectedState.PlayerConnected && p.SteamID.ToString().Length == 17)
 				.ToList();
 
 			foreach (CCSPlayerController player in players)
 			{
 				try
 				{
-					if (!ulong.TryParse(player.SteamID.ToString(), out ulong steamIdValue))
-					{
-						Logger.LogError($"Invalid SteamID for {player.PlayerName} > {player.SteamID}");
-						continue;
-					}
-
-					SteamID steamId = new SteamID(steamIdValue);
+					SteamID steamId = new SteamID(player.SteamID);
 
 					if (!steamId.IsValid())
 						continue;
@@ -396,7 +390,7 @@ namespace K4System
 
 		private void LoadAllPlayersCache()
 		{
-			List<CCSPlayerController> players = Utilities.GetPlayers().Where(player => player != null && player.IsValid && player.PlayerPawn.IsValid && !player.IsBot && !player.IsHLTV).ToList();
+			List<CCSPlayerController> players = Utilities.GetPlayers().Where(player => player != null && player.IsValid && player.PlayerPawn.IsValid && !player.IsBot && !player.IsHLTV && player.SteamID.ToString().Length == 17).ToList();
 
 			Dictionary<string, int> steamIdToSlot = players.ToDictionary(player => player.SteamID.ToString(), player => player.Slot);
 

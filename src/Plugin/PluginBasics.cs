@@ -123,6 +123,9 @@ namespace K4System
 					if (player.IsBot || player.IsHLTV)
 						continue;
 
+					if (player.SteamID.ToString().Length == 17)
+						continue;
+
 					player.PrintToChat($" {Localizer["k4.general.prefix"]} {ChatColors.Lime}{Localizer["k4.general.spawnmessage"]}");
 				}
 

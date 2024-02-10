@@ -1,3 +1,7 @@
+-- 2023.02.10 - V3.3.5
+
+- fix: Invalid player blocked from functions (problem by GetPlayers)
+
 -- 2023.02.10 - V3.3.4
 
 - fix: Bomb explode using HostageRescueAll points
