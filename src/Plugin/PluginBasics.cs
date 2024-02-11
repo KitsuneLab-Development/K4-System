@@ -6,9 +6,12 @@ namespace K4System
 	using CounterStrikeSharp.API.Core;
 	using CounterStrikeSharp.API.Modules.Commands;
 	using CounterStrikeSharp.API.Modules.Utils;
+	using Microsoft.Extensions.Logging;
 
 	public sealed partial class Plugin : BasePlugin
 	{
+		public Timer? databasePoolingTimer;
+
 		public void Initialize_Commands()
 		{
 			AddCommand("css_k4", "More informations about K4-System",
@@ -83,7 +86,6 @@ namespace K4System
 					return HookResult.Continue;
 
 				LoadPlayerCache(player);
-				AdjustDatabasePooling();
 
 				return HookResult.Continue;
 			});
@@ -101,8 +103,12 @@ namespace K4System
 				if (Config.GeneralSettings.ModuleTimes)
 					ModuleTime.BeforeDisconnect(player);
 
-				SavePlayerCache(player);
-				AdjustDatabasePooling();
+				// Block save if the disconenct reason is mapchange, because we handle it on RoundEnd for everyone, which called on MapChange
+				// This reduce the load, because we use transactions and we don't open connection for each player
+				if (@event.Reason == 1)
+				{
+					SavePlayerCache(player);
+				}
 
 				return HookResult.Continue;
 			});
@@ -123,7 +129,7 @@ namespace K4System
 					if (player.IsBot || player.IsHLTV)
 						continue;
 
-					if (player.SteamID.ToString().Length == 17)
+					if (player.SteamID.ToString().Length != 17)
 						continue;
 
 					player.PrintToChat($" {Localizer["k4.general.prefix"]} {ChatColors.Lime}{Localizer["k4.general.spawnmessage"]}");
@@ -141,6 +147,7 @@ namespace K4System
 					ModuleRank.BeforeRoundEnd(@event.Winner);
 
 				SaveAllPlayersCache();
+
 				return HookResult.Continue;
 			});
 

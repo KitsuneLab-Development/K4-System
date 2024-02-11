@@ -82,6 +82,7 @@
 
             //** ? Initialize Database tables */
 
+            Database.Instance.AdjustDatabasePooling();
             Task.Run(CreateMultipleTablesAsync).Wait();
 
             if (hotReload)
@@ -89,7 +90,6 @@
                 //** ? Load Player Caches */
 
                 LoadAllPlayersCache();
-                AdjustDatabasePooling();
 
                 GameRules = Utilities.FindAllEntitiesByDesignerName<CCSGameRulesProxy>("cs_gamerules").First().GameRules;
             }

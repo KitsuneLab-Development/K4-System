@@ -1,4 +1,8 @@
+
 using System.Data;
+using CounterStrikeSharp.API;
+using CounterStrikeSharp.API.Core;
+using CounterStrikeSharp.API.Modules.Memory;
 using MySqlConnector;
 
 namespace K4System
@@ -17,17 +21,15 @@ namespace K4System
 			connectionString = BuildConnectionString(server, database, userId, password, port, sslMode, usePooling, minPoolSize, maxPoolSize);
 		}
 
-		public void AdjustPoolingBasedOnPlayerCount(int playerCount)
+		public void AdjustDatabasePooling()
 		{
-			if (connectionString == null) throw new InvalidOperationException("Connection string has not been initialized.");
-
-			uint minPoolSize = (uint)Math.Max(2, 2 + (playerCount / 10));
-			uint maxPoolSize = (uint)Math.Max(3, 3 + (playerCount / 3));
+			if (connectionString == null)
+				throw new InvalidOperationException("Database has not been initialized");
 
 			var builder = new MySqlConnectionStringBuilder(connectionString)
 			{
-				MinimumPoolSize = minPoolSize,
-				MaximumPoolSize = maxPoolSize,
+				MinimumPoolSize = (uint)Math.Max(5, Server.MaxPlayers / 2.5),
+				MaximumPoolSize = (uint)Math.Max(20, Server.MaxPlayers),
 			};
 
 			connectionString = builder.ConnectionString;
@@ -44,8 +46,8 @@ namespace K4System
 				Port = (uint)port,
 				SslMode = Enum.Parse<MySqlSslMode>(sslMode, true),
 				Pooling = usePooling,
-				MinimumPoolSize = minPoolSize,
-				MaximumPoolSize = maxPoolSize
+				MinimumPoolSize = 10,
+				MaximumPoolSize = 24,
 			};
 
 			return builder.ConnectionString;

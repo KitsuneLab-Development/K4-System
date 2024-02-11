@@ -6,6 +6,7 @@ namespace K4System
     using CounterStrikeSharp.API.Core;
     using CounterStrikeSharp.API.Modules.Admin;
     using CounterStrikeSharp.API.Modules.Utils;
+    using Microsoft.Extensions.Logging;
 
     public partial class ModuleRank : IModuleRank
     {
@@ -99,7 +100,7 @@ namespace K4System
             if (player.IsBot || player.IsHLTV)
                 return;
 
-            if (player.SteamID.ToString().Length == 17)
+            if (player.SteamID.ToString().Length != 17)
                 return;
 
             if (!rankCache.ContainsPlayer(player))

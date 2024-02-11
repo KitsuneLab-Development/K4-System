@@ -28,11 +28,6 @@ namespace K4System
 
 	public sealed partial class Plugin : BasePlugin
 	{
-		public void AdjustDatabasePooling()
-		{
-			Database.Instance.AdjustPoolingBasedOnPlayerCount(Utilities.GetPlayers().Where(p => p?.IsValid == true && p.PlayerPawn?.IsValid == true && !p.IsBot && !p.IsHLTV).Count());
-		}
-
 		public CommandInfo.CommandCallback CallbackAnonymizer(Action<CCSPlayerController?, CommandInfo> action)
 		{
 			return new CommandInfo.CommandCallback(action);
