@@ -1,0 +1,338 @@
+-- 2023.02.10 - V3.3.9
+
+- refactor: Disable MySQL pooling limitations
+- refactor: Remove load repetative code
+- fix: MySQL connection is closed before data read
+- fix: Round start message printed twice or more
+- fix: Points not always saved properly (one symbol miss-typo, so sorry...)
+- fix: On some servers the plugin stay in LOADING state (rare bug)
+- fix: Duplicated point messages (rare bug)
+
+-- 2023.02.10 - V3.3.8
+
+- refactor: New global cache has been added
+- fix: MySQL connection pool adjust was unable to run
+- fix: MapChange will no longed reload cache
+- fix: MapChange will no longer dupe save cache
+- fix: MapChange will no longer delete cache
+- fix: MapChange lose points because of misstypo in last release
+
+-- 2023.02.10 - V3.3.7
+
+- refactor: Adjust MySQL connection pool sizes better
+- refactor: MySQL connection pool prepare to all players join at once
+- fix: MySQL pool size nulled on mapchange, blocking player load
+- fix: Block triple save on mapchange causing query timeout (RoundEnd, MapChange, Disconnect)
+
+-- 2023.02.10 - V3.3.6
+
+- fix: Points not changed because of misstypo
+
+-- 2023.02.10 - V3.3.5
+
+- fix: Invalid player blocked from functions (problem by GetPlayers)
+
+-- 2023.02.10 - V3.3.4
+
+- fix: Bomb explode using HostageRescueAll points
+- fix: Round win/loss not changing points
+- fix: Invalid SteamID saves
+
+-- 2023.02.09 - V3.3.3
+
+- fix: Crash on mapchange because of gamedata change (SetStateChanged)
+- fix: Error log if rank module disabled
+- fix: Remove LevelRanksCompatibility disable if any of the required modules are not running
+- fix: Data load for not used modules
+- fix: Lag spikes on !top command
+- fix: T gets point for EventHostageRescuedAll
+- refactor: Removed unnecessary operators from ranks module
+- refactor: Optimised rank module player loops
+
+-- 2023.02.06 - V3.3.2
+
+- feat: Add MySQL pooling support fully
+- feat: Change MySQL wrapper for multiple connections
+- feat: Dynamically adjusting MySQL connection pool by online players
+- fix: Commands not working
+- fix: MySQL problems
+- fix: Add back lvlranks support
+
+-- 2023.02.06 - V3.3.1
+
+- fix: Missing CallbackAnonymizer
+- fix: MySQL deadlocks (already in use)
+
+-- 2023.01.30 - V3.3.0
+
+- feat: Add MySQL pooling support
+- feat: Add custom MySQL wrapper
+- feat: Add transaction support for save/load
+- feat: Customizable no permission message
+- feat: Customizable client only command message
+- feat: Customizable server only command message
+- fix: Commands not deleted on hotReload
+- refactor: Create global cache loader
+- refactor: Create global cache saver
+- refactor: Use reusable MySQL connection
+- refactor: Replace lambda command helpers with custom logic
+
+-- 2023.01.30 - V3.2.0
+
+- feat: Add starting point settings for new players ([#129](https://github.com/K4ryuu/K4-System/issues/129))
+- feat: Option to show playernames in kill/death messages ([#128](https://github.com/K4ryuu/K4-System/issues/128))
+- feat: Add notification for not enough players to gain points ([#127](https://github.com/K4ryuu/K4-System/issues/127))
+- fix: Admin list problems ([#131](https://github.com/K4ryuu/K4-System/issues/131))
+- fix: Round summary for WarmupPeriod disabled ([#115](https://github.com/K4ryuu/K4-System/issues/115))
+
+-- 2023.01.29 - V3.1.5
+
+- fix: points only for T's if bomb explode (by stefanx111)
+- fix: !ranks command not working
+
+-- 2023.01.29 - V3.1.4
+
+- feat: Added database connection config option SSLMode (by Sandy-Garrido)
+- fix: Fixed lastconnect giving out of range error during LR player stats save query (by Cruze03)
+- fix: Added try-catch in LR player stats save queries (by Cruze03)
+- fix: shoots will no longer increase on knife swings (by Cruze03)
+- fix: Mute Server commands (Private K4-Missions Support)
+
+-- 2023.01.28 - V3.1.3
+
+- fix: Added min and max to the toplist by @Whaliin
+- fix: Miss-Type in bomb-exploded config attribute
+- fix: Every log and crash solved
+
+-- 2023.01.24 - V3.1.2
+
+- feat: Add support for admin groups and command overrides
+- fix: Use of cache, where player not loaded yet
+- fix: Player not loaded on mapchange
+- fix: Add Gabriel 'sopax' Lima as translator to README
+
+-- 2023.01.23 - V3.1.1
+
+- feat: Add Brazilian Portuguese translation (by Gabriel 'sopax' Lima)
+- fix: ClanTag problems on players with no permissions (#112)
+- fix: Add TianxSky as translator to README
+- fix: Cache gets deleted before saved sometimes
+- fix: Duplicated load and save for players on map change
+- fix: GameRule was used before it was initiated by the server
+- fix: PlayerDeath caused crash on mapchange
+
+-- 2023.01.22 - V3.1.0
+
+- feat: Add translation for Spanish language (by criskkky)
+- feat: Add translation for Chinese (Simplified, People's Republic of China) language (by TianxSky)
+- feat: CFG to set custom name for LVLRanks Table (#102)
+- feat: Admin list with custom colors for each permission
+- feat: ClanTags by permissions
+- feat: Added arg to top command (!top 8)
+- feat: Add immunity check for targeting commands
+- fix: DynamicPoints integer devision (by TianxSky)
+- fix: Change timestamp to unix timestamp (by stefanx111)
+- fix: Missing prefixes for MySQL queries (by rigE08)
+- fix: Block MySQL save for people with SteamID = 0
+- fix: EventPlayerTeam targets not yet loaded players (#110)
+- fix: Prevent load with wrong database configs
+- fix: Crashes on mapchange
+- fix: Duplicated player load into cache
+- fix: Thread problems
+- fix: Time wont save (Spawn resets it)
+
+-- 2023.12.30 - V3.0.5
+
+- fix: KillStreak resets on spawn
+
+-- 2023.12.29 - V3.0.4
+
+- fix: KillStreaks after bot control
+- fix: Stats not saved
+- fix: Remove debug print
+- fix: NaN values in stats
+
+-- 2023.12.29 - V3.0.3
+
+- feat: Add translation for Latvian language (by rcon420)
+- feat: Killstreak can be now "remembered" until player die (seconds-between-kills = 0)
+- fix: MySQL support for emojis and special characters
+- fix: Add emoji support for player names
+- fix: Replace STEAM_0 with STEAM_1 to match old lvlranks
+- fix: TeamChange to winnerteam before win exploit
+
+-- 2023.12.29 - V3.0.2
+
+- feat: Add translation for Russian language (by ViTamin)
+- refactor: Remove unused imports
+- fix: Invisible player on clantag change
+- fix: Permission giving on player connect
+- fix: Add missing translations
+- fix: Add missing commands to !k4
+- fix: Negative savepoints calulcated as positive
+
+-- 2023.12.29 - V3.0.1
+
+- feat: add tr translate by @onurcanertekin in #95
+- fix: Time command extra symbols
+- fix: Players not loaded after mapchange (#94)
+- fix: DynamicDeathPoints
+- fix: Double negative symbols
+- fix: LevelRanks rank ids
+- fix: Type enforcement
+- fix: LevelRanks steamid changed
+- fix: Italian Translation
+- chore: Update module version to 3.0.1
+- chore: Add Turkish translator name
+- chore: Update README and CHANGELOG
+- upgrade: Better SteamID conversion for LevelRanks
+
+-- 2023.12.29 - V3.0.0
+
+- feat: Check available ranks with details (#91)
+- feat: Translations added (#1)
+- feat: FFA mode support for game win/lose
+- feat: MySQL table validator now tells you which columns are unused by the plugin
+- fix: Translation rank colors
+- fix: Block MySQL validation if no credentials given
+- fix: Plugin context is not needed in main deps
+- fix: Game win/lose statistics count
+- fix: Round and Game based stats
+- fix: Percentage based stats are now calculated correctly
+- fix: Headshot percentage is now calculated correctly
+- fix: KDA is now calculated correctly
+- refactor: Remove unused parts
+- refactor: Remove unused functions
+- refactor: Disable levelranks if required modules not running
+- refactor: Prefix moved to translations
+- refactor: Update K4-System.csproj for Release configuration
+- upgrade: Add targeting functionality to RankCommands.cs
+- chore: Add % symbol to the required fields
+
+-- 2023.12.28 - V2.0.6
+
+- feat: FFA mode support for game win/lose
+- fix: Headshot percentage not counted properly
+- fix: Accuracy not counted properly
+- fix: RoundEnd point changes not counted properly
+- fix: Round win percentage not counted properly
+- fix: Game win percentage not counted properly
+- fix: Shoots not counted properly
+- fix: Game win/loss not counted properly
+
+- -- 2023.12.28 - V2.0.5
+
+- feat: New statistics: Headshot percentage
+- feat: New statistics: Accuracy
+- feat: LevelRanks Compatibility added for webpanels
+- feat: MySQL table validation to prevent errors and crashes
+- fix: Stats Command MissType
+- fix: DynamicDeathPoints calculate problems
+- fix: Bot point calculations (now they are not counted if disabled)
+- refactor: Optimised the compiler options
+
+- -- 2023.12.15 - V2.0.4
+
+- feat: Game win stats
+- feat: Game lose stats
+- feat: Round win percentage stats
+- feat: Game win percentage stats
+- feat: First blood count stats
+- feat: Permissions per ranks (any 3rd party plugin supported)
+- feat: Points for playtime
+- fix: Duplicate promote/demote
+
+-- 2023.12.14 - V2.0.3
+
+- fix: Threading problems
+- fix: Player cant join to server
+- fix: Player cant join to team
+- fix: Watchdog crashes
+- fix: Dynamic-Death-Point unfair changes (min and max added)
+- fix: Dependency Injection problems
+
+-- 2023.12.07 - V2.0.2
+
+- feat: Promote/Demote messages
+- fix: Time module disconnect error
+- fix: Kills shown as Knife Kill, but its not
+- fix: DynamicDeathPoints divide by zero problems
+- refactor: Optimised Grenade and Knife kill detection
+
+-- 2023.12.05 - V2.0.1
+
+- fix: Thread Safety modifications
+- fix: Bomb kill bug
+- fix: Small point losses
+
+-- 2023.12.05 - V2.0.0
+
+- feat: Dynamic death points based on the killer and victim points (new config)
+- feat: Configurable commands
+- feat: New Statistics: KDA, Hits Taken, Hits Given, Assists
+- feat: Adding commands top5, top10 will always show that much player u set as number in the end
+- refactor: New visual appearance
+- refactor: Totally remade the plugin from zero
+
+-- 2023.10.24 - V1.3.5
+
+- fix: Disconnect error in some cases
+- fix: Database resets for undefined players (#58)
+- fix: Commands target the user not the target
+- fix: SpawnMessage config bug
+- fix: Suicide count problems
+- fix: Death player checks (#56, #52)
+
+-- 2023.10.24 - V1.3.4
+
+- refactor: Optimise gamerule based functions (#39)
+- fix: Visual bugs (#43)
+- fix: Disconnect lag spike (#46)
+- fix: Bots being loaded into DB rarely (#45)
+- fix: Data load lag spikes
+- fix: 161 Segmentation fault
+- fix: Time updates on !time command
+- fix: Alive time not saved properly
+- fix: Random errors on client disconnect
+
+- -- 2023.10.21 - V1.3.3
+
+- feat: Last seen value to statistics (#37)
+- fix: Retake bomb plant incompatibility bug (#31,#25)
+- fix: Toplist rank colors (#32, #34)
+- fix: Possible reference problems
+
+-- 2023.10.20 - V1.3.2
+
+- refactor: Optimise EventRoundEnd
+- fix: Headshot not recorded (#23)
+- fix: Some more table prefix fixes
+- fix: Rank top indicates wrong rank colors (#29)
+- fix: Targeting problems (spotted by @skaen)
+
+-- 2023.10.17 - V1.3.1
+
+- Added rank colors to toplist (#22)
+- Fixed loading bug with no config file existing
+- Fixed debug log crash on startup (#21)
+- Fixed config file versioning
+
+-- 2023.10.13 - V1.3.0
+
+- Added customization option to rank scoreboard tags
+- Added save mechanism toplist to show actual data for all online players
+- Added full debug log for the code to let you guys find bugs easier
+- Added option to print summary of point changes in round ends
+- Fixed multiple harmless error log for dictionary
+- Fixed several problematic solution
+
+-- 2023.10.13 - V1.2.0
+
+- Added max rank and current rank id to !rank
+- Added player count to toplist
+- Upgraded save mechanism
+- Upgraded data storing mechanism
+- Upgraded point setter mechanism
+- Fixed missing VIP multiplier sections
+- Fixed several minor bug
+- Cleaned and refactored the full code
