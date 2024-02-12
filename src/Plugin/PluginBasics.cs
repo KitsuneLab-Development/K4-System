@@ -160,7 +160,6 @@ namespace K4System
 			{
 				AddTimer(1.0f, () =>
 				{
-					Database.Instance.AdjustDatabasePooling();
 					GameRules = Utilities.FindAllEntitiesByDesignerName<CCSGameRulesProxy>("cs_gamerules").First().GameRules;
 				});
 			});

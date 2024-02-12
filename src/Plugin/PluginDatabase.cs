@@ -14,26 +14,12 @@ namespace K4System
 
 		private Database() { }
 
-		public void Initialize(string server, string database, string userId, string password, int port = 3306, string sslMode = "None", bool usePooling = true, uint minPoolSize = 10, uint maxPoolSize = 50)
+		public void Initialize(string server, string database, string userId, string password, int port = 3306, string sslMode = "None")
 		{
-			connectionString = BuildConnectionString(server, database, userId, password, port, sslMode, usePooling, minPoolSize, maxPoolSize);
+			connectionString = BuildConnectionString(server, database, userId, password, port, sslMode);
 		}
 
-		public void AdjustDatabasePooling()
-		{
-			if (connectionString == null)
-				throw new InvalidOperationException("Database has not been initialized");
-
-			var builder = new MySqlConnectionStringBuilder(connectionString)
-			{
-				MinimumPoolSize = (uint)Math.Max(5, Server.MaxPlayers / 2.5),
-				MaximumPoolSize = (uint)Math.Max(10, Server.MaxPlayers + 1),
-			};
-
-			connectionString = builder.ConnectionString;
-		}
-
-		private static string BuildConnectionString(string server, string database, string userId, string password, int port, string sslMode, bool usePooling, uint minPoolSize, uint maxPoolSize)
+		private static string BuildConnectionString(string server, string database, string userId, string password, int port, string sslMode)
 		{
 			var builder = new MySqlConnectionStringBuilder
 			{
@@ -43,9 +29,6 @@ namespace K4System
 				Password = password,
 				Port = (uint)port,
 				SslMode = Enum.Parse<MySqlSslMode>(sslMode, true),
-				Pooling = usePooling,
-				MinimumPoolSize = 10,
-				MaximumPoolSize = 24,
 			};
 
 			return builder.ConnectionString;
@@ -79,12 +62,16 @@ namespace K4System
 
 		public async Task<MySqlDataReader> ExecuteReaderAsync(string query, params MySqlParameter[] parameters)
 		{
-			var connection = new MySqlConnection(connectionString);
-			await connection.OpenAsync();
+			using (var connection = new MySqlConnection(connectionString))
+			{
+				await connection.OpenAsync();
 
-			var command = new MySqlCommand(query, connection);
-			command.Parameters.AddRange(parameters);
-			return await command.ExecuteReaderAsync(CommandBehavior.CloseConnection);
+				using (var command = new MySqlCommand(query, connection))
+				{
+					command.Parameters.AddRange(parameters);
+					return await command.ExecuteReaderAsync(CommandBehavior.CloseConnection);
+				}
+			}
 		}
 
 		public async Task ExecuteWithTransactionAsync(Func<MySqlConnection, MySqlTransaction, Task> executeActions)

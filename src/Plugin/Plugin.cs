@@ -46,10 +46,7 @@
                 userId: databaseSettings.Username,
                 password: databaseSettings.Password,
                 port: databaseSettings.Port,
-                sslMode: databaseSettings.Sslmode,
-                usePooling: true,
-                minPoolSize: 2,
-                maxPoolSize: 2);
+                sslMode: databaseSettings.Sslmode);
 
             //** ? Save Config */
 
@@ -89,7 +86,6 @@
                 //** ? Load Player Caches */
 
                 LoadAllPlayersCache();
-                Database.Instance.AdjustDatabasePooling();
 
                 GameRules = Utilities.FindAllEntitiesByDesignerName<CCSGameRulesProxy>("cs_gamerules").First().GameRules;
             }
