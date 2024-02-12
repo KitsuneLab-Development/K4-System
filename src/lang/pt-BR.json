@@ -26,7 +26,7 @@
   "k4.ranks.top.title": "Top {lime}{0} {silver}Jogadores",
   "k4.ranks.top.line": "{gold}{0}. {1}[{2}] {gold}{3} - {blue}{4} pontos",
   "k4.ranks.top.notfound": "{lightred}Nenhum jogador encontrado no top {0}.",
-  "k4.ranks.resetrank": "{lime}O rank e os pontos de {0}{silver} foram resetador por {lime}{1}{silver}.",
+  "k4.ranks.resetrank": "{lime}O rank e os pontos de {0}{silver} foram resetados por {lime}{1}{silver}.",
   "k4.ranks.setpoints": "{lime}Os pontos de {0}{silver} foram definidos como {lime}{1} {silver}por {lime}{2}{silver}.",
   "k4.ranks.givepoints": "{lime}{0} {silver}deu {lime}{1} {silver}pontos a {lime}{2}{silver}.",
   "k4.ranks.removepoints": "{lime}{0} {silver}removeu {lime}{1} {silver}pontos de {lime}{2}{silver}.",
