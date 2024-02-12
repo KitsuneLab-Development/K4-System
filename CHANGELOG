@@ -2,6 +2,7 @@
 
 - refactor: Disable MySQL pooling limitations
 - refactor: Remove load repetative code
+- refactor: Offline MySQL reader to some places (use the connections less)
 - fix: MySQL connection is closed before data read
 - fix: Round start message printed twice or more
 - fix: Points not always saved properly (one symbol miss-typo, so sorry...)
