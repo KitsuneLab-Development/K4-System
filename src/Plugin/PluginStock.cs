@@ -21,9 +21,7 @@ namespace K4System
 		public required string PlayerName { get; set; }
 		public required string SteamId { get; set; }
 		public required string lvlSteamId { get; set; }
-		public RankData? RankData { get; set; }
-		public StatData? StatData { get; set; }
-		public TimeData? TimeData { get; set; }
+		public required PlayerCacheData cacheData { get; set; }
 	}
 
 	public sealed partial class Plugin : BasePlugin
@@ -53,7 +51,7 @@ namespace K4System
 		{
 			List<PlayerData> playersData = new List<PlayerData>();
 			List<CCSPlayerController> players = Utilities.GetPlayers()
-				.Where(p => p?.IsValid == true && p.PlayerPawn?.IsValid == true && !p.IsBot && !p.IsHLTV && p.Connected == PlayerConnectedState.PlayerConnected && p.SteamID.ToString().Length == 17)
+				.Where(p => p?.IsValid == true && p.PlayerPawn?.IsValid == true && !p.IsBot && !p.IsHLTV && p.Connected == PlayerConnectedState.PlayerConnected && p.SteamID.ToString().Length == 17 && PlayerCache.Instance.ContainsPlayer(p))
 				.ToList();
 
 			foreach (CCSPlayerController player in players)
@@ -71,17 +69,9 @@ namespace K4System
 					{
 						PlayerName = player.PlayerName,
 						SteamId = playerSteamId,
-						lvlSteamId = steamId.SteamId2.Replace("STEAM_0", "STEAM_1")
+						lvlSteamId = steamId.SteamId2.Replace("STEAM_0", "STEAM_1"),
+						cacheData = PlayerCache.Instance.GetPlayerData(player)
 					};
-
-					if (rankCache.ContainsKey(player.Slot))
-						data.RankData = rankCache[player.Slot];
-
-					if (statCache.ContainsKey(player.Slot))
-						data.StatData = statCache[player.Slot];
-
-					if (timeCache.ContainsKey(player.Slot))
-						data.TimeData = timeCache[player.Slot];
 
 					playersData.Add(data);
 				}
@@ -106,54 +96,57 @@ namespace K4System
 			{
 				foreach (PlayerData playerData in playersData)
 				{
-					if (playerData.RankData != null)
-						await ExecuteRankUpdateAsync(playerData.PlayerName, playerData.SteamId, playerData.RankData);
+					if (playerData.cacheData.rankData != null)
+						await ExecuteRankUpdateAsync(playerData.PlayerName, playerData.SteamId, playerData.cacheData.rankData);
 
-					if (playerData.StatData != null)
-						await ExecuteStatUpdateAsync(playerData.PlayerName, playerData.SteamId, playerData.StatData);
+					if (playerData.cacheData.statData != null)
+						await ExecuteStatUpdateAsync(playerData.PlayerName, playerData.SteamId, playerData.cacheData.statData);
 
-					if (playerData.TimeData != null)
-						await ExecuteTimeUpdateAsync(playerData.PlayerName, playerData.SteamId, playerData.TimeData);
+					if (playerData.cacheData.timeData != null)
+						await ExecuteTimeUpdateAsync(playerData.PlayerName, playerData.SteamId, playerData.cacheData.timeData);
 
 					if (Config.GeneralSettings.LevelRanksCompatibility)
-						await ExecuteLvlRanksUpdateAsync(playerData.PlayerName, playerData.lvlSteamId, playerData.RankData, playerData.StatData, playerData.TimeData);
+						await ExecuteLvlRanksUpdateAsync(playerData.PlayerName, playerData.lvlSteamId, playerData.cacheData);
 				}
 			});
 		}
 
-		public void SavePlayerCache(CCSPlayerController player)
+		public void SavePlayerCache(CCSPlayerController player, bool remove)
 		{
-			string playerSteamId = player.SteamID.ToString();
+			if (PlayerCache.Instance.ContainsPlayer(player))
+				return;
+
+			PlayerCacheData cacheData = PlayerCache.Instance.GetPlayerData(player);
+
 			string playerName = player.PlayerName;
-
-			RankData? rankData = rankCache.ContainsKey(player.Slot) ? rankCache[player.Slot] : null;
-			StatData? statData = statCache.ContainsKey(player.Slot) ? statCache[player.Slot] : null;
-			TimeData? timeData = timeCache.ContainsKey(player.Slot) ? timeCache[player.Slot] : null;
-
 			string lvlSteamId = new SteamID(player.SteamID).SteamId2.Replace("STEAM_0", "STEAM_1");
+			string playerSteamId = player.SteamID.ToString();
 
-			_ = SavePlayerDataAsync(playerName, playerSteamId, lvlSteamId, rankData, statData, timeData);
+			_ = SavePlayerDataAsync(playerName, playerSteamId, lvlSteamId, cacheData, remove);
 		}
 
-		private async Task SavePlayerDataAsync(string playerName, string steamId, string lvlSteamId, RankData? rankData, StatData? statData, TimeData? timeData)
+		private async Task SavePlayerDataAsync(string playerName, string steamId, string lvlSteamId, PlayerCacheData cacheData, bool remove)
 		{
 			await Database.Instance.ExecuteWithTransactionAsync(async (connection, transaction) =>
 			{
-				if (rankData != null)
-					await ExecuteRankUpdateAsync(playerName, steamId, rankData);
+				if (cacheData.rankData != null)
+					await ExecuteRankUpdateAsync(playerName, steamId, cacheData.rankData);
 
-				if (statData != null)
-					await ExecuteStatUpdateAsync(playerName, steamId, statData);
+				if (cacheData.statData != null)
+					await ExecuteStatUpdateAsync(playerName, steamId, cacheData.statData);
 
-				if (timeData != null)
-					await ExecuteTimeUpdateAsync(playerName, steamId, timeData);
+				if (cacheData.timeData != null)
+					await ExecuteTimeUpdateAsync(playerName, steamId, cacheData.timeData);
 
 				if (Config.GeneralSettings.LevelRanksCompatibility)
-					await ExecuteLvlRanksUpdateAsync(playerName, lvlSteamId, rankData, statData, timeData);
+					await ExecuteLvlRanksUpdateAsync(playerName, lvlSteamId, cacheData);
 			});
+
+			if (remove)
+				PlayerCache.Instance.RemovePlayer(ulong.Parse(steamId));
 		}
 
-		private async Task ExecuteLvlRanksUpdateAsync(string playerName, string lvlSteamId, RankData? rankData, StatData? statData, TimeData? timeData)
+		private async Task ExecuteLvlRanksUpdateAsync(string playerName, string lvlSteamId, PlayerCacheData cacheData)
 		{
 			string query = $@"
 				INSERT INTO `{Config.DatabaseSettings.LvLRanksTableName}`
@@ -180,17 +173,17 @@ namespace K4System
 			{
 				new MySqlParameter("@playerName", playerName),
 				new MySqlParameter("@steamId", lvlSteamId),
-				new MySqlParameter("@kills", statData?.StatFields["kills"] ?? 0),
-				new MySqlParameter("@deaths", statData?.StatFields["deaths"] ?? 0),
-				new MySqlParameter("@shoots", statData?.StatFields["shoots"] ?? 0),
-				new MySqlParameter("@hits", statData?.StatFields["hits_given"] ?? 0),
-				new MySqlParameter("@headshots", statData?.StatFields["headshots"] ?? 0),
-				new MySqlParameter("@assists", statData?.StatFields["assists"] ?? 0),
-				new MySqlParameter("@roundWin", statData?.StatFields["round_win"] ?? 0),
-				new MySqlParameter("@roundLose", statData?.StatFields["round_lose"] ?? 0),
-				new MySqlParameter("@points", rankData?.Points ?? 0),
-				new MySqlParameter("@rank", rankData?.Rank?.Id ?? -1),
-				new MySqlParameter("@playtime", timeData?.TimeFields["all"] ?? 0),
+				new MySqlParameter("@kills", cacheData.statData?.StatFields["kills"] ?? 0),
+				new MySqlParameter("@deaths", cacheData.statData?.StatFields["deaths"] ?? 0),
+				new MySqlParameter("@shoots", cacheData.statData?.StatFields["shoots"] ?? 0),
+				new MySqlParameter("@hits", cacheData.statData?.StatFields["hits_given"] ?? 0),
+				new MySqlParameter("@headshots", cacheData.statData?.StatFields["headshots"] ?? 0),
+				new MySqlParameter("@assists", cacheData.statData?.StatFields["assists"] ?? 0),
+				new MySqlParameter("@roundWin", cacheData.statData?.StatFields["round_win"] ?? 0),
+				new MySqlParameter("@roundLose", cacheData.statData?.StatFields["round_lose"] ?? 0),
+				new MySqlParameter("@points", cacheData.rankData?.Points ?? 0),
+				new MySqlParameter("@rank", cacheData.rankData?.Rank?.Id ?? -1),
+				new MySqlParameter("@playtime", cacheData.timeData?.TimeFields["all"] ?? 0),
 			};
 
 			await Database.Instance.ExecuteNonQueryAsync(query, parameters);
@@ -257,8 +250,6 @@ namespace K4System
 
 		private void LoadPlayerCache(CCSPlayerController player)
 		{
-			int slot = player.Slot;
-
 			string combinedQuery = $@"
 					INSERT INTO `{Config.DatabaseSettings.TablePrefix}k4ranks` (`name`, `steam_id`, `rank`, `points`)
 					VALUES (
@@ -320,18 +311,20 @@ namespace K4System
 						r.`steam_id` = @steamid;
 				";
 
+			ulong steamId = player.SteamID;
+
 			MySqlParameter[] parameters = new MySqlParameter[]
 			{
 				new MySqlParameter("@escapedName", player.PlayerName),
-				new MySqlParameter("@steamid", player.SteamID),
+				new MySqlParameter("@steamid", steamId),
 				new MySqlParameter("@noneRankName", ModuleRank.GetNoneRank()?.Name ?? "none"),
 				new MySqlParameter("@startPoints", Config.RankSettings.StartPoints)
 			};
 
-			_ = LoadPlayerCacheAsync(slot, combinedQuery, parameters);
+			_ = LoadPlayerCacheAsync(steamId, combinedQuery, parameters);
 		}
 
-		public async Task LoadPlayerCacheAsync(int slot, string combinedQuery, MySqlParameter[] parameters)
+		public async Task LoadPlayerCacheAsync(ulong steamId, string combinedQuery, MySqlParameter[] parameters)
 		{
 			using (MySqlDataReader? reader = await Database.Instance.ExecuteReaderAsync(combinedQuery, parameters))
 			{
@@ -340,14 +333,23 @@ namespace K4System
 					while (await reader.ReadAsync())
 					{
 						/** ? Load Rank to Cache */
+						RankData? rankData = null;
 
 						if (Config.GeneralSettings.ModuleRanks)
 						{
 							int points = reader.GetInt32("points");
-							ModuleRank.LoadRankData(slot, points);
+
+							rankData = new RankData
+							{
+								Points = points,
+								Rank = ModuleRank.GetPlayerRank(points),
+								PlayedRound = false,
+								RoundPoints = 0
+							};
 						}
 
 						/** ? Load Stat to Cache */
+						StatData? statData = null;
 
 						if (Config.GeneralSettings.ModuleStats)
 						{
@@ -360,10 +362,14 @@ namespace K4System
 								NewStatFields[statField] = reader.GetInt32(statField);
 							}
 
-							ModuleStat.LoadStatData(slot, NewStatFields);
+							statData = new StatData
+							{
+								StatFields = NewStatFields,
+							};
 						}
 
 						/** ? Load Time to Cache */
+						TimeData? timeData = null;
 
 						if (Config.GeneralSettings.ModuleTimes)
 						{
@@ -376,8 +382,26 @@ namespace K4System
 								TimeFields[timeField] = reader.GetInt32(timeField);
 							}
 
-							ModuleTime.LoadTimeData(slot, TimeFields);
+							DateTime now = DateTime.UtcNow;
+
+							timeData = new TimeData
+							{
+								TimeFields = TimeFields,
+								Times = new Dictionary<string, DateTime>
+								{
+									{ "Connect", now },
+									{ "Team", now },
+									{ "Death", now }
+								}
+							};
 						}
+
+						PlayerCache.Instance.AddOrUpdatePlayer(steamId, new PlayerCacheData
+						{
+							rankData = rankData,
+							statData = statData,
+							timeData = timeData
+						});
 					}
 				}
 			}
@@ -386,8 +410,6 @@ namespace K4System
 		private void LoadAllPlayersCache()
 		{
 			List<CCSPlayerController> players = Utilities.GetPlayers().Where(player => player != null && player.IsValid && player.PlayerPawn.IsValid && !player.IsBot && !player.IsHLTV && player.SteamID.ToString().Length == 17).ToList();
-
-			Dictionary<string, int> steamIdToSlot = players.ToDictionary(player => player.SteamID.ToString(), player => player.Slot);
 
 			if (players.Count == 0)
 				return;
@@ -424,10 +446,10 @@ namespace K4System
 				WHERE
 					r.`steam_id` IN (" + string.Join(",", players.Select(player => $"'{player.SteamID}'")) + ");";
 
-			_ = LoadAllPlayersCacheAsync(combinedQuery, steamIdToSlot);
+			_ = LoadAllPlayersCacheAsync(combinedQuery);
 		}
 
-		public async Task LoadAllPlayersCacheAsync(string combinedQuery, Dictionary<string, int> steamIdToSlot)
+		public async Task LoadAllPlayersCacheAsync(string combinedQuery)
 		{
 			using (var reader = await Database.Instance.ExecuteReaderAsync(combinedQuery))
 			{
@@ -435,20 +457,26 @@ namespace K4System
 				{
 					while (await reader.ReadAsync())
 					{
-						string steamId = reader["steam_id"].ToString()!;
-
-						// A Slot információk lekérése a SteamID alapján a Dictionary-ből
-						int slot = steamIdToSlot[steamId];
+						ulong steamId = ulong.Parse(reader["steam_id"].ToString()!);
 
 						/** ? Load Rank to Cache */
+						RankData? rankData = null;
 
 						if (Config.GeneralSettings.ModuleRanks)
 						{
 							int points = reader.GetInt32("points");
-							ModuleRank.LoadRankData(slot, points);
+
+							rankData = new RankData
+							{
+								Points = points,
+								Rank = ModuleRank.GetPlayerRank(points),
+								PlayedRound = false,
+								RoundPoints = 0
+							};
 						}
 
 						/** ? Load Stat to Cache */
+						StatData? statData = null;
 
 						if (Config.GeneralSettings.ModuleStats)
 						{
@@ -461,10 +489,14 @@ namespace K4System
 								NewStatFields[statField] = reader.GetInt32(statField);
 							}
 
-							ModuleStat.LoadStatData(slot, NewStatFields);
+							statData = new StatData
+							{
+								StatFields = NewStatFields,
+							};
 						}
 
 						/** ? Load Time to Cache */
+						TimeData? timeData = null;
 
 						if (Config.GeneralSettings.ModuleTimes)
 						{
@@ -477,8 +509,26 @@ namespace K4System
 								TimeFields[timeField] = reader.GetInt32(timeField);
 							}
 
-							ModuleTime.LoadTimeData(slot, TimeFields);
+							DateTime now = DateTime.UtcNow;
+
+							timeData = new TimeData
+							{
+								TimeFields = TimeFields,
+								Times = new Dictionary<string, DateTime>
+								{
+									{ "Connect", now },
+									{ "Team", now },
+									{ "Death", now }
+								}
+							};
 						}
+
+						PlayerCache.Instance.AddOrUpdatePlayer(steamId, new PlayerCacheData
+						{
+							rankData = rankData,
+							statData = statData,
+							timeData = timeData
+						});
 					}
 				}
 			}

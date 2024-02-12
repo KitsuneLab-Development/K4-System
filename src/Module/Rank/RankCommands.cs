@@ -49,7 +49,7 @@ namespace K4System
 
 			Plugin plugin = (this.PluginContext.Plugin as Plugin)!;
 
-			if (!rankCache.ContainsPlayer(player))
+			if (!PlayerCache.Instance.ContainsPlayer(player))
 			{
 				info.ReplyToCommand($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.general.loading"]}");
 				return;
@@ -71,7 +71,10 @@ namespace K4System
 			int playerPlace = result.playerPlace;
 			int totalPlayers = result.totalPlayers;
 
-			RankData playerData = rankCache[player];
+			RankData? playerData = PlayerCache.Instance.GetPlayerData(player).rankData;
+
+			if (playerData is null)
+				return;
 
 			int higherRanksCount = rankDictionary.Count(kv => kv.Value.Point > playerData.Points);
 
@@ -125,18 +128,21 @@ namespace K4System
 			if (!plugin.CommandHelper(player, info, CommandUsage.CLIENT_ONLY))
 				return;
 
-			if (!rankCache.ContainsPlayer(player!))
+			if (!PlayerCache.Instance.ContainsPlayer(player!))
 			{
 				info.ReplyToCommand($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.general.loading"]}");
 				return;
 			}
 
-			RankData playerData = rankCache[player!];
+			RankData? playerData = PlayerCache.Instance.GetPlayerData(player!).rankData;
+
+			if (playerData is null)
+				return;
 
 			playerData.RoundPoints -= playerData.Points;
 			playerData.Points = 0;
 
-			plugin.SavePlayerCache(player!);
+			plugin.SavePlayerCache(player!, false);
 
 			Server.PrintToChatAll($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.ranks.resetmyrank", player!.PlayerName]}");
 		}
@@ -148,7 +154,7 @@ namespace K4System
 
 			Plugin plugin = (this.PluginContext.Plugin as Plugin)!;
 
-			if (!rankCache.ContainsPlayer(player))
+			if (!PlayerCache.Instance.ContainsPlayer(player))
 			{
 				info.ReplyToCommand($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.general.loading"]}");
 				return;
@@ -250,18 +256,21 @@ namespace K4System
 					continue;
 				}
 
-				if (!rankCache.ContainsPlayer(target))
+				if (!PlayerCache.Instance.ContainsPlayer(target))
 				{
 					info.ReplyToCommand($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.general.targetloading", target.PlayerName]}");
 					continue;
 				}
 
-				RankData playerData = rankCache[target];
+				RankData? playerData = PlayerCache.Instance.GetPlayerData(target).rankData;
+
+				if (playerData is null)
+					return;
 
 				playerData.RoundPoints -= playerData.Points;
 				playerData.Points = 0;
 
-				plugin.SavePlayerCache(target);
+				plugin.SavePlayerCache(target, false);
 
 				if (playerName != "SERVER")
 					Server.PrintToChatAll($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.ranks.resetrank", target.PlayerName, playerName]}");
@@ -305,18 +314,21 @@ namespace K4System
 					continue;
 				}
 
-				if (!rankCache.ContainsPlayer(target))
+				if (!PlayerCache.Instance.ContainsPlayer(target))
 				{
 					info.ReplyToCommand($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.general.targetloading", target.PlayerName]}");
 					continue;
 				}
 
-				RankData playerData = rankCache[target];
+				RankData? playerData = PlayerCache.Instance.GetPlayerData(target).rankData;
+
+				if (playerData is null)
+					return;
 
 				playerData.RoundPoints = parsedInt;
 				playerData.Points = 0;
 
-				plugin.SavePlayerCache(target);
+				plugin.SavePlayerCache(target, false);
 
 				if (playerName != "SERVER")
 					Server.PrintToChatAll($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.ranks.setpoints", target.PlayerName, parsedInt, playerName]}");
@@ -360,18 +372,21 @@ namespace K4System
 					continue;
 				}
 
-				if (!rankCache.ContainsPlayer(target))
+				if (!PlayerCache.Instance.ContainsPlayer(target))
 				{
 					info.ReplyToCommand($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.general.targetloading", target.PlayerName]}");
 					continue;
 				}
 
-				RankData playerData = rankCache[target];
+				RankData? playerData = PlayerCache.Instance.GetPlayerData(target).rankData;
+
+				if (playerData is null)
+					return;
 
 				playerData.RoundPoints += parsedInt;
 				playerData.Points += parsedInt;
 
-				plugin.SavePlayerCache(target);
+				plugin.SavePlayerCache(target, false);
 
 				if (playerName != "SERVER")
 					Server.PrintToChatAll($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.ranks.givepoints", playerName, parsedInt, target.PlayerName]}");
@@ -415,18 +430,21 @@ namespace K4System
 					continue;
 				}
 
-				if (!rankCache.ContainsPlayer(target))
+				if (!PlayerCache.Instance.ContainsPlayer(target))
 				{
 					info.ReplyToCommand($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.general.targetloading", target.PlayerName]}");
 					continue;
 				}
 
-				RankData playerData = rankCache[target];
+				RankData? playerData = PlayerCache.Instance.GetPlayerData(target).rankData;
+
+				if (playerData is null)
+					return;
 
 				playerData.RoundPoints -= parsedInt;
 				playerData.Points -= parsedInt;
 
-				plugin.SavePlayerCache(target);
+				plugin.SavePlayerCache(target, false);
 
 				if (playerName != "SERVER")
 					Server.PrintToChatAll($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.ranks.removepoints", playerName, parsedInt, target.PlayerName]}");

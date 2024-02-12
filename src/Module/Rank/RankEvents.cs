@@ -5,7 +5,6 @@ namespace K4System
 	using CounterStrikeSharp.API.Core;
 	using CounterStrikeSharp.API.Modules.Admin;
 	using CounterStrikeSharp.API.Modules.Utils;
-	using Microsoft.Extensions.Logging;
 
 	public partial class ModuleRank : IModuleRank
 	{
@@ -15,14 +14,17 @@ namespace K4System
 			{
 				CCSPlayerController player = @event.Userid;
 
-				if (player is null || !player.IsValid || !player.PlayerPawn.IsValid || player.IsBot || player.IsHLTV || !rankCache.ContainsPlayer(player))
+				if (player is null || !player.IsValid || !player.PlayerPawn.IsValid || player.IsBot || player.IsHLTV || !PlayerCache.Instance.ContainsPlayer(player))
 					return HookResult.Continue;
 
-				RankData playerData = rankCache[player];
+				RankData? rankData = PlayerCache.Instance.GetPlayerData(player).rankData;
 
-				if (playerData.Rank.Permissions != null && playerData.Rank.Permissions.Count > 0)
+				if (rankData is null)
+					return HookResult.Continue;
+
+				if (rankData.Rank.Permissions != null && rankData.Rank.Permissions.Count > 0)
 				{
-					foreach (Permission permission in playerData.Rank.Permissions)
+					foreach (Permission permission in rankData.Rank.Permissions)
 					{
 						AdminManager.AddPlayerPermissions(Utilities.GetPlayerFromSlot(player.Slot), permission.PermissionName);
 					}
@@ -30,7 +32,7 @@ namespace K4System
 
 				if (!@event.Disconnect && @event.Team != @event.Oldteam)
 				{
-					rankCache[player].PlayedRound = false;
+					rankData.PlayedRound = false;
 				}
 
 				return HookResult.Continue;
@@ -43,14 +45,17 @@ namespace K4System
 				if (player is null || !player.IsValid || !player.PlayerPawn.IsValid || player.IsBot || player.IsHLTV)
 					return HookResult.Continue;
 
-				if (!rankCache.ContainsPlayer(player))
+				if (!PlayerCache.Instance.ContainsPlayer(player))
 					return HookResult.Continue;
 
 				if (Config.RankSettings.ScoreboardRanks)
 				{
-					RankData playerData = rankCache[player];
+					RankData? rankData = PlayerCache.Instance.GetPlayerData(player).rankData;
 
-					string tag = playerData.Rank.Tag ?? $"[{playerData.Rank.Name}]";
+					if (rankData is null)
+						return HookResult.Continue;
+
+					string tag = rankData.Rank.Tag ?? $"[{rankData.Rank.Name}]";
 					SetPlayerClanTag(player, tag);
 				}
 
@@ -128,9 +133,16 @@ namespace K4System
 			{
 				List<CCSPlayerController> players = Utilities.GetPlayers();
 
-				players.Where(p => p?.IsValid == true && p.PlayerPawn?.IsValid == true && !p.IsBot && !p.IsHLTV && p.PawnIsAlive && rankCache.ContainsPlayer(p) && p.SteamID.ToString().Length == 17)
+				players.Where(p => p?.IsValid == true && p.PlayerPawn?.IsValid == true && !p.IsBot && !p.IsHLTV && p.PawnIsAlive && p.SteamID.ToString().Length == 17 && PlayerCache.Instance.ContainsPlayer(p))
 					.ToList()
-					.ForEach(p => rankCache[p].PlayedRound = true);
+					.ForEach(p =>
+					{
+						RankData? rankData = PlayerCache.Instance.GetPlayerData(p).rankData;
+						if (rankData is not null)
+						{
+							rankData.PlayedRound = true;
+						}
+					});
 
 				if (players.Count < Config.RankSettings.MinPlayers)
 					Server.PrintToChatAll($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.ranks.notenoughplayers", Config.RankSettings.MinPlayers]}");

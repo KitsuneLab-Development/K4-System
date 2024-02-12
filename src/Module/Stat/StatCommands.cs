@@ -22,13 +22,16 @@ namespace K4System
 			if (!plugin.CommandHelper(player, info, CommandUsage.CLIENT_ONLY))
 				return;
 
-			if (!statCache.ContainsPlayer(player!))
+			if (!PlayerCache.Instance.ContainsPlayer(player!))
 			{
 				info.ReplyToCommand($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.general.loading"]}");
 				return;
 			}
 
-			StatData playerData = statCache[player!];
+			StatData? playerData = PlayerCache.Instance.GetPlayerData(player!).statData;
+
+			if (playerData is null)
+				return;
 
 			int kills = playerData.StatFields["kills"];
 			int firstblood = playerData.StatFields["firstblood"];

@@ -23,13 +23,16 @@ namespace K4System
 			if (!plugin.CommandHelper(player, info, CommandUsage.CLIENT_ONLY))
 				return;
 
-			if (!timeCache.ContainsPlayer(player!))
+			if (!PlayerCache.Instance.ContainsPlayer(player!))
 			{
 				info.ReplyToCommand($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.general.loading"]}");
 				return;
 			}
 
-			TimeData playerData = timeCache[player!];
+			TimeData? playerData = PlayerCache.Instance.GetPlayerData(player!).timeData;
+
+			if (playerData is null)
+				return;
 
 			DateTime now = DateTime.UtcNow;
 

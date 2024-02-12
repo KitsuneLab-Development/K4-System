@@ -85,6 +85,9 @@ namespace K4System
 				if (player is null || !player.IsValid || !player.PlayerPawn.IsValid || player.IsBot || player.IsHLTV)
 					return HookResult.Continue;
 
+				if (PlayerCache.Instance.ContainsPlayer(player))
+					return HookResult.Continue;
+
 				LoadPlayerCache(player);
 
 				return HookResult.Continue;
@@ -100,14 +103,16 @@ namespace K4System
 				if (player.IsBot || player.IsHLTV)
 					return HookResult.Continue;
 
+				if (!PlayerCache.Instance.ContainsPlayer(player))
+					return HookResult.Continue;
+
 				if (Config.GeneralSettings.ModuleTimes)
 					ModuleTime.BeforeDisconnect(player);
 
-				// Block save if the disconenct reason is mapchange, because we handle it on RoundEnd for everyone, which called on MapChange
-				// This reduce the load, because we use transactions and we don't open connection for each player
-				if (@event.Reason == 1)
+				// Do not save cache for each player on mapchange, because it's handled by an optimised query for all players
+				if (@event.Reason != 1)
 				{
-					SavePlayerCache(player);
+					SavePlayerCache(player, true);
 				}
 
 				return HookResult.Continue;
@@ -155,6 +160,7 @@ namespace K4System
 			{
 				AddTimer(1.0f, () =>
 				{
+					Database.Instance.AdjustDatabasePooling();
 					GameRules = Utilities.FindAllEntitiesByDesignerName<CCSGameRulesProxy>("cs_gamerules").First().GameRules;
 				});
 			});

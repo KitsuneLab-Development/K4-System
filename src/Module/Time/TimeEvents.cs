@@ -18,11 +18,14 @@ namespace K4System
 				if (player.IsBot || player.IsHLTV)
 					return HookResult.Continue;
 
-				if (!timeCache.ContainsPlayer(player))
+				if (!PlayerCache.Instance.ContainsPlayer(player))
 					return HookResult.Continue;
 
 				DateTime now = DateTime.UtcNow;
-				TimeData playerData = timeCache[player];
+				TimeData? playerData = PlayerCache.Instance.GetPlayerData(player).timeData;
+
+				if (playerData is null)
+					return HookResult.Continue;
 
 				if ((CsTeam)@event.Oldteam != CsTeam.None)
 				{
@@ -44,10 +47,13 @@ namespace K4System
 				if (player.IsBot || player.IsHLTV)
 					return HookResult.Continue;
 
-				if (!timeCache.ContainsPlayer(player))
+				if (!PlayerCache.Instance.ContainsPlayer(player))
 					return HookResult.Continue;
 
-				TimeData playerData = timeCache[player];
+				TimeData? playerData = PlayerCache.Instance.GetPlayerData(player).timeData;
+
+				if (playerData is null)
+					return HookResult.Continue;
 
 				playerData.TimeFields["dead"] += (int)(DateTime.UtcNow - playerData.Times["Death"]).TotalSeconds;
 				playerData.Times["Death"] = DateTime.UtcNow;
@@ -65,10 +71,13 @@ namespace K4System
 				if (player.IsBot || player.IsHLTV)
 					return HookResult.Continue;
 
-				if (!timeCache.ContainsPlayer(player))
+				if (!PlayerCache.Instance.ContainsPlayer(player))
 					return HookResult.Continue;
 
-				TimeData playerData = timeCache[player];
+				TimeData? playerData = PlayerCache.Instance.GetPlayerData(player).timeData;
+
+				if (playerData is null)
+					return HookResult.Continue;
 
 				playerData.TimeFields["alive"] += (int)(DateTime.UtcNow - playerData.Times["Death"]).TotalSeconds;
 				playerData.Times["Death"] = DateTime.UtcNow;

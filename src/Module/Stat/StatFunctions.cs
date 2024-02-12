@@ -14,16 +14,6 @@ namespace K4System
 			return plugin.GameRules != null && (!plugin.GameRules.WarmupPeriod || Config.StatisticSettings.WarmupStats) && (Config.StatisticSettings.MinPlayers <= notBots);
 		}
 
-		public void LoadStatData(int slot, Dictionary<string, int> statData)
-		{
-			StatData playerData = new StatData
-			{
-				StatFields = statData,
-			};
-
-			statCache[slot] = playerData;
-		}
-
 		public void BeforeRoundEnd(int winnerTeam)
 		{
 			if (!IsStatsAllowed())
@@ -57,11 +47,15 @@ namespace K4System
 			if (player.IsBot || player.IsHLTV)
 				return;
 
-			if (!statCache.ContainsPlayer(player))
+			if (!PlayerCache.Instance.ContainsPlayer(player))
 				return;
 
-			StatData playerData = statCache[player];
-			playerData.StatFields[field] += amount;
+			StatData? playerData = PlayerCache.Instance.GetPlayerData(player).statData;
+
+			if (playerData != null)
+			{
+				playerData.StatFields[field] += amount;
+			}
 		}
 	}
 }

@@ -1,8 +1,6 @@
 
 using System.Data;
 using CounterStrikeSharp.API;
-using CounterStrikeSharp.API.Core;
-using CounterStrikeSharp.API.Modules.Memory;
 using MySqlConnector;
 
 namespace K4System
@@ -29,7 +27,7 @@ namespace K4System
 			var builder = new MySqlConnectionStringBuilder(connectionString)
 			{
 				MinimumPoolSize = (uint)Math.Max(5, Server.MaxPlayers / 2.5),
-				MaximumPoolSize = (uint)Math.Max(20, Server.MaxPlayers),
+				MaximumPoolSize = (uint)Math.Max(10, Server.MaxPlayers + 1),
 			};
 
 			connectionString = builder.ConnectionString;

@@ -1,3 +1,12 @@
+-- 2023.02.10 - V3.3.8
+
+- refactor: New global cache has been added
+- fix: MySQL connection pool adjust was unable to run
+- fix: MapChange will no longed reload cache
+- fix: MapChange will no longer dupe save cache
+- fix: MapChange will no longer delete cache
+- fix: MapChange lose points because of misstypo in last release
+
 -- 2023.02.10 - V3.3.7
 
 - refactor: Adjust MySQL connection pool sizes better

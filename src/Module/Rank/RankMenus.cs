@@ -24,7 +24,13 @@ namespace K4System
 					int playerCount = result.playerCount;
 					float percentage = result.percentage;
 
-					RankData playerData = rankCache[player];
+					if (!PlayerCache.Instance.ContainsPlayer(player))
+						return;
+
+					RankData? playerData = PlayerCache.Instance.GetPlayerData(player).rankData;
+
+					if (playerData is null)
+						return;
 
 					int pointsDifference = Math.Abs(rank.Point - playerData.Points);
 

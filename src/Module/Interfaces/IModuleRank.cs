@@ -10,7 +10,7 @@ public interface IModuleRank
 
 	public Rank GetNoneRank();
 
-	public void LoadRankData(int slot, int points);
-
 	public void BeforeRoundEnd(int winnerTeam);
+
+	public Rank GetPlayerRank(int points);
 }

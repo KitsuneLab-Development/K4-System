@@ -37,7 +37,6 @@ namespace K4System
 		public required string ModuleDirectory { get; set; }
 
 		public Dictionary<string, Rank> rankDictionary = new Dictionary<string, Rank>();
-		internal static PlayerCache<RankData> rankCache = new PlayerCache<RankData>();
 		public Dictionary<int, (int killStreak, DateTime lastKillTime)> playerKillStreaks = new Dictionary<int, (int, DateTime)>();
 		public Rank? noneRank;
 	}

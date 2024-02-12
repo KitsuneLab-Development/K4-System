@@ -16,6 +16,5 @@ namespace K4System
 		public readonly ILogger<ModuleTime> Logger;
 
 		public required PluginConfig Config { get; set; }
-		internal static PlayerCache<TimeData> timeCache = new PlayerCache<TimeData>();
 	}
 }

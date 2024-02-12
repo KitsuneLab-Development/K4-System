@@ -7,29 +7,14 @@ namespace K4System
 
 	public partial class ModuleTime : IModuleTime
 	{
-		public void LoadTimeData(int slot, Dictionary<string, int> timeData)
-		{
-			DateTime now = DateTime.UtcNow;
-
-			TimeData playerData = new TimeData
-			{
-				TimeFields = timeData,
-				Times = new Dictionary<string, DateTime>
-				{
-					{ "Connect", now },
-					{ "Team", now },
-					{ "Death", now }
-				}
-			};
-
-			timeCache[slot] = playerData;
-		}
-
 		public void BeforeDisconnect(CCSPlayerController player)
 		{
 			DateTime now = DateTime.UtcNow;
 
-			TimeData playerData = timeCache[player];
+			TimeData? playerData = PlayerCache.Instance.GetPlayerData(player).timeData;
+
+			if (playerData is null)
+				return;
 
 			playerData.TimeFields["all"] += (int)Math.Round((now - playerData.Times["Connect"]).TotalSeconds);
 			playerData.TimeFields[GetFieldForTeam((CsTeam)player.TeamNum)] += (int)Math.Round((now - playerData.Times["Team"]).TotalSeconds);

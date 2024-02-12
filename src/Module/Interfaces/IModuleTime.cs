@@ -8,7 +8,5 @@ public interface IModuleTime
 
 	public void Release(bool hotReload);
 
-	public void LoadTimeData(int slot, Dictionary<string, int> timeData);
-
 	public void BeforeDisconnect(CCSPlayerController player);
 }

@@ -14,7 +14,6 @@ namespace K4System
 		public readonly PluginContext PluginContext;
 		public readonly ILogger<ModuleStat> Logger;
 		public required PluginConfig Config { get; set; }
-		internal static PlayerCache<StatData> statCache = new PlayerCache<StatData>();
 		public bool FirstBlood = false;
 	}
 }

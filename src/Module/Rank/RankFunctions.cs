@@ -29,14 +29,17 @@ namespace K4System
 
         public void BeforeRoundEnd(int winnerTeam)
         {
-            List<CCSPlayerController> players = Utilities.GetPlayers().Where(p => p?.IsValid == true && p.PlayerPawn?.IsValid == true && !p.IsBot && !p.IsHLTV && rankCache.ContainsPlayer(p) && p.SteamID.ToString().Length == 17).ToList();
+            List<CCSPlayerController> players = Utilities.GetPlayers().Where(p => p?.IsValid == true && p.PlayerPawn?.IsValid == true && !p.IsBot && !p.IsHLTV && p.SteamID.ToString().Length == 17 && PlayerCache.Instance.ContainsPlayer(p)).ToList();
 
             foreach (CCSPlayerController player in players)
             {
                 if (!player.PawnIsAlive)
                     playerKillStreaks[player.Slot] = (0, DateTime.Now);
 
-                RankData playerData = rankCache[player];
+                RankData? playerData = PlayerCache.Instance.GetPlayerData(player).rankData;
+
+                if (playerData is null)
+                    continue;
 
                 if (!playerData.PlayedRound)
                     continue;
@@ -71,19 +74,6 @@ namespace K4System
             }
         }
 
-        public void LoadRankData(int slot, int points)
-        {
-            RankData playerData = new RankData
-            {
-                Points = points,
-                Rank = GetPlayerRank(points),
-                PlayedRound = false,
-                RoundPoints = 0
-            };
-
-            rankCache[slot] = playerData;
-        }
-
         public Rank GetPlayerRank(int points)
         {
             return rankDictionary.LastOrDefault(kv => points >= kv.Value.Point).Value ?? noneRank!;
@@ -103,10 +93,13 @@ namespace K4System
             if (player.SteamID.ToString().Length != 17)
                 return;
 
-            if (!rankCache.ContainsPlayer(player))
+            if (!PlayerCache.Instance.ContainsPlayer(player))
                 return;
 
-            RankData playerData = rankCache[player];
+            RankData? playerData = PlayerCache.Instance.GetPlayerData(player).rankData;
+
+            if (playerData is null)
+                return;
 
             Plugin plugin = (this.PluginContext.Plugin as Plugin)!;
 
@@ -227,12 +220,25 @@ namespace K4System
 
         public int CalculateDynamicPoints(CCSPlayerController from, CCSPlayerController to, int amount)
         {
-            if (!Config.RankSettings.DynamicDeathPoints || to.IsBot || from.IsBot || rankCache[to].Points <= 0 || rankCache[from].Points <= 0)
-            {
+            if (!Config.RankSettings.DynamicDeathPoints)
                 return amount;
-            }
 
-            double pointsRatio = Math.Clamp((double)rankCache[to].Points / rankCache[from].Points, Config.RankSettings.DynamicDeathPointsMinMultiplier, Config.RankSettings.DynamicDeathPointsMaxMultiplier);
+            if (to.IsBot || from.IsBot)
+                return amount;
+
+            if (!PlayerCache.Instance.ContainsPlayer(from) || !PlayerCache.Instance.ContainsPlayer(to))
+                return amount;
+
+            RankData? fromCache = PlayerCache.Instance.GetPlayerData(from).rankData;
+            RankData? toCache = PlayerCache.Instance.GetPlayerData(to).rankData;
+
+            if (fromCache is null || toCache is null)
+                return amount;
+
+            if (toCache.Points <= 0 || fromCache.Points <= 0)
+                return amount;
+
+            double pointsRatio = Math.Clamp((double)toCache.Points / fromCache.Points, Config.RankSettings.DynamicDeathPointsMinMultiplier, Config.RankSettings.DynamicDeathPointsMaxMultiplier);
             double result = pointsRatio * amount;
             return (int)Math.Round(result);
         }

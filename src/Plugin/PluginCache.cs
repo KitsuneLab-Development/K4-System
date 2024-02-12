@@ -3,78 +3,106 @@ namespace K4System
 {
 	using CounterStrikeSharp.API.Core;
 
-	public class PlayerCache<T> : Dictionary<int, T>
+	using static K4System.ModuleRank;
+	using static K4System.ModuleStat;
+	using static K4System.ModuleTime;
+
+	public class PlayerCacheData
 	{
-		public T this[CCSPlayerController controller]
+		public RankData? rankData { get; set; }
+		public StatData? statData { get; set; }
+		public TimeData? timeData { get; set; }
+	}
+
+	public class PlayerCache
+	{
+		private static readonly Lazy<PlayerCache> lazy = new Lazy<PlayerCache>(() => new PlayerCache());
+		public static PlayerCache Instance => lazy.Value;
+
+		private Dictionary<ulong, PlayerCacheData> cache = new Dictionary<ulong, PlayerCacheData>();
+
+		private PlayerCache() { }
+
+		public Dictionary<ulong, PlayerCacheData> Cache
 		{
-			get
-			{
-				if (controller is null || !controller.IsValid)
-				{
-					throw new ArgumentException("Invalid player controller");
-				}
+			get { return cache; }
+		}
 
-				if (controller.IsBot || controller.IsHLTV)
-				{
-					throw new ArgumentException("Player controller is BOT or HLTV");
-				}
-
-				if (!base.ContainsKey(controller.Slot))
-				{
-					throw new KeyNotFoundException($"Player with ID {controller.Slot} not found in cache");
-				}
-
-				if (base.TryGetValue(controller.Slot, out T? value))
-				{
-					return value;
-				}
-
-				return default(T)!;
-			}
-			set
-			{
-				if (controller is null || !controller.IsValid || !controller.PlayerPawn.IsValid)
-				{
-					throw new ArgumentException("Invalid player controller");
-				}
-
-				if (controller.IsBot || controller.IsHLTV)
-				{
-					throw new ArgumentException("Player controller is BOT or HLTV");
-				}
-
-				this[controller.Slot] = value;
-			}
+		private bool IsValidPlayer(CCSPlayerController player)
+		{
+			return player is { IsValid: true, IsHLTV: false, IsBot: false, UserId: not null };
 		}
 
 		public bool ContainsPlayer(CCSPlayerController player)
 		{
-			if (player is null || !player.IsValid || !player.PlayerPawn.IsValid)
+			if (IsValidPlayer(player))
 			{
-				throw new ArgumentException("Invalid player controller");
+				return ContainsPlayer(player.SteamID);
 			}
+			else
+				throw new ArgumentException("The player is invalid");
+		}
 
-			if (player.IsBot || player.IsHLTV)
+		public bool ContainsPlayer(ulong steamID)
+		{
+			if (steamID.ToString().Length != 17)
+				return false;
+
+			return cache.ContainsKey(steamID);
+		}
+
+		public PlayerCacheData GetPlayerData(CCSPlayerController player)
+		{
+			if (IsValidPlayer(player))
 			{
-				throw new ArgumentException("Player controller is BOT or HLTV");
+				return GetPlayerData(player.SteamID);
 			}
+			else
+				throw new ArgumentException("The player is invalid");
+		}
 
-			return base.ContainsKey(player.Slot);
+		public PlayerCacheData GetPlayerData(ulong steamID)
+		{
+			if (steamID.ToString().Length != 17)
+				throw new ArgumentException("The player is invalid");
+
+			return cache[steamID];
+		}
+
+		public void AddOrUpdatePlayer(CCSPlayerController player, PlayerCacheData data)
+		{
+			if (IsValidPlayer(player))
+			{
+				AddOrUpdatePlayer(player.SteamID, data);
+			}
+			else
+				throw new ArgumentException("The player is invalid");
+		}
+
+		public void AddOrUpdatePlayer(ulong steamID, PlayerCacheData data)
+		{
+			if (steamID.ToString().Length != 17)
+				return;
+
+			cache[steamID] = data;
 		}
 
 		public bool RemovePlayer(CCSPlayerController player)
 		{
-			if (player is null || !player.IsValid || !player.PlayerPawn.IsValid)
+			if (IsValidPlayer(player))
 			{
-				throw new ArgumentException("Invalid player controller");
+				return RemovePlayer(player.SteamID);
 			}
+			else
+				throw new ArgumentException("The player is invalid");
+		}
 
-			if (player.IsBot || player.IsHLTV)
-			{
-				throw new ArgumentException("Player controller is BOT or HLTV");
-			}
+		public bool RemovePlayer(ulong steamID)
+		{
+			if (steamID.ToString().Length != 17)
+				return false;
 
-			return base.Remove(player.Slot);
+			return cache.Remove(steamID);
 		}
 	}
 }
