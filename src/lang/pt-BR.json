@@ -6,7 +6,7 @@
   "k4.general.targetnotfound": "{lightred}O jogador não foi encontrado.",
   "k4.general.targetnobot": "{lightred}{0} não pode ser alvo, porque são um bot.",
   "k4.general.invalidamount": "{lightred}O valor fornecido é inválido.",
-  "k4.general.spawnmessage": "{silver}O servidor está usando o plugin {lime}K4-System {silver}. Digite {lime}!k4 {silver}para mais informações!",
+  "k4.general.spawnmessage": "{silver}O servidor está usando o plugin {lime}K4-System{silver}. Digite {lime}!k4 {silver}para mais informações!",
   "k4.general.availablecommands": "{lime}Comandos Disponíveis",
   "k4.general.availablecommands.stat": "Comandos do Stat",
   "k4.general.availablecommands.rank": "Comandos do Rank",
