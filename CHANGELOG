@@ -8,6 +8,7 @@
 - fix: Points not always saved properly (one symbol miss-typo, so sorry...)
 - fix: On some servers the plugin stay in LOADING state (rare bug)
 - fix: Duplicated point messages (rare bug)
+- chore: Rename outdated translations to .outdated
 
 -- 2023.02.13 - V3.3.8
 
