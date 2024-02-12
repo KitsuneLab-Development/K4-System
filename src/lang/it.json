@@ -37,7 +37,7 @@
   "k4.ranks.selected.benefitline": "--- Vantaggi {argento}:",
 
   "k4.stats.title": "Statistiche di {lime}{0}{silver}",
-  "k4.stats.line1": "--- {silver}Uccisioni: {lime}{0} {silver}| Primo sangue: {lime}{1} {silver}| Assist: {lime}{2}",
+  "k4.stats.line1": "--- {silver}Uccisioni: {lime}{0} {silver}| Primo Sangue: {lime}{1} {silver}| Assist: {lime}{2}",
   "k4.stats.line2": "--- {silver} Risultati ottenuti: {lime}{0} {silver}| Risultati ottenuti: {lime}{1} {silver}| Morti: {lime}{2}",
   "k4.stats.line3": "--- {silver}Colpi alla testa: {lime}{0} {silver}| Percentuale colpi alla testa: {lime}{1:n2}% {silver}| Granate lanciate: {lime}{2} ",
   "k4.stats.line4": "--- {silver}Vittorie nel round: {lime}{0} {silver}| Perdite nel round: {lime}{1} {silver}| Probabilità: {lime}{2:n2}% ",

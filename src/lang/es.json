@@ -42,7 +42,7 @@
   "k4.ranks.selected.benefitline": "--- {silver}Beneficios:",
 
   "k4.stats.title": "{lime}{0}{silver} - Estadísticas",
-  "k4.stats.line1": "--- {silver}Asesinatos: {lime}{0} {silver}| Primera sangre: {lime}{1} {silver}| Asistencias: {lime}{2}",
+  "k4.stats.line1": "--- {silver}Asesinatos: {lime}{0} {silver}| Primera Sangre: {lime}{1} {silver}| Asistencias: {lime}{2}",
   "k4.stats.line2": "--- {silver}Impactos dados: {lime}{0} {silver}| Impactos recibidos: {lime}{1} {silver}| Muertes: {lime}{2}",
   "k4.stats.line3": "--- {silver}Cabezas: {lime}{0} {silver}| Porcentaje de cabezas: {lime}{1:n2}% {silver}| Granadas lanzadas: {lime}{2}",
   "k4.stats.line4": "--- {silver}Rondas Ganadas: {lime}{0} {silver}| Rondas Perdidas: {lime}{1} {silver}| Probabilidad: {lime}{2:n2}%",
