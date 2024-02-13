@@ -1,4 +1,16 @@
--- 2023.02.10 - V3.3.8
+-- 2023.02.13 - V3.3.9
+
+- refactor: Disable MySQL pooling limitations
+- refactor: Remove load repetative code
+- refactor: Offline MySQL reader to some places (use the connections less)
+- fix: MySQL connection is closed before data read
+- fix: Round start message printed twice or more
+- fix: Points not always saved properly (one symbol miss-typo, so sorry...)
+- fix: On some servers the plugin stay in LOADING state (rare bug)
+- fix: Duplicated point messages (rare bug)
+- chore: Rename outdated translations to .outdated
+
+-- 2023.02.13 - V3.3.8
 
 - refactor: New global cache has been added
 - fix: MySQL connection pool adjust was unable to run
@@ -7,7 +19,7 @@
 - fix: MapChange will no longer delete cache
 - fix: MapChange lose points because of misstypo in last release
 
--- 2023.02.10 - V3.3.7
+-- 2023.02.13 - V3.3.7
 
 - refactor: Adjust MySQL connection pool sizes better
 - refactor: MySQL connection pool prepare to all players join at once

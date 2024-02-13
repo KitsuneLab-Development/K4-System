@@ -5,6 +5,7 @@ namespace K4System
 	using CounterStrikeSharp.API.Modules.Menu;
 	using CounterStrikeSharp.API.Modules.Utils;
 	using Microsoft.Extensions.Logging;
+	using System.Data;
 
 	public partial class ModuleRank : IModuleRank
 	{
@@ -91,15 +92,14 @@ namespace K4System
 			{
 				using (MySqlCommand command = new MySqlCommand(query))
 				{
-					using (MySqlDataReader? reader = await Database.Instance.ExecuteReaderAsync(command.CommandText, command.Parameters.Cast<MySqlParameter>().ToArray()))
+					DataTable dataTable = await Database.Instance.ExecuteReaderAsync(command.CommandText);
+
+					if (dataTable.Rows.Count > 0)
 					{
-						if (reader != null && reader.HasRows)
+						foreach (DataRow row in dataTable.Rows)
 						{
-							while (await reader.ReadAsync())
-							{
-								playerCount = reader.GetInt32(0);
-								percentage = reader.GetFloat(1);
-							}
+							playerCount = Convert.ToInt32(row[0]);
+							percentage = Convert.ToSingle(row[1]);
 						}
 					}
 				}
@@ -108,7 +108,7 @@ namespace K4System
 			}
 			catch (Exception ex)
 			{
-				Logger.LogError($"Error fetching rank data: {ex.Message}");
+				Logger.LogError($"A problem occurred while fetching rank menu data: {ex.Message}");
 				return (0, 0);
 			}
 		}

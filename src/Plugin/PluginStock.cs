@@ -15,6 +15,7 @@ namespace K4System
 	using CounterStrikeSharp.API.Modules.Commands;
 	using CounterStrikeSharp.API.Modules.Admin;
 	using CounterStrikeSharp.API.Modules.Entities;
+	using System.Data;
 
 	public class PlayerData
 	{
@@ -113,9 +114,6 @@ namespace K4System
 
 		public void SavePlayerCache(CCSPlayerController player, bool remove)
 		{
-			if (PlayerCache.Instance.ContainsPlayer(player))
-				return;
-
 			PlayerCacheData cacheData = PlayerCache.Instance.GetPlayerData(player);
 
 			string playerName = player.PlayerName;
@@ -311,105 +309,45 @@ namespace K4System
 						r.`steam_id` = @steamid;
 				";
 
-			ulong steamId = player.SteamID;
+			ulong steamID = player.SteamID;
 
 			MySqlParameter[] parameters = new MySqlParameter[]
 			{
 				new MySqlParameter("@escapedName", player.PlayerName),
-				new MySqlParameter("@steamid", steamId),
+				new MySqlParameter("@steamid", steamID),
 				new MySqlParameter("@noneRankName", ModuleRank.GetNoneRank()?.Name ?? "none"),
 				new MySqlParameter("@startPoints", Config.RankSettings.StartPoints)
 			};
 
-			_ = LoadPlayerCacheAsync(steamId, combinedQuery, parameters);
+			_ = LoadPlayerCacheAsync(steamID, combinedQuery, parameters);
 		}
 
-		public async Task LoadPlayerCacheAsync(ulong steamId, string combinedQuery, MySqlParameter[] parameters)
+		public async Task LoadPlayerCacheAsync(ulong steamID, string combinedQuery, MySqlParameter[] parameters)
 		{
-			using (MySqlDataReader? reader = await Database.Instance.ExecuteReaderAsync(combinedQuery, parameters))
+			try
 			{
-				if (reader != null && reader.HasRows)
+				using (MySqlCommand command = new MySqlCommand(combinedQuery))
 				{
-					while (await reader.ReadAsync())
+					DataTable dataTable = await Database.Instance.ExecuteReaderAsync(combinedQuery, parameters);
+
+					if (dataTable.Rows.Count > 0)
 					{
-						/** ? Load Rank to Cache */
-						RankData? rankData = null;
-
-						if (Config.GeneralSettings.ModuleRanks)
+						foreach (DataRow row in dataTable.Rows)
 						{
-							int points = reader.GetInt32("points");
-
-							rankData = new RankData
-							{
-								Points = points,
-								Rank = ModuleRank.GetPlayerRank(points),
-								PlayedRound = false,
-								RoundPoints = 0
-							};
+							LoadPlayerRowToCache(steamID, row);
 						}
-
-						/** ? Load Stat to Cache */
-						StatData? statData = null;
-
-						if (Config.GeneralSettings.ModuleStats)
-						{
-							Dictionary<string, int> NewStatFields = new Dictionary<string, int>();
-
-							string[] statFieldNames = { "kills", "shoots", "firstblood", "deaths", "hits_given", "hits_taken", "headshots", "grenades", "mvp", "round_win", "round_lose", "game_win", "game_lose", "assists" };
-
-							foreach (string statField in statFieldNames)
-							{
-								NewStatFields[statField] = reader.GetInt32(statField);
-							}
-
-							statData = new StatData
-							{
-								StatFields = NewStatFields,
-							};
-						}
-
-						/** ? Load Time to Cache */
-						TimeData? timeData = null;
-
-						if (Config.GeneralSettings.ModuleTimes)
-						{
-							Dictionary<string, int> TimeFields = new Dictionary<string, int>();
-
-							string[] timeFieldNames = { "all", "ct", "t", "spec", "alive", "dead" };
-
-							foreach (string timeField in timeFieldNames)
-							{
-								TimeFields[timeField] = reader.GetInt32(timeField);
-							}
-
-							DateTime now = DateTime.UtcNow;
-
-							timeData = new TimeData
-							{
-								TimeFields = TimeFields,
-								Times = new Dictionary<string, DateTime>
-								{
-									{ "Connect", now },
-									{ "Team", now },
-									{ "Death", now }
-								}
-							};
-						}
-
-						PlayerCache.Instance.AddOrUpdatePlayer(steamId, new PlayerCacheData
-						{
-							rankData = rankData,
-							statData = statData,
-							timeData = timeData
-						});
 					}
 				}
+			}
+			catch (Exception ex)
+			{
+				Logger.LogError($"A problem occurred while loading single player cache: {ex.Message}");
 			}
 		}
 
 		private void LoadAllPlayersCache()
 		{
-			List<CCSPlayerController> players = Utilities.GetPlayers().Where(player => player != null && player.IsValid && player.PlayerPawn.IsValid && !player.IsBot && !player.IsHLTV && player.SteamID.ToString().Length == 17).ToList();
+			List<CCSPlayerController> players = Utilities.GetPlayers().Where(player => player?.IsValid == true && player.PlayerPawn?.IsValid == true && !player.IsBot && !player.IsHLTV && player.SteamID.ToString().Length == 17).ToList();
 
 			if (players.Count == 0)
 				return;
@@ -446,92 +384,116 @@ namespace K4System
 				WHERE
 					r.`steam_id` IN (" + string.Join(",", players.Select(player => $"'{player.SteamID}'")) + ");";
 
-			_ = LoadAllPlayersCacheAsync(combinedQuery);
+			try
+			{
+				_ = LoadAllPlayersCacheAsync(combinedQuery);
+			}
+			catch (Exception ex)
+			{
+				Logger.LogError($"LoadAllPlayersCache > {ex.Message}");
+			}
 		}
 
 		public async Task LoadAllPlayersCacheAsync(string combinedQuery)
 		{
-			using (var reader = await Database.Instance.ExecuteReaderAsync(combinedQuery))
+			try
 			{
-				if (reader != null && reader.HasRows)
+				using (MySqlCommand command = new MySqlCommand(combinedQuery))
 				{
-					while (await reader.ReadAsync())
+					DataTable dataTable = await Database.Instance.ExecuteReaderAsync(command.CommandText);
+
+					if (dataTable.Rows.Count > 0)
 					{
-						ulong steamId = ulong.Parse(reader["steam_id"].ToString()!);
-
-						/** ? Load Rank to Cache */
-						RankData? rankData = null;
-
-						if (Config.GeneralSettings.ModuleRanks)
+						foreach (DataRow row in dataTable.Rows)
 						{
-							int points = reader.GetInt32("points");
+							ulong steamID = Convert.ToUInt64(row["steam_id"]);
 
-							rankData = new RankData
-							{
-								Points = points,
-								Rank = ModuleRank.GetPlayerRank(points),
-								PlayedRound = false,
-								RoundPoints = 0
-							};
+							if (steamID == 0)
+								continue;
+
+							LoadPlayerRowToCache(steamID, row);
 						}
-
-						/** ? Load Stat to Cache */
-						StatData? statData = null;
-
-						if (Config.GeneralSettings.ModuleStats)
-						{
-							Dictionary<string, int> NewStatFields = new Dictionary<string, int>();
-
-							string[] statFieldNames = { "kills", "shoots", "firstblood", "deaths", "hits_given", "hits_taken", "headshots", "grenades", "mvp", "round_win", "round_lose", "game_win", "game_lose", "assists" };
-
-							foreach (string statField in statFieldNames)
-							{
-								NewStatFields[statField] = reader.GetInt32(statField);
-							}
-
-							statData = new StatData
-							{
-								StatFields = NewStatFields,
-							};
-						}
-
-						/** ? Load Time to Cache */
-						TimeData? timeData = null;
-
-						if (Config.GeneralSettings.ModuleTimes)
-						{
-							Dictionary<string, int> TimeFields = new Dictionary<string, int>();
-
-							string[] timeFieldNames = { "all", "ct", "t", "spec", "alive", "dead" };
-
-							foreach (string timeField in timeFieldNames)
-							{
-								TimeFields[timeField] = reader.GetInt32(timeField);
-							}
-
-							DateTime now = DateTime.UtcNow;
-
-							timeData = new TimeData
-							{
-								TimeFields = TimeFields,
-								Times = new Dictionary<string, DateTime>
-								{
-									{ "Connect", now },
-									{ "Team", now },
-									{ "Death", now }
-								}
-							};
-						}
-
-						PlayerCache.Instance.AddOrUpdatePlayer(steamId, new PlayerCacheData
-						{
-							rankData = rankData,
-							statData = statData,
-							timeData = timeData
-						});
 					}
 				}
 			}
+			catch (Exception ex)
+			{
+				Logger.LogError($"A problem occurred while loading all players cache: {ex.Message}");
+			}
+		}
+
+		public void LoadPlayerRowToCache(ulong steamID, DataRow row)
+		{
+			/** ? Load Rank to Cache */
+			RankData? rankData = null;
+
+			if (Config.GeneralSettings.ModuleRanks)
+			{
+				int points = Convert.ToInt32(row["points"]);
+
+				rankData = new RankData
+				{
+					Points = points,
+					Rank = ModuleRank.GetPlayerRank(points),
+					PlayedRound = false,
+					RoundPoints = 0
+				};
+			}
+
+			/** ? Load Stat to Cache */
+			StatData? statData = null;
+
+			if (Config.GeneralSettings.ModuleStats)
+			{
+				Dictionary<string, int> NewStatFields = new Dictionary<string, int>();
+
+				string[] statFieldNames = { "kills", "shoots", "firstblood", "deaths", "hits_given", "hits_taken", "headshots", "grenades", "mvp", "round_win", "round_lose", "game_win", "game_lose", "assists" };
+
+				foreach (string statField in statFieldNames)
+				{
+					NewStatFields[statField] = Convert.ToInt32(row[statField]);
+				}
+
+				statData = new StatData
+				{
+					StatFields = NewStatFields,
+				};
+			}
+
+			/** ? Load Time to Cache */
+			TimeData? timeData = null;
+
+			if (Config.GeneralSettings.ModuleTimes)
+			{
+				Dictionary<string, int> TimeFields = new Dictionary<string, int>();
+
+				string[] timeFieldNames = { "all", "ct", "t", "spec", "alive", "dead" };
+
+				foreach (string timeField in timeFieldNames)
+				{
+					TimeFields[timeField] = Convert.ToInt32(row[timeField]);
+				}
+
+				DateTime now = DateTime.UtcNow;
+
+				timeData = new TimeData
+				{
+					TimeFields = TimeFields,
+					Times = new Dictionary<string, DateTime>
+					{
+						{ "Connect", now },
+						{ "Team", now },
+						{ "Death", now }
+					}
+				};
+			}
+
+			PlayerCache.Instance.AddOrUpdatePlayer(steamID, new PlayerCacheData
+			{
+				rankData = rankData,
+				statData = statData,
+				timeData = timeData
+			});
 		}
 
 		public bool CommandHelper(CCSPlayerController? player, CommandInfo info, CommandUsage usage, int argCount = 0, string? help = null, string? permission = null)

@@ -9,6 +9,7 @@ namespace K4System
 	using CounterStrikeSharp.API.Modules.Commands.Targeting;
 	using CounterStrikeSharp.API.Modules.Menu;
 	using Microsoft.Extensions.Logging;
+	using System.Data;
 
 	public partial class ModuleRank : IModuleRank
 	{
@@ -200,18 +201,18 @@ namespace K4System
 
 			try
 			{
+
 				using (MySqlCommand command = new MySqlCommand(query))
 				{
-					using (MySqlDataReader? reader = await Database.Instance.ExecuteReaderAsync(command.CommandText, command.Parameters.Cast<MySqlParameter>().ToArray()))
+					DataTable dataTable = await Database.Instance.ExecuteReaderAsync(command.CommandText);
+
+					if (dataTable.Rows.Count > 0)
 					{
-						if (reader != null && reader.HasRows)
+						foreach (DataRow row in dataTable.Rows)
 						{
-							while (await reader.ReadAsync())
-							{
-								int points = reader.GetInt32(0);
-								string name = reader.GetString(1);
-								rankData.Add((points, name));
-							}
+							int points = Convert.ToInt32(row[0]);
+							string name = Convert.ToString(row[1]) ?? "Unknown";
+							rankData.Add((points, name));
 						}
 					}
 				}
@@ -220,7 +221,7 @@ namespace K4System
 			}
 			catch (Exception ex)
 			{
-				Logger.LogError($"Error fetching top data: {ex.Message}");
+				Logger.LogError($"A problem occurred while fetching top data: {ex.Message}");
 				return null;
 			}
 		}

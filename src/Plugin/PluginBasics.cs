@@ -10,7 +10,7 @@ namespace K4System
 
 	public sealed partial class Plugin : BasePlugin
 	{
-		public Timer? databasePoolingTimer;
+		DateTime lastRoundStartEventTime = DateTime.MinValue;
 
 		public void Initialize_Commands()
 		{
@@ -85,6 +85,8 @@ namespace K4System
 				if (player is null || !player.IsValid || !player.PlayerPawn.IsValid || player.IsBot || player.IsHLTV)
 					return HookResult.Continue;
 
+				// Do not load the data, if the user is in the cache already
+				// This free up some resources and prevent plugin to load the same data twice
 				if (PlayerCache.Instance.ContainsPlayer(player))
 					return HookResult.Continue;
 
@@ -124,6 +126,13 @@ namespace K4System
 				if (!Config.GeneralSettings.SpawnMessage)
 					return HookResult.Continue;
 
+				// Check if the event was fired within the last 3 seconds
+				// This fixes the duplicated round start being fired by the game
+				if ((DateTime.Now - lastRoundStartEventTime).TotalSeconds < 3)
+					return HookResult.Continue;
+
+				lastRoundStartEventTime = DateTime.Now;
+
 				List<CCSPlayerController> players = Utilities.GetPlayers();
 
 				foreach (CCSPlayerController player in players)
@@ -154,7 +163,7 @@ namespace K4System
 				SaveAllPlayersCache();
 
 				return HookResult.Continue;
-			});
+			}, HookMode.Post);
 
 			RegisterListener<Listeners.OnMapStart>((mapName) =>
 			{

@@ -7,6 +7,7 @@ namespace K4System
     using CounterStrikeSharp.API.Modules.Admin;
     using CounterStrikeSharp.API.Modules.Utils;
     using Microsoft.Extensions.Logging;
+    using System.Data;
 
     public partial class ModuleRank : IModuleRank
     {
@@ -193,18 +194,23 @@ namespace K4System
                     (SELECT `points` FROM `{Config.DatabaseSettings.TablePrefix}k4ranks` WHERE `steam_id` = @steamId)) AS playerPlace,
                 (SELECT COUNT(*) FROM `{Config.DatabaseSettings.TablePrefix}k4ranks`) AS totalPlayers";
 
+            MySqlParameter[] parameters = new MySqlParameter[]
+            {
+                 new MySqlParameter("@steamid", steamID),
+            };
+
             try
             {
                 using (MySqlCommand command = new MySqlCommand(query))
                 {
-                    command.Parameters.AddWithValue("@steamId", steamID);
+                    DataTable dataTable = await Database.Instance.ExecuteReaderAsync(command.CommandText, parameters);
 
-                    using (MySqlDataReader? reader = await Database.Instance.ExecuteReaderAsync(command.CommandText, command.Parameters.Cast<MySqlParameter>().ToArray()))
+                    if (dataTable.Rows.Count > 0)
                     {
-                        if (reader != null && reader.HasRows && await reader.ReadAsync())
+                        foreach (DataRow row in dataTable.Rows)
                         {
-                            int playerPlace = reader.GetInt32(0) + 1;
-                            int totalPlayers = reader.GetInt32(1);
+                            int playerPlace = Convert.ToInt32(row[0]) + 1;
+                            int totalPlayers = Convert.ToInt32(row[1]);
                             return (playerPlace, totalPlayers);
                         }
                     }
@@ -212,7 +218,7 @@ namespace K4System
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"An error occurred while executing GetPlayerPlaceAndCountAsync: {ex.Message}");
+                Logger.LogError($"A problem occurred while fetching player place and count: {ex.Message}");
             }
 
             return (0, 0);
@@ -268,14 +274,6 @@ namespace K4System
             }
 
             player.Clan = tag;
-
-            /*Plugin plugin = (this.PluginContext.Plugin as Plugin)!;
-
-            plugin.AddTimer(0.2f, () =>
-            {
-                Utilities.SetStateChanged(player, "CCSPlayerController", "m_szClan");
-                Utilities.SetStateChanged(player, "CBasePlayerController", "m_iszPlayerName");
-            });*/
         }
     }
 }

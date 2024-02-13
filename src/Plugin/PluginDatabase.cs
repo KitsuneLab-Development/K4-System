@@ -21,7 +21,7 @@ namespace K4System
 
 		private static string BuildConnectionString(string server, string database, string userId, string password, int port, string sslMode)
 		{
-			var builder = new MySqlConnectionStringBuilder
+			MySqlConnectionStringBuilder builder = new MySqlConnectionStringBuilder
 			{
 				Server = server,
 				Database = database,
@@ -36,10 +36,10 @@ namespace K4System
 
 		public async Task ExecuteNonQueryAsync(string query, params MySqlParameter[] parameters)
 		{
-			using (var connection = new MySqlConnection(connectionString))
+			using (MySqlConnection connection = new MySqlConnection(connectionString))
 			{
 				await connection.OpenAsync();
-				using (var command = new MySqlCommand(query, connection))
+				using (MySqlCommand command = new MySqlCommand(query, connection))
 				{
 					command.Parameters.AddRange(parameters);
 					await command.ExecuteNonQueryAsync();
@@ -49,10 +49,10 @@ namespace K4System
 
 		public async Task<object?> ExecuteScalarAsync(string query, params MySqlParameter[] parameters)
 		{
-			using (var connection = new MySqlConnection(connectionString))
+			using (MySqlConnection connection = new MySqlConnection(connectionString))
 			{
 				await connection.OpenAsync();
-				using (var command = new MySqlCommand(query, connection))
+				using (MySqlCommand command = new MySqlCommand(query, connection))
 				{
 					command.Parameters.AddRange(parameters);
 					return await command.ExecuteScalarAsync();
@@ -60,26 +60,31 @@ namespace K4System
 			}
 		}
 
-		public async Task<MySqlDataReader> ExecuteReaderAsync(string query, params MySqlParameter[] parameters)
+		public async Task<DataTable> ExecuteReaderAsync(string query, params MySqlParameter[] parameters)
 		{
-			using (var connection = new MySqlConnection(connectionString))
+			using (MySqlConnection connection = new MySqlConnection(connectionString))
 			{
 				await connection.OpenAsync();
 
-				using (var command = new MySqlCommand(query, connection))
+				using (MySqlCommand command = new MySqlCommand(query, connection))
 				{
 					command.Parameters.AddRange(parameters);
-					return await command.ExecuteReaderAsync(CommandBehavior.CloseConnection);
+					using (MySqlDataReader reader = await command.ExecuteReaderAsync())
+					{
+						DataTable dataTable = new DataTable();
+						dataTable.Load(reader);
+						return dataTable;
+					}
 				}
 			}
 		}
 
 		public async Task ExecuteWithTransactionAsync(Func<MySqlConnection, MySqlTransaction, Task> executeActions)
 		{
-			using (var connection = new MySqlConnection(connectionString))
+			using (MySqlConnection connection = new MySqlConnection(connectionString))
 			{
 				await connection.OpenAsync();
-				using (var transaction = await connection.BeginTransactionAsync())
+				using (MySqlTransaction transaction = await connection.BeginTransactionAsync())
 				{
 					try
 					{
