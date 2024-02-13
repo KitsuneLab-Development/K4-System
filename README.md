@@ -102,7 +102,7 @@ I really appreciate the help of the following people who translated the plugin i
 - [**rcon420**](https://github.com/rcon420): Latvian
 - [**criskkky**](https://github.com/criskkky): Spanish
 - [**TianxSky**](https://github.com/TianxSky): Chinese (cn)
-- [**Gabriel 'sopax' Lima**](https://github.com/gabrielsdelima75): Brazilian Portuguese
+- [**Gabriel 'sopax' Lima**](https://github.com/gabrielsdelima75) & [**crashzk**](https://github.com/crashzk): Brazilian Portuguese
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -120,11 +120,11 @@ If you need any help or information about settings, installation, api, update or
 - [x] Translations
 - [x] Detailed Ranks Lists
 - [x] Upload to CSS forum
+- [x] Create FAQ
 - [ ] Promote/Demote colored alert messages
 - [ ] Weapon based points
 - [ ] Plugin auto updater (can be disabled, download stable branch, not dev)
 - [ ] Top 10 special tags
-- [ ] Create FAQ
 - [ ] Automate release build as pre
 - [ ] Permission based ranks module
 
