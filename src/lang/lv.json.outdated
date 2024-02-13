@@ -42,7 +42,7 @@
   "k4.ranks.selected.benefitline": "--- {silver}Priekšrocības:",
 
   "k4.stats.title": "{lime}{0}{silver} Statistika",
-  "k4.stats.line1": "--- {silver}Nogalinātie: {lime}{0} {silver}| First blood: {lime}{1} {silver}| Asisti: {lime}{2}",
+  "k4.stats.line1": "--- {silver}Nogalinātie: {lime}{0} {silver}| First Blood: {lime}{1} {silver}| Asisti: {lime}{2}",
   "k4.stats.line2": "--- {silver}Veikti Šāvieni: {lime}{0} {silver}| Saņemti Šāvieni: {lime}{1} {silver}| Nāves: {lime}{2}",
   "k4.stats.line3": "--- {silver}Šāvieni Galvās: {lime}{0} {silver}| Šāvieni Galvās Procentos: {lime}{1:n2}% {silver}| Mestās Granātas: {lime}{2}",
   "k4.stats.line4": "--- {silver}Uzvarēti  Raundi: {lime}{0} {silver}| Zaudēti Raundi: {lime}{1} {silver}| Iespēja: {lime}{2:n2}%",
