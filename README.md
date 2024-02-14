@@ -121,11 +121,10 @@ If you need any help or information about settings, installation, api, update or
 - [x] Detailed Ranks Lists
 - [x] Upload to CSS forum
 - [x] Create FAQ
+- [x] Permission based ranks module
 - [ ] Promote/Demote colored alert messages
 - [ ] Weapon based points
 - [ ] Plugin auto updater (can be disabled, download stable branch, not dev)
 - [ ] Top 10 special tags
-- [ ] Automate release build as pre
-- [ ] Permission based ranks module
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
