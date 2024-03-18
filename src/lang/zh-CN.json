@@ -13,7 +13,7 @@
   "k4.general.availablecommands.other": "其他指令",
   "k4.general.commandhelp": "{silver}使用方法：{lime}!{0} {1}",
   "k4.general.commandnoperm": "{lightred}您没有权限使用此命令。",
-  "k4.general.commandserveronly": "{lightred}此命令仅可在服务器使用。",
+  "k4.general.commandserveronly": "{lightred}此命令仅可在服务端使用。",
   "k4.general.commandclientonly": "{lightred}此命令仅可在客户端使用。",
 
   "k4.ranks.rank.title": "{lime}{0}{silver}的段位",
