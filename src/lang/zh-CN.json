@@ -2,6 +2,7 @@
   "k4.general.prefix": "{silver}[ {lime}K4-System {silver}]",
   "k4.general.loading": "{lightred}你的数据还未加载，请稍后重试..。",
   "k4.general.targetloading": "{lightred}{0} 无法作为目标，所选对象数据还未加载。",
+  "k4.general.targetimmunity": "{lightred}无法以 {0} 为目标，因为他们的免疫权限比您更高。",
   "k4.general.targetnotfound": "{lightred}无法找到目标。",
   "k4.general.targetnobot": "{lightred}{0} 无法作为目标，所选对象为人机。",
   "k4.general.invalidamount": "{lightred}数量无效。",
