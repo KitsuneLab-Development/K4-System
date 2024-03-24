@@ -41,6 +41,49 @@ namespace K4System
 			plugin.AddCommand("css_setpoints", "SEt the targeted player's points", plugin.CallbackAnonymizer(OnCommandSetPoints));
 			plugin.AddCommand("css_givepoints", "Give points the targeted player", plugin.CallbackAnonymizer(OnCommandGivePoints));
 			plugin.AddCommand("css_removepoints", "Remove points from the targeted player", plugin.CallbackAnonymizer(OnCommandRemovePoints));
+			plugin.AddCommand("css_toggletag", "Toggles the tag assigned by permissions", plugin.CallbackAnonymizer(OnCommandToggleTag));
+			plugin.AddCommand("css_togglepointmsg", "Toggles the chat messages of points modifications", plugin.CallbackAnonymizer(OnCommandTogglePointMessages));
+		}
+
+		public void OnCommandTogglePointMessages(CCSPlayerController? player, CommandInfo info)
+		{
+			Plugin plugin = (this.PluginContext.Plugin as Plugin)!;
+
+			if (!plugin.CommandHelper(player, info, CommandUsage.CLIENT_ONLY))
+				return;
+
+			RankData? playerData = PlayerCache.Instance.GetPlayerData(player!).rankData;
+
+			if (playerData is null)
+				return;
+
+			playerData.MuteMessages = !playerData.MuteMessages;
+			info.ReplyToCommand($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.general.togglepointmsg", playerData.MuteMessages ? plugin.Localizer["k4.general.state.disabled"] : plugin.Localizer["k4.general.state.enabled"]]}");
+		}
+
+		public void OnCommandToggleTag(CCSPlayerController? player, CommandInfo info)
+		{
+			Plugin plugin = (this.PluginContext.Plugin as Plugin)!;
+
+			if (!plugin.CommandHelper(player, info, CommandUsage.CLIENT_ONLY))
+				return;
+
+			RankData? playerData = PlayerCache.Instance.GetPlayerData(player!).rankData;
+
+			if (playerData is null)
+				return;
+
+			playerData.HideAdminTag = !playerData.HideAdminTag;
+
+			string tag = string.Empty;
+			if (Config.RankSettings.ScoreboardClantags)
+			{
+				tag = playerData.Rank.Tag ?? $"[{playerData.Rank.Name}]";
+			}
+
+			SetPlayerClanTag(player!, playerData, tag);
+
+			info.ReplyToCommand($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.general.toggletag", playerData.HideAdminTag ? plugin.Localizer["k4.general.state.disabled"] : plugin.Localizer["k4.general.state.enabled"]]}");
 		}
 
 		public void OnCommandRank(CCSPlayerController? player, CommandInfo info)

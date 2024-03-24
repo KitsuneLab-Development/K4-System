@@ -40,6 +40,9 @@ namespace K4System
 		[JsonPropertyName("ffa-mode")]
 		public bool FFAMode { get; set; } = false;
 
+		[JsonPropertyName("table-purge-days")]
+		public int TablePurgeDays { get; set; } = 30;
+
 		[JsonPropertyName("admin-settings")]
 		public List<AdminSettingsEntry> AdminSettingsList { get; set; } = new List<AdminSettingsEntry>
 		{
@@ -159,6 +162,9 @@ namespace K4System
 		[JsonPropertyName("start-points")]
 		public int StartPoints { get; set; } = 0;
 
+		[JsonPropertyName("country-tag-before-rank")]
+		public bool CountryTagEnabled { get; set; } = false;
+
 		[JsonPropertyName("playername-in-kill-messages")]
 		public bool PlayerNameKillMessages { get; set; } = false;
 
@@ -174,8 +180,11 @@ namespace K4System
 		[JsonPropertyName("minimum-players")]
 		public int MinPlayers { get; set; } = 4;
 
+		[JsonPropertyName("scoreboard-clantags")]
+		public bool ScoreboardClantags { get; set; } = true;
+
 		[JsonPropertyName("scoreboard-ranks")]
-		public bool ScoreboardRanks { get; set; } = true;
+		public int ScoreboardRanks { get; set; } = 1;
 
 		[JsonPropertyName("scoreboard-score-sync")]
 		public bool ScoreboardScoreSync { get; set; } = false;
@@ -245,6 +254,9 @@ namespace K4System
 
 		[JsonPropertyName("bomb-defuse")]
 		public int BombDefused { get; set; } = 10;
+
+		[JsonPropertyName("bomb-defuse-others")]
+		public int BombDefusedOthers { get; set; } = 3;
 
 		[JsonPropertyName("bomb-plant")]
 		public int BombPlant { get; set; } = 10;
@@ -349,6 +361,6 @@ namespace K4System
 		public PointSettings PointSettings { get; set; } = new PointSettings();
 
 		[JsonPropertyName("ConfigVersion")]
-		public override int Version { get; set; } = 8;
+		public override int Version { get; set; } = 10;
 	}
 }

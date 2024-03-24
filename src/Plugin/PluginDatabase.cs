@@ -1,6 +1,5 @@
 
 using System.Data;
-using CounterStrikeSharp.API;
 using MySqlConnector;
 
 namespace K4System
@@ -29,6 +28,11 @@ namespace K4System
 				Password = password,
 				Port = (uint)port,
 				SslMode = Enum.Parse<MySqlSslMode>(sslMode, true),
+				// daffyy's solution to prevent crash from pooling runs out with default values
+				Pooling = true,
+				MinimumPoolSize = 0,
+				MaximumPoolSize = 640,
+				ConnectionIdleTimeout = 30
 			};
 
 			return builder.ConnectionString;

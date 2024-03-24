@@ -18,7 +18,7 @@ namespace K4System
             if (plugin.GameRules == null)
                 return false;
 
-            int notBots = Utilities.GetPlayers().Count(p => !p.IsBot && p.SteamID.ToString().Length == 17);
+            int notBots = Utilities.GetPlayers().Count(p => p?.IsValid == true && p.PlayerPawn?.IsValid == true && !p.IsBot && !p.IsHLTV && p.SteamID.ToString().Length == 17 && p.Connected == PlayerConnectedState.PlayerConnected);
 
             return (!plugin.GameRules.WarmupPeriod || Config.RankSettings.WarmupPoints) && (Config.RankSettings.MinPlayers <= notBots);
         }
@@ -59,7 +59,7 @@ namespace K4System
 
                 Plugin plugin = (this.PluginContext.Plugin as Plugin)!;
 
-                if (Config.RankSettings.RoundEndPoints)
+                if (!playerData.MuteMessages && Config.RankSettings.RoundEndPoints)
                 {
                     if (playerData.RoundPoints > 0)
                     {
@@ -72,6 +72,8 @@ namespace K4System
                     else
                         player.PrintToChat($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.ranks.summarypoints.nochange"]}");
                 }
+
+                playerData.RoundPoints = 0;
             }
         }
 
@@ -116,9 +118,18 @@ namespace K4System
             }
 
             int oldPoints = playerData.Points;
-            Server.NextFrame(() =>
+            Server.NextWorldUpdate(() =>
             {
-                if (!Config.RankSettings.RoundEndPoints || plugin.GameRules == null || plugin.GameRules.WarmupPeriod)
+                if (player is null || !player.IsValid || !player.PlayerPawn.IsValid)
+                    return;
+
+                if (player.IsBot || player.IsHLTV)
+                    return;
+
+                if (player.SteamID.ToString().Length != 17)
+                    return;
+
+                if (!playerData.MuteMessages && (!Config.RankSettings.RoundEndPoints || plugin.GameRules == null || plugin.GameRules.WarmupPeriod))
                 {
                     if (amount > 0)
                     {
@@ -146,7 +157,6 @@ namespace K4System
             });
 
             playerData.Points += amount;
-            playerData.RoundPoints += amount;
 
             if (playerData.Points < 0)
                 playerData.Points = 0;
@@ -179,10 +189,10 @@ namespace K4System
                 playerData.Rank = newRank;
             }
 
-            if (Config.RankSettings.ScoreboardRanks)
+            if (Config.RankSettings.ScoreboardClantags)
             {
                 string tag = playerData.Rank.Tag ?? $"[{playerData.Rank.Name}]";
-                SetPlayerClanTag(player, tag);
+                SetPlayerClanTag(player, playerData, tag);
             }
         }
 
@@ -249,28 +259,37 @@ namespace K4System
             return (int)Math.Round(result);
         }
 
-        public void SetPlayerClanTag(CCSPlayerController player, string tag)
+        public void SetPlayerClanTag(CCSPlayerController player, RankData playerData, string tag)
         {
-            foreach (AdminSettingsEntry adminSettings in Config.GeneralSettings.AdminSettingsList)
+            if (!playerData.HideAdminTag)
             {
-                if (adminSettings.ClanTag == null)
-                    continue;
-
-                switch (adminSettings.Permission[0])
+                foreach (AdminSettingsEntry adminSettings in Config.GeneralSettings.AdminSettingsList)
                 {
-                    case '@':
-                        if (AdminManager.PlayerHasPermissions(player, adminSettings.Permission))
-                            tag = adminSettings.ClanTag;
-                        break;
-                    case '#':
-                        if (AdminManager.PlayerInGroup(player, adminSettings.Permission))
-                            tag = adminSettings.ClanTag;
-                        break;
-                    default:
-                        if (AdminManager.PlayerHasCommandOverride(player, adminSettings.Permission))
-                            tag = adminSettings.ClanTag;
-                        break;
+                    if (adminSettings.ClanTag == null)
+                        continue;
+
+                    switch (adminSettings.Permission[0])
+                    {
+                        case '@':
+                            if (AdminManager.PlayerHasPermissions(player, adminSettings.Permission))
+                                tag = adminSettings.ClanTag;
+                            break;
+                        case '#':
+                            if (AdminManager.PlayerInGroup(player, adminSettings.Permission))
+                                tag = adminSettings.ClanTag;
+                            break;
+                        default:
+                            if (AdminManager.PlayerHasCommandOverride(player, adminSettings.Permission))
+                                tag = adminSettings.ClanTag;
+                            break;
+                    }
                 }
+            }
+
+            if (Config.RankSettings.CountryTagEnabled)
+            {
+                Plugin plugin = (this.PluginContext.Plugin as Plugin)!;
+                tag = $"{plugin.GetPlayerCountryCode(player)} | {tag}";
             }
 
             player.Clan = tag;

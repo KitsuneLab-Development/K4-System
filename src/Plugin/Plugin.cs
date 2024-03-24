@@ -7,7 +7,7 @@
     using CounterStrikeSharp.API.Core.Attributes;
     using CounterStrikeSharp.API;
 
-    [MinimumApiVersion(153)]
+    [MinimumApiVersion(191)]
     public sealed partial class Plugin : BasePlugin, IPluginConfig<PluginConfig>
     {
         //** ? PLUGIN GLOBALS */
@@ -35,6 +35,8 @@
             {
                 base.Logger.LogWarning("Configuration version mismatch (Expected: {0} | Current: {1})", this.Config.Version, config.Version);
             }
+
+
 
             //** ? Database Connection Init */
 
@@ -89,6 +91,8 @@
 
                 GameRules = Utilities.FindAllEntitiesByDesignerName<CCSGameRulesProxy>("cs_gamerules").First().GameRules;
             }
+
+            Task.Run(PurgeTableRows);
         }
 
         public override void Unload(bool hotReload)
@@ -119,6 +123,7 @@
             string timesModuleTable = @$"CREATE TABLE IF NOT EXISTS `{this.Config.DatabaseSettings.TablePrefix}k4times` (
 					`steam_id` VARCHAR(32) COLLATE 'utf8mb4_unicode_ci' UNIQUE NOT NULL,
 					`name` VARCHAR(255) COLLATE 'utf8mb4_unicode_ci' NOT NULL,
+                    `lastseen` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
 					`all` INT NOT NULL DEFAULT 0,
 					`ct` INT NOT NULL DEFAULT 0,
 					`t` INT NOT NULL DEFAULT 0,
@@ -152,6 +157,7 @@
             string ranksModuleTable = $@"CREATE TABLE IF NOT EXISTS `{this.Config.DatabaseSettings.TablePrefix}k4ranks` (
                     `steam_id` VARCHAR(32) COLLATE 'utf8mb4_unicode_ci' UNIQUE NOT NULL,
                     `name` VARCHAR(255) COLLATE 'utf8mb4_unicode_ci' NOT NULL,
+                    `lastseen` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
                     `rank` VARCHAR(255) COLLATE 'utf8mb4_unicode_ci' NOT NULL,
                     `points` INT NOT NULL DEFAULT 0,
                     UNIQUE (`steam_id`)

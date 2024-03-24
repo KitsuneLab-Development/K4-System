@@ -1,3 +1,22 @@
+-- 2023.03.24 - V4.0.0
+
+- feat: Scoreboard premier point support
+- feat: Auto delete inactive player data from db (day based settings)
+- feat: Scoreboard mm rank support
+- feat: Scoreboard country clantag addon
+- feat: Player mute point messages for themselves (!togglepointmsg)
+- feat: Possibility to hide permission based tags (!toggletag)
+- fix: Possibly fix player count based bug
+- fix: MySQL crash problem by @daffyy
+
+-- 2023.03.08 - V3.3.10
+
+- fix: RoundEndPoints duplicated print amount (visual bug)
+- fix: Possible fix for the log about Entity is not valid (bug since last week)
+- fix: Possible fix for time not saved properly
+- fix: Not enough players print bug
+- fix: Scoreboard rank not getting synced instantly
+
 -- 2023.02.13 - V3.3.9
 
 - refactor: Disable MySQL pooling limitations

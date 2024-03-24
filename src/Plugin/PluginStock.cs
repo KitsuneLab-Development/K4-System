@@ -16,6 +16,8 @@ namespace K4System
 	using CounterStrikeSharp.API.Modules.Admin;
 	using CounterStrikeSharp.API.Modules.Entities;
 	using System.Data;
+	using MaxMind.GeoIP2;
+	using MaxMind.GeoIP2.Exceptions;
 
 	public class PlayerData
 	{
@@ -189,9 +191,9 @@ namespace K4System
 
 		private async Task ExecuteRankUpdateAsync(string playerName, string steamId, RankData rankData)
 		{
-			string query = $@"INSERT INTO `{Config.DatabaseSettings.TablePrefix}k4ranks` (`name`, `steam_id`, `rank`, `points`)
-                      VALUES (@playerName, @steamId, @rank, @points)
-                      ON DUPLICATE KEY UPDATE `name` = @playerName, `points` = @points;";
+			string query = $@"INSERT INTO `{Config.DatabaseSettings.TablePrefix}k4ranks` (`name`, `steam_id`, `rank`, `points`, `lastseen`)
+                      VALUES (@playerName, @steamId, @rank, @points, CURRENT_TIMESTAMP)
+                      ON DUPLICATE KEY UPDATE `name` = @playerName, `points` = @points, `lastseen` = CURRENT_TIMESTAMP;";
 
 			MySqlParameter[] parameters = new MySqlParameter[]
 			{
@@ -210,9 +212,9 @@ namespace K4System
 			string valuesForInsert = string.Join(", ", statData.StatFields.Select(f => $"@{f.Key}"));
 			string onDuplicateKeyUpdate = string.Join(", ", statData.StatFields.Select(f => $"`{f.Key}` = @{f.Key}"));
 
-			string query = $@"INSERT INTO `{Config.DatabaseSettings.TablePrefix}k4stats` (`name`, `steam_id`, {fieldsForInsert})
-                      VALUES (@playerName, @steamId, {valuesForInsert})
-                      ON DUPLICATE KEY UPDATE `name` = @playerName, {onDuplicateKeyUpdate};";
+			string query = $@"INSERT INTO `{Config.DatabaseSettings.TablePrefix}k4stats` (`name`, `steam_id`, {fieldsForInsert}, `lastseen`)
+                      VALUES (@playerName, @steamId, CURRENT_TIMESTAMP, {valuesForInsert})
+                      ON DUPLICATE KEY UPDATE `name` = @playerName, `lastseen` = CURRENT_TIMESTAMP, {onDuplicateKeyUpdate};";
 
 			List<MySqlParameter> parameters = new List<MySqlParameter>
 			{
@@ -231,9 +233,9 @@ namespace K4System
 			string valuesForInsert = string.Join(", ", timeData.TimeFields.Select(f => $"@{f.Key}"));
 			string onDuplicateKeyUpdate = string.Join(", ", timeData.TimeFields.Select(f => $"`{f.Key}` = @{f.Key}"));
 
-			string query = $@"INSERT INTO `{Config.DatabaseSettings.TablePrefix}k4times` (`name`, `steam_id`, {fieldsForInsert})
-                      VALUES (@playerName, @steamId, {valuesForInsert})
-                      ON DUPLICATE KEY UPDATE `name` = @playerName, {onDuplicateKeyUpdate};";
+			string query = $@"INSERT INTO `{Config.DatabaseSettings.TablePrefix}k4times` (`name`, `steam_id`, `lastseen`, {fieldsForInsert})
+                      VALUES (@playerName, @steamId, CURRENT_TIMESTAMP, {valuesForInsert})
+                      ON DUPLICATE KEY UPDATE `name` = @playerName, `lastseen` = CURRENT_TIMESTAMP, {onDuplicateKeyUpdate};";
 
 			List<MySqlParameter> parameters = new List<MySqlParameter>
 			{
@@ -436,7 +438,9 @@ namespace K4System
 					Points = points,
 					Rank = ModuleRank.GetPlayerRank(points),
 					PlayedRound = false,
-					RoundPoints = 0
+					RoundPoints = 0,
+					HideAdminTag = false,
+					MuteMessages = false
 				};
 			}
 
@@ -540,6 +544,59 @@ namespace K4System
 			}
 
 			return true;
+		}
+
+		public async Task PurgeTableRows()
+		{
+			await Database.Instance.ExecuteWithTransactionAsync(async (connection, transaction) =>
+			{
+				MySqlParameter[] parameters = new MySqlParameter[]
+				{
+					new MySqlParameter("@days", Config.GeneralSettings.TablePurgeDays)
+				};
+
+				string query = $@"DELETE FROM `{this.Config.DatabaseSettings.TablePrefix}k4times` WHERE `lastseen` < NOW() - INTERVAL @days DAY;";
+				await Database.Instance.ExecuteNonQueryAsync(query, parameters);
+
+				query = $@"DELETE FROM `{this.Config.DatabaseSettings.TablePrefix}k4stats` WHERE `lastseen` < NOW() - INTERVAL @days DAY;";
+				await Database.Instance.ExecuteNonQueryAsync(query, parameters);
+
+				query = $@"DELETE FROM `{this.Config.DatabaseSettings.TablePrefix}k4ranks` WHERE `lastseen` < NOW() - INTERVAL @days DAY;";
+				await Database.Instance.ExecuteNonQueryAsync(query, parameters);
+
+				query = $@"DELETE FROM `{Config.DatabaseSettings.LvLRanksTableName}` WHERE `last_seen_unix_time` < UNIX_TIMESTAMP(NOW() - INTERVAL @days DAY);";
+				await Database.Instance.ExecuteNonQueryAsync(query, parameters);
+			});
+		}
+
+		public string GetPlayerCountryCode(CCSPlayerController player)
+		{
+			string? playerIp = player.IpAddress;
+
+			if (playerIp == null)
+				return "??";
+
+			string[] parts = playerIp.Split(':');
+			string realIP = parts.Length == 2 ? parts[0] : playerIp;
+
+			using DatabaseReader reader = new DatabaseReader(Path.Combine(ModuleDirectory, "GeoLite2-Country.mmdb"));
+			{
+				try
+				{
+					MaxMind.GeoIP2.Responses.CountryResponse response = reader.Country(realIP);
+					return response.Country.IsoCode ?? "??";
+				}
+				catch (AddressNotFoundException)
+				{
+					Console.WriteLine($"The address {realIP} is not in the database.");
+					return "??";
+				}
+				catch (GeoIP2Exception ex)
+				{
+					Console.WriteLine($"Error: {ex.Message}");
+					return "??";
+				}
+			}
 		}
 	}
 }

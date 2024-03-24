@@ -28,6 +28,8 @@ namespace K4System
 			public required Rank Rank { get; set; }
 			public required bool PlayedRound { get; set; }
 			public required int RoundPoints { get; set; }
+			public required bool HideAdminTag { get; set; }
+			public required bool MuteMessages { get; set; }
 		}
 
 		public readonly PluginContext PluginContext;

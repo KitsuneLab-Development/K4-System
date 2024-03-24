@@ -17,6 +17,11 @@
   "k4.general.commandserveronly": "{lightred}This command can only be used by the server.",
   "k4.general.commandclientonly": "{lightred}This command can only be used by clients.",
 
+  "k4.general.toggletag": "{silver}Your permission based tag is now {0}",
+  "k4.general.togglepointmsg": "{silver}Point modification messages are now {0}",
+  "k4.general.state.enabled": "{green}ENABLED",
+  "k4.general.state.disabled": "{lightred}DISABLED",
+
   "k4.ranks.rank.title": "{lime}{0}{silver}'s Rank",
   "k4.ranks.rank.line1": "--- {silver}You have {lime}{0} {silver}points and are currently {1}{2} {silver}({3} out of {4})",
   "k4.ranks.rank.line2": "--- {silver}Next rank: {0}{1}",

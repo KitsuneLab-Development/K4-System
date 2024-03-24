@@ -151,21 +151,18 @@ namespace K4System
 					return HookResult.Continue;
 				}
 
+				List<CCSPlayerController> players = Utilities.GetPlayers().Where(p => p?.IsValid == true && p.PlayerPawn?.IsValid == true && !p.IsBot && !p.IsHLTV && p.SteamID.ToString().Length == 17).ToList();
+
 				if (Config.GeneralSettings.FFAMode)
 				{
-					List<CCSPlayerController> players = Utilities.GetPlayers();
-
 					CCSPlayerController? player = players.OrderByDescending(p => p?.Score).FirstOrDefault();
 
-					if (player != null && player.IsValid && player.PlayerPawn.IsValid && !player.IsBot && !player.IsHLTV)
+					if (player != null)
 					{
 						ModifyPlayerStats(player, "game_win", 1);
 					}
 
-					foreach (CCSPlayerController otherPlayer in players.Where(p => p != player && p != null && p.IsValid && p.PlayerPawn.IsValid && !p.IsBot && !p.IsHLTV))
-					{
-						ModifyPlayerStats(otherPlayer, "game_lose", 1);
-					}
+					players.Where(p => p != player).ToList().ForEach(p => ModifyPlayerStats(p, "game_lose", 1));
 				}
 				else
 				{
@@ -183,7 +180,7 @@ namespace K4System
 
 					if ((int)winnerTeam > (int)CsTeam.Spectator)
 					{
-						Utilities.GetPlayers().Where(p => p.TeamNum > (int)CsTeam.Spectator)
+						players.Where(p => p.TeamNum > (int)CsTeam.Spectator)
 							.ToList()
 							.ForEach(p => ModifyPlayerStats(p, (CsTeam)p.TeamNum == winnerTeam ? "game_win" : "game_lose", 1));
 					}

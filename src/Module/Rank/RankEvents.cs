@@ -4,12 +4,37 @@ namespace K4System
 	using CounterStrikeSharp.API;
 	using CounterStrikeSharp.API.Core;
 	using CounterStrikeSharp.API.Modules.Admin;
+	using CounterStrikeSharp.API.Modules.Memory;
 	using CounterStrikeSharp.API.Modules.Utils;
 
 	public partial class ModuleRank : IModuleRank
 	{
 		public void Initialize_Events(Plugin plugin)
 		{
+			VirtualFunctions.CCSPlayerPawnBase_PostThinkFunc.Hook(_ =>
+			{
+				if (Config.RankSettings.ScoreboardRanks == 0)
+					return HookResult.Continue;
+
+				Utilities.GetPlayers().Where(p => p?.IsValid == true && p.PlayerPawn?.IsValid == true && !p.IsBot && !p.IsHLTV && p.SteamID.ToString().Length == 17)
+					.ToList()
+					.ForEach(p =>
+					{
+						if (!PlayerCache.Instance.ContainsPlayer(p))
+							return;
+
+						RankData? rankData = PlayerCache.Instance.GetPlayerData(p).rankData;
+
+						if (rankData is null)
+							return;
+
+						p.CompetitiveRankType = (sbyte)(Config.RankSettings.ScoreboardRanks == 1 ? 11 : 12);
+						p.CompetitiveRanking = Config.RankSettings.ScoreboardRanks == 1 ? rankData.Points : rankData.Rank.Id + 1 >= 19 ? 18 : rankData.Rank.Id + 1;
+					});
+
+				return HookResult.Continue;
+			}, HookMode.Post);
+
 			plugin.RegisterEventHandler((EventPlayerTeam @event, GameEventInfo info) =>
 			{
 				CCSPlayerController player = @event.Userid;
@@ -35,6 +60,12 @@ namespace K4System
 					rankData.PlayedRound = false;
 				}
 
+				if (Config.RankSettings.ScoreboardClantags)
+				{
+					string tag = rankData.Rank.Tag ?? $"[{rankData.Rank.Name}]";
+					SetPlayerClanTag(player, rankData, tag);
+				}
+
 				return HookResult.Continue;
 			});
 
@@ -48,7 +79,7 @@ namespace K4System
 				if (!PlayerCache.Instance.ContainsPlayer(player))
 					return HookResult.Continue;
 
-				if (Config.RankSettings.ScoreboardRanks)
+				if (Config.RankSettings.ScoreboardClantags)
 				{
 					RankData? rankData = PlayerCache.Instance.GetPlayerData(player).rankData;
 
@@ -56,7 +87,7 @@ namespace K4System
 						return HookResult.Continue;
 
 					string tag = rankData.Rank.Tag ?? $"[{rankData.Rank.Name}]";
-					SetPlayerClanTag(player, tag);
+					SetPlayerClanTag(player, rankData, tag);
 				}
 
 				return HookResult.Continue;
@@ -94,6 +125,11 @@ namespace K4System
 			{
 				CCSPlayerController player = @event.Userid;
 				ModifyPlayerPoints(player, Config.PointSettings.BombDefused, "k4.phrases.bombdefused");
+
+				Utilities.GetPlayers().Where(p => p.TeamNum == (int)CsTeam.CounterTerrorist && p.Slot != player.Slot)
+					.ToList()
+					.ForEach(p => ModifyPlayerPoints(p, Config.PointSettings.BombDefusedOthers, "k4.phrases.bombdefused"));
+
 				return HookResult.Continue;
 			});
 
@@ -131,9 +167,9 @@ namespace K4System
 
 			plugin.RegisterEventHandler((EventRoundStart @event, GameEventInfo info) =>
 			{
-				List<CCSPlayerController> players = Utilities.GetPlayers();
+				List<CCSPlayerController> players = Utilities.GetPlayers().Where(p => p?.IsValid == true && p.PlayerPawn?.IsValid == true && !p.IsBot && !p.IsHLTV && p.SteamID.ToString().Length == 17).ToList();
 
-				players.Where(p => p?.IsValid == true && p.PlayerPawn?.IsValid == true && !p.IsBot && !p.IsHLTV && p.PawnIsAlive && p.SteamID.ToString().Length == 17 && PlayerCache.Instance.ContainsPlayer(p))
+				players.Where(p => p.PawnIsAlive && PlayerCache.Instance.ContainsPlayer(p))
 					.ToList()
 					.ForEach(p =>
 					{
@@ -148,7 +184,7 @@ namespace K4System
 					Server.PrintToChatAll($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.ranks.notenoughplayers", Config.RankSettings.MinPlayers]}");
 
 				return HookResult.Continue;
-			});
+			}, HookMode.Post);
 
 			plugin.RegisterEventHandler((EventBombPlanted @event, GameEventInfo info) =>
 			{
@@ -186,7 +222,7 @@ namespace K4System
 					}
 				}
 
-				if (killer != null && killer.IsValid && killer.PlayerPawn.IsValid && !killer.IsBot && victim.UserId != killer.UserId && (Config.RankSettings.PointsForBots || !victim.IsBot))
+				if (killer?.IsValid == true && killer.PlayerPawn?.IsValid == true && !killer.IsBot && victim.UserId != killer.UserId && (Config.RankSettings.PointsForBots || !victim.IsBot))
 				{
 					if (!Config.GeneralSettings.FFAMode && killer.TeamNum == victim.TeamNum)
 					{

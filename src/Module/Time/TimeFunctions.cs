@@ -16,11 +16,19 @@ namespace K4System
 			if (playerData is null)
 				return;
 
-			playerData.TimeFields["all"] += (int)Math.Round((now - playerData.Times["Connect"]).TotalSeconds);
-			playerData.TimeFields[GetFieldForTeam((CsTeam)player.TeamNum)] += (int)Math.Round((now - playerData.Times["Team"]).TotalSeconds);
+			playerData.TimeFields["all"] += (int)(now - playerData.Times["Connect"]).TotalSeconds;
+			playerData.TimeFields[GetFieldForTeam((CsTeam)player.TeamNum)] += (int)(now - playerData.Times["Team"]).TotalSeconds;
 
 			if ((CsTeam)player.TeamNum > CsTeam.Spectator)
-				playerData.TimeFields[player.PawnIsAlive ? "alive" : "dead"] += (int)Math.Round((now - playerData.Times["Death"]).TotalSeconds);
+				playerData.TimeFields[player.PawnIsAlive ? "alive" : "dead"] += (int)(now - playerData.Times["Death"]).TotalSeconds;
+
+			// This is for the mapchange cases
+			playerData.Times = new Dictionary<string, DateTime>
+			{
+				{ "Connect", now },
+				{ "Team", now },
+				{ "Death", now }
+			};
 		}
 
 		public string GetFieldForTeam(CsTeam team)

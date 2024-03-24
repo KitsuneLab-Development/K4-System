@@ -6,7 +6,6 @@ namespace K4System
 	using CounterStrikeSharp.API.Core;
 	using CounterStrikeSharp.API.Modules.Commands;
 	using CounterStrikeSharp.API.Modules.Utils;
-	using Microsoft.Extensions.Logging;
 
 	public sealed partial class Plugin : BasePlugin
 	{
@@ -167,6 +166,8 @@ namespace K4System
 
 			RegisterListener<Listeners.OnMapStart>((mapName) =>
 			{
+				Task.Run(PurgeTableRows);
+
 				AddTimer(1.0f, () =>
 				{
 					GameRules = Utilities.FindAllEntitiesByDesignerName<CCSGameRulesProxy>("cs_gamerules").First().GameRules;
