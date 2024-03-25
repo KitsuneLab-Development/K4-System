@@ -548,6 +548,9 @@ namespace K4System
 
 		public async Task PurgeTableRows()
 		{
+			if (Config.GeneralSettings.TablePurgeDays <= 0)
+				return;
+
 			await Database.Instance.ExecuteWithTransactionAsync(async (connection, transaction) =>
 			{
 				MySqlParameter[] parameters = new MySqlParameter[]

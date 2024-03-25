@@ -3,7 +3,7 @@
     <DebugSymbols>False</DebugSymbols>
     <DebugType>None</DebugType>
     <GenerateDependencyFile>false</GenerateDependencyFile>
-    <PublishDir>./bin/K4-System/</PublishDir>
+    <PublishDir>./bin/K4-System/plugins/K4-System</PublishDir>
   </PropertyGroup>
   <PropertyGroup>
     <TargetFramework>net7.0</TargetFramework>
@@ -11,7 +11,7 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="CounterStrikeSharp.API" Version="*">
+    <PackageReference Include="CounterStrikeSharp.API" Version="1.0.198">
       <PrivateAssets>none</PrivateAssets>
       <ExcludeAssets>runtime</ExcludeAssets>
       <IncludeAssets>compile; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -19,8 +19,16 @@
     <PackageReference Include="MaxMind.GeoIP2" Version="5.2.0" />
     <PackageReference Include="MySqlConnector" Version="*" />
     <PackageReference Include="Newtonsoft.Json" Version="*" />
+    <Reference Include="SharedApi">
+      <HintPath>../../K4-SharedApi/src/K4-SharedApi.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <None Update="lang\**\*.*" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
+  <Target Name="CopySharedApiToOutput" AfterTargets="Build">
+    <Copy SourceFiles="../../K4-SharedApi/src/K4-SharedApi.dll"
+      DestinationFolder="./bin/K4-System/shared/K4-SharedApi/" />
+  </Target>
 </Project>

@@ -183,9 +183,6 @@ namespace K4System
 		[JsonPropertyName("scoreboard-clantags")]
 		public bool ScoreboardClantags { get; set; } = true;
 
-		[JsonPropertyName("scoreboard-ranks")]
-		public int ScoreboardRanks { get; set; } = 1;
-
 		[JsonPropertyName("scoreboard-score-sync")]
 		public bool ScoreboardScoreSync { get; set; } = false;
 

@@ -8,6 +8,7 @@ namespace K4System
     using CounterStrikeSharp.API.Modules.Utils;
     using Microsoft.Extensions.Logging;
     using System.Data;
+    using K4SharedApi;
 
     public partial class ModuleRank : IModuleRank
     {
@@ -80,6 +81,32 @@ namespace K4System
         public Rank GetPlayerRank(int points)
         {
             return rankDictionary.LastOrDefault(kv => points >= kv.Value.Point).Value ?? noneRank!;
+        }
+
+        public static int GetPlayerRankID(CCSPlayerController player)
+        {
+            if (!PlayerCache.Instance.ContainsPlayer(player))
+                return 0;
+
+            RankData? playerData = PlayerCache.Instance.GetPlayerData(player).rankData;
+
+            if (playerData is null)
+                return 0;
+
+            return playerData.Rank.Id++;
+        }
+
+        public static int GetPlayerPoints(CCSPlayerController player)
+        {
+            if (!PlayerCache.Instance.ContainsPlayer(player))
+                return 0;
+
+            RankData? playerData = PlayerCache.Instance.GetPlayerData(player).rankData;
+
+            if (playerData is null)
+                return 0;
+
+            return playerData.Points;
         }
 
         public void ModifyPlayerPoints(CCSPlayerController player, int amount, string reason, string? extraInfo = null)

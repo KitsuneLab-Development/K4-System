@@ -36,8 +36,6 @@
                 base.Logger.LogWarning("Configuration version mismatch (Expected: {0} | Current: {1})", this.Config.Version, config.Version);
             }
 
-
-
             //** ? Database Connection Init */
 
             DatabaseSettings databaseSettings = config.DatabaseSettings;
@@ -61,6 +59,7 @@
 
             //** ? Core */
 
+            Initialize_API();
             Initialize_Events();
             Initialize_Commands();
 

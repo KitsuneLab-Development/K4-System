@@ -11,30 +11,6 @@ namespace K4System
 	{
 		public void Initialize_Events(Plugin plugin)
 		{
-			VirtualFunctions.CCSPlayerPawnBase_PostThinkFunc.Hook(_ =>
-			{
-				if (Config.RankSettings.ScoreboardRanks == 0)
-					return HookResult.Continue;
-
-				Utilities.GetPlayers().Where(p => p?.IsValid == true && p.PlayerPawn?.IsValid == true && !p.IsBot && !p.IsHLTV && p.SteamID.ToString().Length == 17)
-					.ToList()
-					.ForEach(p =>
-					{
-						if (!PlayerCache.Instance.ContainsPlayer(p))
-							return;
-
-						RankData? rankData = PlayerCache.Instance.GetPlayerData(p).rankData;
-
-						if (rankData is null)
-							return;
-
-						p.CompetitiveRankType = (sbyte)(Config.RankSettings.ScoreboardRanks == 1 ? 11 : 12);
-						p.CompetitiveRanking = Config.RankSettings.ScoreboardRanks == 1 ? rankData.Points : rankData.Rank.Id + 1 >= 19 ? 18 : rankData.Rank.Id + 1;
-					});
-
-				return HookResult.Continue;
-			}, HookMode.Post);
-
 			plugin.RegisterEventHandler((EventPlayerTeam @event, GameEventInfo info) =>
 			{
 				CCSPlayerController player = @event.Userid;
