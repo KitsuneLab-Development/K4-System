@@ -12,16 +12,27 @@ namespace K4System
 			string ranksFilePath = Path.Join(ModuleDirectory, "ranks.jsonc");
 
 			string defaultRanksContent = @"{
-	""None"": {
-		""Name"": ""None"",
-		""Point"": -1,
-		""Color"": ""default""
-	},
+	""None"": { // Whatever you set here, be unique. Not read by plugin
+ 		""Name"": ""None"", // This name is set in MySQL and also if not Tag is preset, this is the Tag
+ 		""Point"": -1, // Whatever you set to -1 is the default rank
+ 		""Color"": ""default""
+ 	},
 	""Silver I"": {
 		""Name"": ""Silver I"",
-		""Tag"": ""[SI]"",
-		""Point"": 100,
-		""Color"": ""silver""
+		""Tag"": ""[SI]"", // Clan tag (scoreboard) of the rank. If not set, it uses the key instead, which is currently
+		""Point"": 100, // From this amount of experience, the player is Silver
+		""Color"": ""silver"", // Color code for the rank. Find color names here: https://github.com/roflmuffin/CounterStrikeSharp/blob/main/managed/CounterStrikeSharp.API/Modules/Utils/ChatColors.cs
+		""Permissions"": [ // You can add permissions to the rank. If you don't want to add any, remove this line
+ 			{
+ 				""DisplayName"": ""Super Permission"", // This is the name of the permission. Will be displayed in the menu of ranks to let people know the benefits of a rank
+ 				""PermissionName"": ""permission1"" // This is the permission name. You can assign 3rd party permissions here
+ 			},
+ 			{
+ 				""DisplayName"": ""Legendary Permission"",
+ 				""PermissionName"": ""permission2""
+ 			}
+ 			// You can add as many as you want
+ 		]
 	},
 	""Silver II"": {
 		""Name"": ""Silver II"",

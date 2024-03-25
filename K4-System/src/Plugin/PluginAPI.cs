@@ -44,12 +44,10 @@ namespace K4System
 
 		public int GetPlayerPoints()
 		{
-			PlayerCacheData playerCache = PlayerCache.Instance.GetPlayerData(_player);
-
-			if (playerCache?.rankData is null)
+			if (_playerCache?.rankData is null)
 				return 0;
 
-			return playerCache.rankData.Points;
+			return _playerCache.rankData.Points;
 		}
 
 		public int GetPlayerRankID()
