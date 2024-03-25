@@ -1,3 +1,7 @@
+-- 2023.03.25 - V4.0.2
+
+- fix: Console warnings about missing keys
+
 -- 2023.03.25 - V4.0.1
 
 - feat: Initiated API
