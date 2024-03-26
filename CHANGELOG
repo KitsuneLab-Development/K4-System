@@ -3,6 +3,8 @@
 - feat: Add proper MySQL error logging to keep track of queries
 - fix: Save query problems at some table, which block full save mechanism
 - fix: Point modifications show new poont instead of old (#155)
+- fix: AutPurge - LVLBase wrong column name to check date
+- fix: AutoPurge - LVLBase error if module not used
 
 -- 2023.03.25 - V4.0.2
 

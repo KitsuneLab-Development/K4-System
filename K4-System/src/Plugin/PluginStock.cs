@@ -571,8 +571,11 @@ namespace K4System
 				query = $@"DELETE FROM `{this.Config.DatabaseSettings.TablePrefix}k4ranks` WHERE `lastseen` < NOW() - INTERVAL @days DAY;";
 				await Database.Instance.ExecuteNonQueryAsync(query, parameters);
 
-				query = $@"DELETE FROM `{Config.DatabaseSettings.LvLRanksTableName}` WHERE `last_seen_unix_time` < UNIX_TIMESTAMP(NOW() - INTERVAL @days DAY);";
-				await Database.Instance.ExecuteNonQueryAsync(query, parameters);
+				if (Config.GeneralSettings.LevelRanksCompatibility)
+				{
+					query = $@"DELETE FROM `{Config.DatabaseSettings.LvLRanksTableName}` WHERE `lastconnect` < UNIX_TIMESTAMP(NOW() - INTERVAL @days DAY);";
+					await Database.Instance.ExecuteNonQueryAsync(query, parameters);
+				}
 			});
 		}
 
