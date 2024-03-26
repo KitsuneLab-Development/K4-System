@@ -212,7 +212,7 @@ namespace K4System
 			string valuesForInsert = string.Join(", ", statData.StatFields.Select(f => $"@{f.Key}"));
 			string onDuplicateKeyUpdate = string.Join(", ", statData.StatFields.Select(f => $"`{f.Key}` = @{f.Key}"));
 
-			string query = $@"INSERT INTO `{Config.DatabaseSettings.TablePrefix}k4stats` (`name`, `steam_id`, {fieldsForInsert}, `lastseen`)
+			string query = $@"INSERT INTO `{Config.DatabaseSettings.TablePrefix}k4stats` (`name`, `steam_id`, `lastseen`, {fieldsForInsert})
                       VALUES (@playerName, @steamId, CURRENT_TIMESTAMP, {valuesForInsert})
                       ON DUPLICATE KEY UPDATE `name` = @playerName, `lastseen` = CURRENT_TIMESTAMP, {onDuplicateKeyUpdate};";
 
@@ -251,15 +251,17 @@ namespace K4System
 		private void LoadPlayerCache(CCSPlayerController player)
 		{
 			string combinedQuery = $@"
-					INSERT INTO `{Config.DatabaseSettings.TablePrefix}k4ranks` (`name`, `steam_id`, `rank`, `points`)
+					INSERT INTO `{Config.DatabaseSettings.TablePrefix}k4ranks` (`name`, `steam_id`, `rank`, `points`, `lastseen`)
 					VALUES (
 						@escapedName,
 						@steamid,
 						@noneRankName,
-						@startPoints
+						@startPoints,
+						CURRENT_TIMESTAMP
 					)
 					ON DUPLICATE KEY UPDATE
-						`name` = @escapedName;
+						`name` = @escapedName,
+						`lastseen` = CURRENT_TIMESTAMP;
 
 					INSERT INTO `{Config.DatabaseSettings.TablePrefix}k4stats` (`name`, `steam_id`, `lastseen`)
 					VALUES (
@@ -271,13 +273,15 @@ namespace K4System
 						`name` = @escapedName,
 						`lastseen` = CURRENT_TIMESTAMP;
 
-					INSERT INTO `{Config.DatabaseSettings.TablePrefix}k4times` (`name`, `steam_id`)
+					INSERT INTO `{Config.DatabaseSettings.TablePrefix}k4times` (`name`, `steam_id`, `lastseen`)
 					VALUES (
 						@escapedName,
-						@steamid
+						@steamid,
+						CURRENT_TIMESTAMP
 					)
 					ON DUPLICATE KEY UPDATE
-						`name` = @escapedName;
+						`name` = @escapedName,
+						`lastseen` = CURRENT_TIMESTAMP;
 
 					SELECT
 						r.`points`,

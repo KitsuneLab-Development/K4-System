@@ -46,7 +46,8 @@
                 userId: databaseSettings.Username,
                 password: databaseSettings.Password,
                 port: databaseSettings.Port,
-                sslMode: databaseSettings.Sslmode);
+                sslMode: databaseSettings.Sslmode,
+                logger: base.Logger);
 
             //** ? Save Config */
 

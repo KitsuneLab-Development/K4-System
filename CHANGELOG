@@ -1,5 +1,7 @@
--- 2023.03.26 - V4.1.0
+-- 2023.03.26 - V4.0.3
 
+- feat: Add proper MySQL error logging to keep track of queries
+- fix: Save query problems at some table, which block full save mechanism
 - fix: Point modifications show new poont instead of old (#155)
 
 -- 2023.03.25 - V4.0.2

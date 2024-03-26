@@ -1,20 +1,22 @@
 
 using System.Data;
+using Microsoft.Extensions.Logging;
 using MySqlConnector;
 
 namespace K4System
 {
 	public sealed class Database
 	{
+		private ILogger? _Logger;
 		private static readonly Lazy<Database> instance = new Lazy<Database>(() => new Database());
 		public static Database Instance => instance.Value;
 
 		private string? connectionString;
-
 		private Database() { }
 
-		public void Initialize(string server, string database, string userId, string password, int port = 3306, string sslMode = "None")
+		public void Initialize(ILogger logger, string server, string database, string userId, string password, int port = 3306, string sslMode = "None")
 		{
+			_Logger = logger;
 			connectionString = BuildConnectionString(server, database, userId, password, port, sslMode);
 		}
 
@@ -40,67 +42,106 @@ namespace K4System
 
 		public async Task ExecuteNonQueryAsync(string query, params MySqlParameter[] parameters)
 		{
-			using (MySqlConnection connection = new MySqlConnection(connectionString))
+			try
 			{
-				await connection.OpenAsync();
-				using (MySqlCommand command = new MySqlCommand(query, connection))
+				using (MySqlConnection connection = new MySqlConnection(connectionString))
 				{
-					command.Parameters.AddRange(parameters);
-					await command.ExecuteNonQueryAsync();
+					await connection.OpenAsync();
+					using (MySqlCommand command = new MySqlCommand(query, connection))
+					{
+						command.Parameters.AddRange(parameters);
+						await command.ExecuteNonQueryAsync();
+					}
 				}
+			}
+			catch (Exception ex)
+			{
+				string errorMessage = $"An error occurred while executing SQL query: {query}. Error message: {ex.Message}";
+				_Logger?.LogError(ex, errorMessage);
+				throw;
 			}
 		}
 
+
+
 		public async Task<object?> ExecuteScalarAsync(string query, params MySqlParameter[] parameters)
 		{
-			using (MySqlConnection connection = new MySqlConnection(connectionString))
+			try
 			{
-				await connection.OpenAsync();
-				using (MySqlCommand command = new MySqlCommand(query, connection))
+				using (MySqlConnection connection = new MySqlConnection(connectionString))
 				{
-					command.Parameters.AddRange(parameters);
-					return await command.ExecuteScalarAsync();
+					await connection.OpenAsync();
+					using (MySqlCommand command = new MySqlCommand(query, connection))
+					{
+						command.Parameters.AddRange(parameters);
+						return await command.ExecuteScalarAsync();
+					}
 				}
+			}
+			catch (Exception ex)
+			{
+				string errorMessage = $"An error occurred while executing SQL query (ExecuteScalarAsync): {query}. Error message: {ex.Message}";
+				_Logger?.LogError(ex, errorMessage);
+				throw;
 			}
 		}
 
 		public async Task<DataTable> ExecuteReaderAsync(string query, params MySqlParameter[] parameters)
 		{
-			using (MySqlConnection connection = new MySqlConnection(connectionString))
+			try
 			{
-				await connection.OpenAsync();
-
-				using (MySqlCommand command = new MySqlCommand(query, connection))
+				using (MySqlConnection connection = new MySqlConnection(connectionString))
 				{
-					command.Parameters.AddRange(parameters);
-					using (MySqlDataReader reader = await command.ExecuteReaderAsync())
+					await connection.OpenAsync();
+					using (MySqlCommand command = new MySqlCommand(query, connection))
 					{
-						DataTable dataTable = new DataTable();
-						dataTable.Load(reader);
-						return dataTable;
+						command.Parameters.AddRange(parameters);
+						using (MySqlDataReader reader = await command.ExecuteReaderAsync())
+						{
+							DataTable dataTable = new DataTable();
+							dataTable.Load(reader);
+							return dataTable;
+						}
 					}
 				}
+			}
+			catch (Exception ex)
+			{
+				string errorMessage = $"An error occurred while executing SQL query (ExecuteReaderAsync): {query}. Error message: {ex.Message}";
+				_Logger?.LogError(ex, errorMessage);
+				throw;
 			}
 		}
 
 		public async Task ExecuteWithTransactionAsync(Func<MySqlConnection, MySqlTransaction, Task> executeActions)
 		{
-			using (MySqlConnection connection = new MySqlConnection(connectionString))
+			try
 			{
-				await connection.OpenAsync();
-				using (MySqlTransaction transaction = await connection.BeginTransactionAsync())
+				using (MySqlConnection connection = new MySqlConnection(connectionString))
 				{
-					try
+					await connection.OpenAsync();
+					using (MySqlTransaction transaction = await connection.BeginTransactionAsync())
 					{
-						await executeActions(connection, transaction);
-						await transaction.CommitAsync();
-					}
-					catch
-					{
-						await transaction.RollbackAsync();
-						throw;
+						try
+						{
+							await executeActions(connection, transaction);
+							await transaction.CommitAsync();
+						}
+						catch (Exception ex)
+						{
+							await transaction.RollbackAsync();
+							string errorMessage = $"An error occurred while executing actions within a transaction. Error message: {ex.Message}";
+							_Logger?.LogError(ex, errorMessage);
+							throw;
+						}
 					}
 				}
+			}
+			catch (Exception ex)
+			{
+				string errorMessage = $"An error occurred while setting up a transaction. Error message: {ex.Message}";
+				_Logger?.LogError(ex, errorMessage);
+				throw;
 			}
 		}
 	}
