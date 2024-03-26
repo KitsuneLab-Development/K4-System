@@ -144,7 +144,8 @@ namespace K4System
                 amount = (int)Math.Round(amount * Config.RankSettings.VipMultiplier);
             }
 
-            int oldPoints = playerData.Points;
+            playerData.Points += amount;
+
             Server.NextWorldUpdate(() =>
             {
                 if (player is null || !player.IsValid || !player.PlayerPawn.IsValid)
@@ -162,28 +163,26 @@ namespace K4System
                     {
                         if (extraInfo != null)
                         {
-                            player.PrintToChat($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.ranks.points.gain", oldPoints, amount, plugin.Localizer[reason]]}{extraInfo}");
+                            player.PrintToChat($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.ranks.points.gain", playerData.Points, amount, plugin.Localizer[reason]]}{extraInfo}");
                         }
                         else
                         {
-                            player.PrintToChat($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.ranks.points.gain", oldPoints, amount, plugin.Localizer[reason]]}");
+                            player.PrintToChat($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.ranks.points.gain", playerData.Points, amount, plugin.Localizer[reason]]}");
                         }
                     }
                     else if (amount < 0)
                     {
                         if (extraInfo != null)
                         {
-                            player.PrintToChat($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.ranks.points.loss", oldPoints, Math.Abs(amount), plugin.Localizer[reason]]}{extraInfo}");
+                            player.PrintToChat($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.ranks.points.loss", playerData.Points, Math.Abs(amount), plugin.Localizer[reason]]}{extraInfo}");
                         }
                         else
                         {
-                            player.PrintToChat($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.ranks.points.loss", oldPoints, Math.Abs(amount), plugin.Localizer[reason]]}");
+                            player.PrintToChat($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.ranks.points.loss", playerData.Points, Math.Abs(amount), plugin.Localizer[reason]]}");
                         }
                     }
                 }
             });
-
-            playerData.Points += amount;
 
             if (playerData.Points < 0)
                 playerData.Points = 0;
