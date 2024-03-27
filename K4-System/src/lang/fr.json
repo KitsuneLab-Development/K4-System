@@ -17,6 +17,11 @@
   "k4.general.commandserveronly": "{lightred}Cette commande ne peut être utilisée que par le serveur.",
   "k4.general.commandclientonly": "{lightred}Cette commande ne peut être utilisée que par les clients.",
 
+  "k4.general.toggletag": "{silver}Votre tag basé sur les autorisations est maintenant {0}",
+  "k4.general.togglepointmsg": "{silver}Les messages de modification de point sont désormais {0}",
+  "k4.general.state.enabled": "{green}ACTIVÉ",
+  "k4.general.state.disabled": "{lightred}DÉSACTIVÉ",
+
   "k4.ranks.rank.title": "{lime}{0}{silver} - Classement",
   "k4.ranks.rank.line1": "--- {silver}Vous avez {lime}{0} {silver}points et êtes actuellement {1}{2} {silver}({3} sur {4})",
   "k4.ranks.rank.line2": "--- {silver}Prochain rang : {0}{1}",
@@ -47,6 +52,7 @@
   "k4.ranks.selected.line2.passed": "--- {silver}Points requis : {lime}{0} {silver}({lightblue}{1} {silver}points au-dessus)",
   "k4.ranks.selected.line2.current": "--- {silver}Points de promotion : {lime}{0} {silver}(Vous êtes actuellement dans ce rang)",
   "k4.ranks.selected.benefitline": "--- {silver}Avantages :",
+
   "k4.stats.title": "{lime}{0}{silver} - Statistiques",
   "k4.stats.line1": "--- {silver}Éliminations : {lime}{0} {silver}| Première victime : {lime}{1} {silver}| Assistances : {lime}{2}",
   "k4.stats.line2": "--- {silver}Tirs infligés : {lime}{0} {silver}| Tirs reçus : {lime}{1} {silver}| Morts : {lime}{2}",
