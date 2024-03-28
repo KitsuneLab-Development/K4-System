@@ -1,3 +1,7 @@
+-- 2023.03.28 - V4.0.4
+
+- fix: Table generation problems because of lastseen default value
+
 -- 2023.03.26 - V4.0.3
 
 - feat: Add proper MySQL error logging to keep track of queries

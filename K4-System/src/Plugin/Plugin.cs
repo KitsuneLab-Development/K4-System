@@ -123,7 +123,7 @@
             string timesModuleTable = @$"CREATE TABLE IF NOT EXISTS `{this.Config.DatabaseSettings.TablePrefix}k4times` (
 					`steam_id` VARCHAR(32) COLLATE 'utf8mb4_unicode_ci' UNIQUE NOT NULL,
 					`name` VARCHAR(255) COLLATE 'utf8mb4_unicode_ci' NOT NULL,
-                    `lastseen` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                    `lastseen` DATETIME NOT NULL,
 					`all` INT NOT NULL DEFAULT 0,
 					`ct` INT NOT NULL DEFAULT 0,
 					`t` INT NOT NULL DEFAULT 0,
@@ -136,7 +136,7 @@
             string statsModuleTable = $@"CREATE TABLE IF NOT EXISTS `{this.Config.DatabaseSettings.TablePrefix}k4stats` (
                     `steam_id` VARCHAR(32) COLLATE 'utf8mb4_unicode_ci' UNIQUE NOT NULL,
                     `name` VARCHAR(255) COLLATE 'utf8mb4_unicode_ci' NOT NULL,
-                    `lastseen` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                    `lastseen` DATETIME NOT NULL,
                     `kills` INT NOT NULL DEFAULT 0,
                     `firstblood` INT NOT NULL DEFAULT 0,
                     `deaths` INT NOT NULL DEFAULT 0,
@@ -157,7 +157,7 @@
             string ranksModuleTable = $@"CREATE TABLE IF NOT EXISTS `{this.Config.DatabaseSettings.TablePrefix}k4ranks` (
                     `steam_id` VARCHAR(32) COLLATE 'utf8mb4_unicode_ci' UNIQUE NOT NULL,
                     `name` VARCHAR(255) COLLATE 'utf8mb4_unicode_ci' NOT NULL,
-                    `lastseen` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                    `lastseen` DATETIME NOT NULL,
                     `rank` VARCHAR(255) COLLATE 'utf8mb4_unicode_ci' NOT NULL,
                     `points` INT NOT NULL DEFAULT 0,
                     UNIQUE (`steam_id`)
