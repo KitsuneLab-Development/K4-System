@@ -589,6 +589,13 @@ namespace K4System
 			string[] parts = playerIp.Split(':');
 			string realIP = parts.Length == 2 ? parts[0] : playerIp;
 
+			string filePath = Path.Combine(ModuleDirectory, "GeoLite2-Country.mmdb");
+			if (!File.Exists(filePath))
+			{
+				Logger.LogError($"GeoLite2-Country.mmdb not found in {ModuleDirectory}. Download it from https://github.com/P3TERX/GeoLite.mmdb/releases and place it in the same directory as the plugin.");
+				return "??";
+			}
+
 			using DatabaseReader reader = new DatabaseReader(Path.Combine(ModuleDirectory, "GeoLite2-Country.mmdb"));
 			{
 				try

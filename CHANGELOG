@@ -1,6 +1,7 @@
 -- 2023.03.28 - V4.0.4
 
 - fix: Table generation problems because of lastseen default value
+- fix: Add validation for country database
 
 -- 2023.03.26 - V4.0.3
 
