@@ -67,7 +67,7 @@
   "k4.adminlist.no-admins": "{lightred}Atualmente não há administradores online.",
 
   "k4.phrases.suicide": "Suicídio",
-  "k4.phrases.dying": "Morrendo",
+  "k4.phrases.dying": "Morreu",
   "k4.phrases.dying.extra": "em {lightred}{0}",
   "k4.phrases.playtime": "Tempo de Jogo",
   "k4.phrases.hostagerescued": "Reféns Resgatados",
