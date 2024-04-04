@@ -91,8 +91,6 @@
 
                 GameRules = Utilities.FindAllEntitiesByDesignerName<CCSGameRulesProxy>("cs_gamerules").First().GameRules;
             }
-
-            Task.Run(PurgeTableRows);
         }
 
         public override void Unload(bool hotReload)
@@ -198,6 +196,7 @@
                 }
             });
 
+            await PurgeTableRows();
             return true;
         }
     }

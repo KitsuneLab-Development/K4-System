@@ -166,8 +166,6 @@ namespace K4System
 
 			RegisterListener<Listeners.OnMapStart>((mapName) =>
 			{
-				Task.Run(PurgeTableRows);
-
 				AddTimer(1.0f, () =>
 				{
 					GameRules = Utilities.FindAllEntitiesByDesignerName<CCSGameRulesProxy>("cs_gamerules").First().GameRules;
@@ -177,6 +175,7 @@ namespace K4System
 			RegisterListener<Listeners.OnMapEnd>(() =>
 			{
 				GameRules = null;
+				Task.Run(PurgeTableRows).Wait();
 			});
 		}
 	}
