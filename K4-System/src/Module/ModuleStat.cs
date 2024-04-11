@@ -9,12 +9,14 @@ namespace K4System
 		public ModuleStat(ILogger<ModuleStat> logger, IPluginContext pluginContext)
 		{
 			this.Logger = logger;
-			this.plugin = (pluginContext.Plugin as Plugin)!;
-			this.Config = plugin.Config;
+			this.pluginContext = pluginContext;
 		}
 
 		public void Initialize(bool hotReload)
 		{
+			this.plugin = (pluginContext.Plugin as Plugin)!;
+			this.Config = plugin.Config;
+
 			this.Logger.LogInformation("Initializing '{0}'", this.GetType().Name);
 
 			//** ? Register Module Parts */

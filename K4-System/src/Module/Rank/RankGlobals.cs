@@ -32,11 +32,11 @@ namespace K4System
 			public required bool MuteMessages { get; set; }
 		}
 
-		public readonly Plugin plugin;
+		public required Plugin plugin;
 		public readonly ILogger<ModuleRank> Logger;
 
-		public readonly PluginConfig Config;
-
+		public required PluginConfig Config;
+		public readonly IPluginContext pluginContext;
 		public Dictionary<string, Rank> rankDictionary = new Dictionary<string, Rank>();
 		public Rank? noneRank;
 	}

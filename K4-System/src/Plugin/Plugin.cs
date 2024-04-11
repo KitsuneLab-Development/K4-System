@@ -1,15 +1,13 @@
 ﻿namespace K4System
 {
     using Microsoft.Extensions.Logging;
-    using MySqlConnector;
-
     using CounterStrikeSharp.API.Core;
     using CounterStrikeSharp.API.Core.Attributes;
     using CounterStrikeSharp.API;
     using K4System.Models;
     using Dapper;
 
-    [MinimumApiVersion(191)]
+    [MinimumApiVersion(200)]
     public sealed partial class Plugin : BasePlugin, IPluginConfig<PluginConfig>
     {
         //** ? PLUGIN GLOBALS */

@@ -12,9 +12,10 @@ namespace K4System
 			public Dictionary<string, int> TimeFields { get; set; } = new Dictionary<string, int>();
 		}
 
-		public readonly Plugin plugin;
+		public required Plugin plugin;
 		public readonly ILogger<ModuleTime> Logger;
 
-		public readonly PluginConfig Config;
+		public required PluginConfig Config;
+		public readonly IPluginContext pluginContext;
 	}
 }
