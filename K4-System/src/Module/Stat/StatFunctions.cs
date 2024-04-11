@@ -3,14 +3,13 @@ namespace K4System
 	using CounterStrikeSharp.API;
 	using CounterStrikeSharp.API.Core;
 	using CounterStrikeSharp.API.Modules.Utils;
+	using K4System.Models;
 
 	public partial class ModuleStat : IModuleStat
 	{
 		public bool IsStatsAllowed()
 		{
 			int notBots = Utilities.GetPlayers().Count(player => !player.IsBot);
-
-			Plugin plugin = (this.PluginContext.Plugin as Plugin)!;
 			return plugin.GameRules != null && (!plugin.GameRules.WarmupPeriod || Config.StatisticSettings.WarmupStats) && (Config.StatisticSettings.MinPlayers <= notBots);
 		}
 
@@ -21,36 +20,22 @@ namespace K4System
 
 			if (winnerTeam > (int)CsTeam.Spectator)
 			{
-				List<CCSPlayerController> players = Utilities.GetPlayers();
-
-				foreach (CCSPlayerController player in players)
+				foreach (K4Player k4player in plugin.K4Players)
 				{
-					if (player is null || !player.IsValid || !player.PlayerPawn.IsValid)
+					if (k4player is null || !k4player.IsValid || !k4player.IsPlayer)
 						continue;
 
-					if (player.IsBot || player.IsHLTV)
+					if (k4player.Controller.Team <= CsTeam.Spectator)
 						continue;
 
-					if (player.TeamNum <= (int)CsTeam.Spectator)
-						continue;
-
-					ModifyPlayerStats(player, player.TeamNum == winnerTeam ? "round_win" : "round_lose", 1);
+					ModifyPlayerStats(k4player, k4player.Controller.TeamNum == winnerTeam ? "round_win" : "round_lose", 1);
 				}
 			}
 		}
 
-		public void ModifyPlayerStats(CCSPlayerController player, string field, int amount)
+		public void ModifyPlayerStats(K4Player k4player, string field, int amount)
 		{
-			if (player is null || !player.IsValid || !player.PlayerPawn.IsValid)
-				return;
-
-			if (player.IsBot || player.IsHLTV)
-				return;
-
-			if (!PlayerCache.Instance.ContainsPlayer(player))
-				return;
-
-			StatData? playerData = PlayerCache.Instance.GetPlayerData(player).statData;
+			StatData? playerData = k4player.statData;
 
 			if (playerData != null)
 			{

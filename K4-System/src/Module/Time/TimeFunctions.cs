@@ -1,26 +1,27 @@
 namespace K4System
 {
+	using System.Runtime.CompilerServices;
 	using System.Text;
 
 	using CounterStrikeSharp.API.Core;
 	using CounterStrikeSharp.API.Modules.Utils;
+	using K4System.Models;
 
 	public partial class ModuleTime : IModuleTime
 	{
-		public void BeforeDisconnect(CCSPlayerController player)
+		public void BeforeDisconnect(K4Player k4player)
 		{
 			DateTime now = DateTime.UtcNow;
-
-			TimeData? playerData = PlayerCache.Instance.GetPlayerData(player).timeData;
+			TimeData? playerData = k4player.timeData;
 
 			if (playerData is null)
 				return;
 
 			playerData.TimeFields["all"] += (int)(now - playerData.Times["Connect"]).TotalSeconds;
-			playerData.TimeFields[GetFieldForTeam((CsTeam)player.TeamNum)] += (int)(now - playerData.Times["Team"]).TotalSeconds;
+			playerData.TimeFields[GetFieldForTeam(k4player.Controller.Team)] += (int)(now - playerData.Times["Team"]).TotalSeconds;
 
-			if ((CsTeam)player.TeamNum > CsTeam.Spectator)
-				playerData.TimeFields[player.PawnIsAlive ? "alive" : "dead"] += (int)(now - playerData.Times["Death"]).TotalSeconds;
+			if (k4player.Controller.Team > CsTeam.Spectator)
+				playerData.TimeFields[k4player.Controller.PawnIsAlive ? "alive" : "dead"] += (int)(now - playerData.Times["Death"]).TotalSeconds;
 
 			// This is for the mapchange cases
 			playerData.Times = new Dictionary<string, DateTime>
@@ -33,43 +34,48 @@ namespace K4System
 
 		public string GetFieldForTeam(CsTeam team)
 		{
-			switch (team)
+			return team switch
 			{
-				case CsTeam.Terrorist:
-					return "t";
-				case CsTeam.CounterTerrorist:
-					return "ct";
-				default:
-					return "spec";
-			}
+				CsTeam.Terrorist => "t",
+				CsTeam.CounterTerrorist => "ct",
+				_ => "spec"
+			};
 		}
 
 		public string FormatPlaytime(int totalSeconds)
 		{
-			string[] units = { "k4.phrases.shortyear", "k4.phrases.shortmonth", "k4.phrases.shortday", "k4.phrases.shorthour", "k4.phrases.shortminute", "k4.phrases.shortsecond" };
-			int[] values = { totalSeconds / 31536000, totalSeconds % 31536000 / 2592000, totalSeconds % 2592000 / 86400, totalSeconds % 86400 / 3600, totalSeconds % 3600 / 60, totalSeconds % 60 };
+			string[] units = { "year", "month", "day", "hour", "minute", "second" };
+			int[] timeDivisors = { 31536000, 2592000, 86400, 3600, 60, 1 };
 
 			StringBuilder formattedTime = new StringBuilder();
-
 			bool addedValue = false;
-
-			Plugin plugin = (this.PluginContext.Plugin as Plugin)!;
 
 			for (int i = 0; i < units.Length; i++)
 			{
-				if (values[i] > 0)
+				int timeValue = totalSeconds / timeDivisors[i];
+				totalSeconds %= timeDivisors[i];
+				if (timeValue > 0)
 				{
-					formattedTime.Append($"{values[i]}{plugin.Localizer[units[i]]}, ");
+					if (formattedTime.Length > 0)
+					{
+						formattedTime.Append(", ");
+					}
+					formattedTime.Append($"{timeValue}{GetShortUnit(units[i])}");
 					addedValue = true;
 				}
 			}
 
 			if (!addedValue)
 			{
-				formattedTime.Append("0s");
+				return "0" + GetShortUnit("second");
 			}
 
-			return formattedTime.ToString().TrimEnd(' ', ',');
+			return formattedTime.ToString();
+
+			string GetShortUnit(string unit)
+			{
+				return plugin.Localizer[$"k4.phrases.short{unit}"];
+			}
 		}
 	}
 }

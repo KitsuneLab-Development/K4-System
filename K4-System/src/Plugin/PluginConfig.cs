@@ -81,7 +81,7 @@ namespace K4System
 		[JsonPropertyName("resetmyrank-commands")]
 		public List<string> ResetMyCommands { get; set; } = new List<string>
 		{
-			"resetmyrank"
+			"resetmydata"
 		};
 
 		[JsonPropertyName("ranks-commands")]

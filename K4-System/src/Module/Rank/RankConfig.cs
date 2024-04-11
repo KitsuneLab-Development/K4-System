@@ -7,9 +7,9 @@ namespace K4System
 
 	public partial class ModuleRank : IModuleRank
 	{
-		public void Initialize_Config(Plugin plugin)
+		public void Initialize_Config()
 		{
-			string ranksFilePath = Path.Join(ModuleDirectory, "ranks.jsonc");
+			string ranksFilePath = Path.Join(plugin.ModuleDirectory, "ranks.jsonc");
 
 			string defaultRanksContent = @"{
 	""None"": { // Whatever you set here, be unique. Not read by plugin

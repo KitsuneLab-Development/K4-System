@@ -6,9 +6,9 @@ namespace K4System
 
 	public partial class ModuleUtils : IModuleUtils
 	{
-		public readonly PluginContext PluginContext;
+		public readonly Plugin plugin;
 		public readonly ILogger<ModuleUtils> Logger;
 
-		public required PluginConfig Config { get; set; }
+		public readonly PluginConfig Config;
 	}
 }

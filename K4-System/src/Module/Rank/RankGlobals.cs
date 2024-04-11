@@ -32,14 +32,12 @@ namespace K4System
 			public required bool MuteMessages { get; set; }
 		}
 
-		public readonly PluginContext PluginContext;
+		public readonly Plugin plugin;
 		public readonly ILogger<ModuleRank> Logger;
 
-		public required PluginConfig Config { get; set; }
-		public required string ModuleDirectory { get; set; }
+		public readonly PluginConfig Config;
 
 		public Dictionary<string, Rank> rankDictionary = new Dictionary<string, Rank>();
-		public Dictionary<int, (int killStreak, DateTime lastKillTime)> playerKillStreaks = new Dictionary<int, (int, DateTime)>();
 		public Rank? noneRank;
 	}
 }

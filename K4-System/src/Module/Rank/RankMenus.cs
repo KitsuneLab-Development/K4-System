@@ -1,72 +1,79 @@
 namespace K4System
 {
-	using MySqlConnector;
-
 	using CounterStrikeSharp.API.Modules.Menu;
 	using CounterStrikeSharp.API.Modules.Utils;
 	using Microsoft.Extensions.Logging;
-	using System.Data;
+	using Dapper;
+	using K4System.Models;
+	using CounterStrikeSharp.API;
 
 	public partial class ModuleRank : IModuleRank
 	{
 		ChatMenu ranksMenu = new ChatMenu("Available Rank List");
 
-		public void Initialize_Menus(Plugin plugin)
+		public void Initialize_Menus()
 		{
 			foreach (Rank rank in rankDictionary.Values)
 			{
 				ranksMenu.AddMenuOption(rank.Point == -1 ? plugin.Localizer["k4.ranks.listdefault", rank.Color, rank.Name] : plugin.Localizer["k4.ranks.listitem", rank.Color, rank.Name, rank.Point],
 					(player, option) =>
 				{
-					Task<(int playerCount, float percentage)> task = Task.Run(() => FetchRanksMenuDataAsync(rank.Name));
-					task.Wait();
-					var result = task.Result;
+					ulong steamID = player.SteamID;
 
-					int playerCount = result.playerCount;
-					float percentage = result.percentage;
-
-					if (!PlayerCache.Instance.ContainsPlayer(player))
-						return;
-
-					RankData? playerData = PlayerCache.Instance.GetPlayerData(player).rankData;
-
-					if (playerData is null)
-						return;
-
-					int pointsDifference = Math.Abs(rank.Point - playerData.Points);
-
-					player.PrintToChat($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.ranks.selected.title", rank.Color, rank.Name]}");
-					player.PrintToChat($" {plugin.Localizer["k4.ranks.selected.line1", playerCount, percentage]}");
-
-					if (rank.Name == playerData.Rank.Name)
-						player.PrintToChat($" {plugin.Localizer["k4.ranks.selected.line2.current", rank.Point]}");
-					else
-						player.PrintToChat($" {plugin.Localizer[rank.Point > playerData.Rank.Point ? "k4.ranks.selected.line2" : "k4.ranks.selected.line2.passed", rank.Point == -1 ? "None" : rank.Point, pointsDifference]}");
-
-					if (rank.Permissions != null && rank.Permissions.Count > 0)
+					Task.Run(async () =>
 					{
-						player.PrintToChat($" {plugin.Localizer["k4.ranks.selected.benefitline"]}");
+						(int playerCount, float percentage) taskValues = await FetchRanksMenuDataAsync(rank.Name);
 
-						int permissionCount = 0;
-						string permissionLine = "";
+						int playerCount = taskValues.playerCount;
+						float percentage = taskValues.percentage;
 
-						foreach (Permission permission in rank.Permissions)
+						Server.NextFrame(() =>
 						{
-							permissionLine += $"{ChatColors.Lime}{permission.DisplayName}{ChatColors.Silver}, ";
-							permissionCount++;
+							K4Player? k4player = plugin.GetK4Player(steamID);
+							if (k4player is null || !k4player.IsValid || !k4player.IsPlayer)
+								return;
 
-							if (permissionCount % 3 == 0)
+							RankData? playerData = k4player.rankData;
+
+							if (playerData is null)
+								return;
+
+							int pointsDifference = Math.Abs(rank.Point - playerData.Points);
+
+							player.PrintToChat($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.ranks.selected.title", rank.Color, rank.Name]}");
+							player.PrintToChat($" {plugin.Localizer["k4.ranks.selected.line1", playerCount, percentage]}");
+
+							if (rank.Name == playerData.Rank.Name)
+								player.PrintToChat($" {plugin.Localizer["k4.ranks.selected.line2.current", rank.Point]}");
+							else
+								player.PrintToChat($" {plugin.Localizer[rank.Point > playerData.Rank.Point ? "k4.ranks.selected.line2" : "k4.ranks.selected.line2.passed", rank.Point == -1 ? "None" : rank.Point, pointsDifference]}");
+
+							if (rank.Permissions != null && rank.Permissions.Count > 0)
 							{
-								player.PrintToChat($" {permissionLine.TrimEnd(',', ' ')}");
-								permissionLine = "";
-							}
-						}
+								player.PrintToChat($" {plugin.Localizer["k4.ranks.selected.benefitline"]}");
 
-						if (!string.IsNullOrEmpty(permissionLine))
-						{
-							player.PrintToChat($" {permissionLine.TrimEnd(',', ' ')}");
-						}
-					}
+								int permissionCount = 0;
+								string permissionLine = "";
+
+								foreach (Permission permission in rank.Permissions)
+								{
+									permissionLine += $"{ChatColors.Lime}{permission.DisplayName}{ChatColors.Silver}, ";
+									permissionCount++;
+
+									if (permissionCount % 3 == 0)
+									{
+										player.PrintToChat($" {permissionLine.TrimEnd(',', ' ')}");
+										permissionLine = "";
+									}
+								}
+
+								if (!string.IsNullOrEmpty(permissionLine))
+								{
+									player.PrintToChat($" {permissionLine.TrimEnd(',', ' ')}");
+								}
+							}
+						});
+					});
 				});
 			}
 		}
@@ -77,30 +84,30 @@ namespace K4System
 			float percentage = 0.0f;
 
 			string query = $@"
-						SELECT
-							COUNT(*) AS PlayerCount,
-							ROUND((COUNT(*) / TotalPlayers) * 100, 2) AS Percentage
-						FROM
-							`{Config.DatabaseSettings.TablePrefix}k4ranks`,
-							(SELECT COUNT(*) AS TotalPlayers FROM `{Config.DatabaseSettings.TablePrefix}k4ranks`) AS Total
-						WHERE
-							`rank` = '{rankName}'
-						GROUP BY
-							`rank`;";
+                SELECT
+                    COUNT(*) AS PlayerCount,
+                    ROUND((COUNT(*) / TotalPlayers.Total) * 100, 2) AS Percentage
+                FROM
+                    `{Config.DatabaseSettings.TablePrefix}k4ranks`
+                CROSS JOIN
+                    (SELECT COUNT(*) AS Total FROM `{Config.DatabaseSettings.TablePrefix}k4ranks`) TotalPlayers
+                WHERE
+                    `rank` = @RankName
+                GROUP BY
+                    `rank`;";
 
 			try
 			{
-				using (MySqlCommand command = new MySqlCommand(query))
+				using (var connection = plugin.CreateConnection(Config))
 				{
-					DataTable dataTable = await Database.Instance.ExecuteReaderAsync(command.CommandText);
+					await connection.OpenAsync();
 
-					if (dataTable.Rows.Count > 0)
+					var result = await connection.QueryFirstOrDefaultAsync<(int, float)>(query, new { RankName = rankName });
+
+					if (result != default)
 					{
-						foreach (DataRow row in dataTable.Rows)
-						{
-							playerCount = Convert.ToInt32(row[0]);
-							percentage = Convert.ToSingle(row[1]);
-						}
+						playerCount = result.Item1;
+						percentage = result.Item2;
 					}
 				}
 
@@ -112,5 +119,6 @@ namespace K4System
 				return (0, 0);
 			}
 		}
+
 	}
 }

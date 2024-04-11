@@ -6,18 +6,19 @@
     <PublishDir>./bin/K4-System/plugins/K4-System</PublishDir>
   </PropertyGroup>
   <PropertyGroup>
-    <TargetFramework>net7.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="CounterStrikeSharp.API" Version="1.0.198">
+    <PackageReference Include="CounterStrikeSharp.API" Version="*">
       <PrivateAssets>none</PrivateAssets>
       <ExcludeAssets>runtime</ExcludeAssets>
       <IncludeAssets>compile; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="MaxMind.GeoIP2" Version="5.2.0" />
+    <PackageReference Include="MaxMind.GeoIP2" Version="*" />
     <PackageReference Include="MySqlConnector" Version="*" />
+    <PackageReference Include="Dapper" Version="*" />
     <PackageReference Include="Newtonsoft.Json" Version="*" />
     <Reference Include="SharedApi">
       <HintPath>../../K4-SharedApi/src/K4-SharedApi.dll</HintPath>

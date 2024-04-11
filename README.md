@@ -76,6 +76,7 @@ Your support keeps my creative engine running and allows me to share knowledge w
 You can get these addons to make K4 and your server gameplay much better:
 
 - [**K4-Missions**](https://www.buymeacoffee.com/k4ryuu/e/212956): This masterpiece lets you create your own missions to your server, through a really easy json file (5 line per mission). You don't have to configure big codes or so, just easily add few words and the mission is generated automatically. Normal players have less mission slots than VIPs so it's good to entertain your players and get more rank purchase possibly. The code is really really complex for the basic level of CSS scripts, because the hooks are made "dynamically" to support everything.
+- - [**K4-System Matchmaking Ranks**](https://github.com/K4ryuu/K4-System-MMRanks): Display K4-System points as prime points or matchmaking ranks on scoreboard. Probably you have to install a metamod addon in order to reveal all player's rank, but you find that in the issues of that plugin.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -116,15 +117,6 @@ If you need any help or information about settings, installation, api, update or
 
 ## Roadmap
 
-- [x] Complete remake with modular dependency injection
-- [x] Translations
-- [x] Detailed Ranks Lists
-- [x] Upload to CSS forum
-- [x] Create FAQ
-- [x] Permission based ranks module
-- [ ] Promote/Demote colored alert messages
-- [ ] Weapon based points
-- [ ] Plugin auto updater (can be disabled, download stable branch, not dev)
-- [ ] Top 10 special tags
+- [ ] Nothing planned yet
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>

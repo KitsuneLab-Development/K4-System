@@ -9,13 +9,15 @@ namespace K4System
     using Microsoft.Extensions.Logging;
     using System.Data;
     using K4SharedApi;
+    using K4System.Models;
+    using Dapper;
+    using MaxMind.GeoIP2;
+    using MaxMind.GeoIP2.Exceptions;
 
     public partial class ModuleRank : IModuleRank
     {
         public bool IsPointsAllowed()
         {
-            Plugin plugin = (this.PluginContext.Plugin as Plugin)!;
-
             if (plugin.GameRules == null)
                 return false;
 
@@ -31,14 +33,15 @@ namespace K4System
 
         public void BeforeRoundEnd(int winnerTeam)
         {
-            List<CCSPlayerController> players = Utilities.GetPlayers().Where(p => p?.IsValid == true && p.PlayerPawn?.IsValid == true && !p.IsBot && !p.IsHLTV && p.SteamID.ToString().Length == 17 && PlayerCache.Instance.ContainsPlayer(p)).ToList();
-
-            foreach (CCSPlayerController player in players)
+            foreach (K4Player k4player in plugin.K4Players)
             {
-                if (!player.PawnIsAlive)
-                    playerKillStreaks[player.Slot] = (0, DateTime.Now);
+                if (!k4player.IsValid || !k4player.IsPlayer)
+                    continue;
 
-                RankData? playerData = PlayerCache.Instance.GetPlayerData(player).rankData;
+                if (!k4player.Controller.PawnIsAlive)
+                    k4player.KillStreak = (0, DateTime.Now);
+
+                RankData? playerData = k4player.rankData;
 
                 if (playerData is null)
                     continue;
@@ -46,32 +49,30 @@ namespace K4System
                 if (!playerData.PlayedRound)
                     continue;
 
-                if (player.TeamNum <= (int)CsTeam.Spectator)
+                if (k4player.Controller.TeamNum <= (int)CsTeam.Spectator)
                     continue;
 
-                if (winnerTeam == player.TeamNum)
+                if (winnerTeam == k4player.Controller.TeamNum)
                 {
-                    ModifyPlayerPoints(player, Config.PointSettings.RoundWin, "k4.phrases.roundwin");
+                    ModifyPlayerPoints(k4player, Config.PointSettings.RoundWin, "k4.phrases.roundwin");
                 }
                 else
                 {
-                    ModifyPlayerPoints(player, Config.PointSettings.RoundLose, "k4.phrases.roundlose");
+                    ModifyPlayerPoints(k4player, Config.PointSettings.RoundLose, "k4.phrases.roundlose");
                 }
-
-                Plugin plugin = (this.PluginContext.Plugin as Plugin)!;
 
                 if (!playerData.MuteMessages && Config.RankSettings.RoundEndPoints)
                 {
                     if (playerData.RoundPoints > 0)
                     {
-                        player.PrintToChat($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.ranks.summarypoints.gain", playerData.RoundPoints]}");
+                        k4player.Controller.PrintToChat($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.ranks.summarypoints.gain", playerData.RoundPoints]}");
                     }
                     else if (playerData.RoundPoints < 0)
                     {
-                        player.PrintToChat($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.ranks.summarypoints.loss", Math.Abs(playerData.RoundPoints)]}");
+                        k4player.Controller.PrintToChat($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.ranks.summarypoints.loss", Math.Abs(playerData.RoundPoints)]}");
                     }
                     else
-                        player.PrintToChat($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.ranks.summarypoints.nochange"]}");
+                        k4player.Controller.PrintToChat($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.ranks.summarypoints.nochange"]}");
                 }
 
                 playerData.RoundPoints = 0;
@@ -83,55 +84,27 @@ namespace K4System
             return rankDictionary.LastOrDefault(kv => points >= kv.Value.Point).Value ?? noneRank!;
         }
 
-        public static int GetPlayerRankID(CCSPlayerController player)
+        public void ModifyPlayerPointsConnector(CCSPlayerController player, int amount, string reason, string? extraInfo = null)
         {
-            if (!PlayerCache.Instance.ContainsPlayer(player))
-                return 0;
+            K4Player? k4player = plugin.GetK4Player(player);
+            if (k4player is null)
+                return;
 
-            RankData? playerData = PlayerCache.Instance.GetPlayerData(player).rankData;
-
-            if (playerData is null)
-                return 0;
-
-            return playerData.Rank.Id++;
+            ModifyPlayerPoints(k4player, amount, reason, extraInfo);
         }
 
-        public static int GetPlayerPoints(CCSPlayerController player)
-        {
-            if (!PlayerCache.Instance.ContainsPlayer(player))
-                return 0;
-
-            RankData? playerData = PlayerCache.Instance.GetPlayerData(player).rankData;
-
-            if (playerData is null)
-                return 0;
-
-            return playerData.Points;
-        }
-
-        public void ModifyPlayerPoints(CCSPlayerController player, int amount, string reason, string? extraInfo = null)
+        public void ModifyPlayerPoints(K4Player k4player, int amount, string reason, string? extraInfo = null)
         {
             if (!IsPointsAllowed())
                 return;
 
-            if (player is null || !player.IsValid || !player.PlayerPawn.IsValid)
+            if (!k4player.IsValid || !k4player.IsPlayer)
                 return;
 
-            if (player.IsBot || player.IsHLTV)
-                return;
-
-            if (player.SteamID.ToString().Length != 17)
-                return;
-
-            if (!PlayerCache.Instance.ContainsPlayer(player))
-                return;
-
-            RankData? playerData = PlayerCache.Instance.GetPlayerData(player).rankData;
+            RankData? playerData = k4player.rankData;
 
             if (playerData is null)
                 return;
-
-            Plugin plugin = (this.PluginContext.Plugin as Plugin)!;
 
             if (Config.RankSettings.RoundEndPoints && plugin.GameRules != null && !plugin.GameRules.WarmupPeriod)
                 playerData.RoundPoints += amount;
@@ -139,22 +112,16 @@ namespace K4System
             if (amount == 0)
                 return;
 
-            if (amount > 0 && AdminManager.PlayerHasPermissions(player, "@k4system/vip/points-multiplier"))
+            if (amount > 0 && AdminManager.PlayerHasPermissions(k4player.Controller, "@k4system/vip/points-multiplier"))
             {
                 amount = (int)Math.Round(amount * Config.RankSettings.VipMultiplier);
             }
 
             playerData.Points += amount;
 
-            Server.NextWorldUpdate(() =>
+            Server.NextFrame(() =>
             {
-                if (player is null || !player.IsValid || !player.PlayerPawn.IsValid)
-                    return;
-
-                if (player.IsBot || player.IsHLTV)
-                    return;
-
-                if (player.SteamID.ToString().Length != 17)
+                if (!k4player.IsValid || !k4player.IsPlayer)
                     return;
 
                 if (!playerData.MuteMessages && (!Config.RankSettings.RoundEndPoints || plugin.GameRules == null || plugin.GameRules.WarmupPeriod))
@@ -163,22 +130,22 @@ namespace K4System
                     {
                         if (extraInfo != null)
                         {
-                            player.PrintToChat($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.ranks.points.gain", playerData.Points, amount, plugin.Localizer[reason]]}{extraInfo}");
+                            k4player.Controller.PrintToChat($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.ranks.points.gain", playerData.Points, amount, plugin.Localizer[reason]]}{extraInfo}");
                         }
                         else
                         {
-                            player.PrintToChat($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.ranks.points.gain", playerData.Points, amount, plugin.Localizer[reason]]}");
+                            k4player.Controller.PrintToChat($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.ranks.points.gain", playerData.Points, amount, plugin.Localizer[reason]]}");
                         }
                     }
                     else if (amount < 0)
                     {
                         if (extraInfo != null)
                         {
-                            player.PrintToChat($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.ranks.points.loss", playerData.Points, Math.Abs(amount), plugin.Localizer[reason]]}{extraInfo}");
+                            k4player.Controller.PrintToChat($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.ranks.points.loss", playerData.Points, Math.Abs(amount), plugin.Localizer[reason]]}{extraInfo}");
                         }
                         else
                         {
-                            player.PrintToChat($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.ranks.points.loss", playerData.Points, Math.Abs(amount), plugin.Localizer[reason]]}");
+                            k4player.Controller.PrintToChat($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.ranks.points.loss", playerData.Points, Math.Abs(amount), plugin.Localizer[reason]]}");
                         }
                     }
                 }
@@ -188,19 +155,19 @@ namespace K4System
                 playerData.Points = 0;
 
             if (Config.RankSettings.ScoreboardScoreSync)
-                player.Score = playerData.Points;
+                k4player.Controller.Score = playerData.Points;
 
             Rank newRank = GetPlayerRank(playerData.Points);
 
             if (playerData.Rank.Name != newRank.Name)
             {
-                player.PrintToChat($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer[playerData.Rank.Point > newRank.Point ? "k4.ranks.demote" : "k4.ranks.promote", newRank.Color, newRank.Name]}");
+                k4player.Controller.PrintToChat($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer[playerData.Rank.Point > newRank.Point ? "k4.ranks.demote" : "k4.ranks.promote", newRank.Color, newRank.Name]}");
 
                 if (playerData.Rank.Permissions != null && playerData.Rank.Permissions.Count > 0)
                 {
                     foreach (Permission permission in playerData.Rank.Permissions)
                     {
-                        AdminManager.RemovePlayerPermissions(Utilities.GetPlayerFromSlot(player.Slot), permission.PermissionName);
+                        AdminManager.RemovePlayerPermissions(k4player.Controller, permission.PermissionName);
                     }
                 }
 
@@ -208,47 +175,37 @@ namespace K4System
                 {
                     foreach (Permission permission in newRank.Permissions)
                     {
-                        AdminManager.AddPlayerPermissions(Utilities.GetPlayerFromSlot(player.Slot), permission.PermissionName);
+                        AdminManager.AddPlayerPermissions(k4player.Controller, permission.PermissionName);
                     }
                 }
 
                 playerData.Rank = newRank;
             }
 
-            if (Config.RankSettings.ScoreboardClantags)
-            {
-                string tag = playerData.Rank.Tag ?? $"[{playerData.Rank.Name}]";
-                SetPlayerClanTag(player, playerData, tag);
-            }
+            SetPlayerClanTag(k4player);
         }
 
-        public async Task<(int playerPlace, int totalPlayers)> GetPlayerPlaceAndCountAsync(string steamID)
+        public async Task<(int playerPlace, int totalPlayers)> GetPlayerPlaceAndCountAsync(K4Player k4player)
         {
             string query = $@"SELECT
                 (SELECT COUNT(*) FROM `{Config.DatabaseSettings.TablePrefix}k4ranks`
                 WHERE `points` >
-                    (SELECT `points` FROM `{Config.DatabaseSettings.TablePrefix}k4ranks` WHERE `steam_id` = @steamId)) AS playerPlace,
+                    (SELECT `points` FROM `{Config.DatabaseSettings.TablePrefix}k4ranks` WHERE `steam_id` = @SteamId)) AS playerPlace,
                 (SELECT COUNT(*) FROM `{Config.DatabaseSettings.TablePrefix}k4ranks`) AS totalPlayers";
-
-            MySqlParameter[] parameters = new MySqlParameter[]
-            {
-                 new MySqlParameter("@steamid", steamID),
-            };
 
             try
             {
-                using (MySqlCommand command = new MySqlCommand(query))
+                using (var connection = plugin.CreateConnection(Config))
                 {
-                    DataTable dataTable = await Database.Instance.ExecuteReaderAsync(command.CommandText, parameters);
+                    await connection.OpenAsync();
 
-                    if (dataTable.Rows.Count > 0)
+                    var result = await connection.QueryFirstOrDefaultAsync(query, new { SteamId = k4player.SteamID });
+
+                    if (result != null)
                     {
-                        foreach (DataRow row in dataTable.Rows)
-                        {
-                            int playerPlace = Convert.ToInt32(row[0]) + 1;
-                            int totalPlayers = Convert.ToInt32(row[1]);
-                            return (playerPlace, totalPlayers);
-                        }
+                        int playerPlace = result.playerPlace + 1;
+                        int totalPlayers = result.totalPlayers;
+                        return (playerPlace, totalPlayers);
                     }
                 }
             }
@@ -260,19 +217,16 @@ namespace K4System
             return (0, 0);
         }
 
-        public int CalculateDynamicPoints(CCSPlayerController from, CCSPlayerController to, int amount)
+        public int CalculateDynamicPoints(K4Player from, K4Player to, int amount)
         {
             if (!Config.RankSettings.DynamicDeathPoints)
                 return amount;
 
-            if (to.IsBot || from.IsBot)
+            if (!to.IsPlayer || !from.IsPlayer)
                 return amount;
 
-            if (!PlayerCache.Instance.ContainsPlayer(from) || !PlayerCache.Instance.ContainsPlayer(to))
-                return amount;
-
-            RankData? fromCache = PlayerCache.Instance.GetPlayerData(from).rankData;
-            RankData? toCache = PlayerCache.Instance.GetPlayerData(to).rankData;
+            RankData? fromCache = from.rankData;
+            RankData? toCache = to.rankData;
 
             if (fromCache is null || toCache is null)
                 return amount;
@@ -285,9 +239,16 @@ namespace K4System
             return (int)Math.Round(result);
         }
 
-        public void SetPlayerClanTag(CCSPlayerController player, RankData playerData, string tag)
+        public void SetPlayerClanTag(K4Player k4player)
         {
-            if (!playerData.HideAdminTag)
+            string tag = string.Empty;
+
+            if (Config.RankSettings.ScoreboardClantags && k4player.rankData != null)
+            {
+                tag = k4player.rankData.Rank.Tag ?? $"[{k4player.rankData.Rank.Name}]";
+            }
+
+            if (k4player.rankData?.HideAdminTag == false)
             {
                 foreach (AdminSettingsEntry adminSettings in Config.GeneralSettings.AdminSettingsList)
                 {
@@ -297,15 +258,15 @@ namespace K4System
                     switch (adminSettings.Permission[0])
                     {
                         case '@':
-                            if (AdminManager.PlayerHasPermissions(player, adminSettings.Permission))
+                            if (AdminManager.PlayerHasPermissions(k4player.Controller, adminSettings.Permission))
                                 tag = adminSettings.ClanTag;
                             break;
                         case '#':
-                            if (AdminManager.PlayerInGroup(player, adminSettings.Permission))
+                            if (AdminManager.PlayerInGroup(k4player.Controller, adminSettings.Permission))
                                 tag = adminSettings.ClanTag;
                             break;
                         default:
-                            if (AdminManager.PlayerHasCommandOverride(player, adminSettings.Permission))
+                            if (AdminManager.PlayerHasCommandOverride(k4player.Controller, adminSettings.Permission))
                                 tag = adminSettings.ClanTag;
                             break;
                     }
@@ -314,11 +275,48 @@ namespace K4System
 
             if (Config.RankSettings.CountryTagEnabled)
             {
-                Plugin plugin = (this.PluginContext.Plugin as Plugin)!;
-                tag = $"{plugin.GetPlayerCountryCode(player)} | {tag}";
+                string countryTag = GetPlayerCountryCode(k4player.Controller);
+                tag = tag.Length > 0 ? $"{countryTag} | {tag}" : countryTag;
             }
 
-            player.Clan = tag;
+            k4player.ClanTag = tag;
+        }
+
+        public string GetPlayerCountryCode(CCSPlayerController player)
+        {
+            string? playerIp = player.IpAddress;
+
+            if (playerIp == null)
+                return "??";
+
+            string[] parts = playerIp.Split(':');
+            string realIP = parts.Length == 2 ? parts[0] : playerIp;
+
+            string filePath = Path.Combine(plugin.ModuleDirectory, "GeoLite2-Country.mmdb");
+            if (!File.Exists(filePath))
+            {
+                Logger.LogError($"GeoLite2-Country.mmdb not found in {filePath}. Download it from https://github.com/P3TERX/GeoLite.mmdb/releases and place it in the same directory as the plugin.");
+                return "??";
+            }
+
+            using (DatabaseReader reader = new DatabaseReader(filePath))
+            {
+                try
+                {
+                    MaxMind.GeoIP2.Responses.CountryResponse response = reader.Country(realIP);
+                    return response.Country.IsoCode ?? "??";
+                }
+                catch (AddressNotFoundException)
+                {
+                    Logger.LogError($"The address {realIP} is not in the database.");
+                    return "??";
+                }
+                catch (GeoIP2Exception ex)
+                {
+                    Logger.LogError($"Error: {ex.Message}");
+                    return "??";
+                }
+            }
         }
     }
 }

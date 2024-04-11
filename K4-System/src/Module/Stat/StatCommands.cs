@@ -2,10 +2,11 @@ namespace K4System
 {
 	using CounterStrikeSharp.API.Core;
 	using CounterStrikeSharp.API.Modules.Commands;
+	using K4System.Models;
 
 	public partial class ModuleStat : IModuleStat
 	{
-		public void Initialize_Commands(Plugin plugin)
+		public void Initialize_Commands()
 		{
 			CommandSettings commands = Config.CommandSettings;
 
@@ -17,18 +18,18 @@ namespace K4System
 
 		public void OnCommandStats(CCSPlayerController? player, CommandInfo info)
 		{
-			Plugin plugin = (this.PluginContext.Plugin as Plugin)!;
-
 			if (!plugin.CommandHelper(player, info, CommandUsage.CLIENT_ONLY))
 				return;
 
-			if (!PlayerCache.Instance.ContainsPlayer(player!))
+			K4Player? k4player = plugin.GetK4Player(player!);
+
+			if (k4player is null)
 			{
 				info.ReplyToCommand($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.general.loading"]}");
 				return;
 			}
 
-			StatData? playerData = PlayerCache.Instance.GetPlayerData(player!).statData;
+			StatData? playerData = k4player.statData;
 
 			if (playerData is null)
 				return;

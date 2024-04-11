@@ -6,19 +6,19 @@ namespace K4System
 	using CounterStrikeSharp.API.Modules.Admin;
 	using CounterStrikeSharp.API.Modules.Memory;
 	using CounterStrikeSharp.API.Modules.Utils;
+	using K4System.Models;
 
 	public partial class ModuleRank : IModuleRank
 	{
-		public void Initialize_Events(Plugin plugin)
+		public void Initialize_Events()
 		{
 			plugin.RegisterEventHandler((EventPlayerTeam @event, GameEventInfo info) =>
 			{
-				CCSPlayerController player = @event.Userid;
-
-				if (player is null || !player.IsValid || !player.PlayerPawn.IsValid || player.IsBot || player.IsHLTV || !PlayerCache.Instance.ContainsPlayer(player))
+				K4Player? k4player = plugin.GetK4Player(@event.Userid);
+				if (k4player is null || !k4player.IsValid || !k4player.IsPlayer)
 					return HookResult.Continue;
 
-				RankData? rankData = PlayerCache.Instance.GetPlayerData(player).rankData;
+				RankData? rankData = k4player.rankData;
 
 				if (rankData is null)
 					return HookResult.Continue;
@@ -27,7 +27,7 @@ namespace K4System
 				{
 					foreach (Permission permission in rankData.Rank.Permissions)
 					{
-						AdminManager.AddPlayerPermissions(Utilities.GetPlayerFromSlot(player.Slot), permission.PermissionName);
+						AdminManager.AddPlayerPermissions(k4player.Controller, permission.PermissionName);
 					}
 				}
 
@@ -36,136 +36,123 @@ namespace K4System
 					rankData.PlayedRound = false;
 				}
 
-				if (Config.RankSettings.ScoreboardClantags)
-				{
-					string tag = rankData.Rank.Tag ?? $"[{rankData.Rank.Name}]";
-					SetPlayerClanTag(player, rankData, tag);
-				}
+				SetPlayerClanTag(k4player);
 
 				return HookResult.Continue;
 			});
 
 			plugin.RegisterEventHandler((EventPlayerSpawn @event, GameEventInfo info) =>
 			{
-				CCSPlayerController player = @event.Userid;
-
-				if (player is null || !player.IsValid || !player.PlayerPawn.IsValid || player.IsBot || player.IsHLTV)
+				K4Player? k4player = plugin.GetK4Player(@event.Userid);
+				if (k4player is null || !k4player.IsValid || !k4player.IsPlayer)
 					return HookResult.Continue;
 
-				if (!PlayerCache.Instance.ContainsPlayer(player))
-					return HookResult.Continue;
-
-				if (Config.RankSettings.ScoreboardClantags)
-				{
-					RankData? rankData = PlayerCache.Instance.GetPlayerData(player).rankData;
-
-					if (rankData is null)
-						return HookResult.Continue;
-
-					string tag = rankData.Rank.Tag ?? $"[{rankData.Rank.Name}]";
-					SetPlayerClanTag(player, rankData, tag);
-				}
-
+				SetPlayerClanTag(k4player);
 				return HookResult.Continue;
 			});
 
 			plugin.RegisterEventHandler((EventHostageRescued @event, GameEventInfo info) =>
 			{
-				CCSPlayerController player = @event.Userid;
-				ModifyPlayerPoints(player, Config.PointSettings.HostageRescue, "k4.phrases.hostagerescued");
+				ModifyPlayerPointsConnector(@event.Userid, Config.PointSettings.HostageRescue, "k4.phrases.hostagerescued");
 				return HookResult.Continue;
 			});
 
 			plugin.RegisterEventHandler((EventHostageKilled @event, GameEventInfo info) =>
 			{
-				CCSPlayerController player = @event.Userid;
-				ModifyPlayerPoints(player, Config.PointSettings.HostageKill, "k4.phrases.hostagekilled");
+				ModifyPlayerPointsConnector(@event.Userid, Config.PointSettings.HostageKill, "k4.phrases.hostagekilled");
 				return HookResult.Continue;
 			});
 
 			plugin.RegisterEventHandler((EventHostageHurt @event, GameEventInfo info) =>
 			{
-				CCSPlayerController player = @event.Userid;
-				ModifyPlayerPoints(player, Config.PointSettings.HostageHurt, "k4.phrases.hostagehurt");
+				ModifyPlayerPointsConnector(@event.Userid, Config.PointSettings.HostageHurt, "k4.phrases.hostagehurt");
 				return HookResult.Continue;
 			});
 
 			plugin.RegisterEventHandler((EventBombPickup @event, GameEventInfo info) =>
 			{
-				CCSPlayerController player = @event.Userid;
-				ModifyPlayerPoints(player, Config.PointSettings.BombPickup, "k4.phrases.bombpickup");
+				ModifyPlayerPointsConnector(@event.Userid, Config.PointSettings.BombPickup, "k4.phrases.bombpickup");
 				return HookResult.Continue;
 			});
 
 			plugin.RegisterEventHandler((EventBombDefused @event, GameEventInfo info) =>
 			{
-				CCSPlayerController player = @event.Userid;
-				ModifyPlayerPoints(player, Config.PointSettings.BombDefused, "k4.phrases.bombdefused");
+				K4Player? k4player = plugin.GetK4Player(@event.Userid);
+				if (k4player is null || !k4player.IsValid || !k4player.IsPlayer)
+					return HookResult.Continue;
 
-				Utilities.GetPlayers().Where(p => p.TeamNum == (int)CsTeam.CounterTerrorist && p.Slot != player.Slot)
-					.ToList()
-					.ForEach(p => ModifyPlayerPoints(p, Config.PointSettings.BombDefusedOthers, "k4.phrases.bombdefused"));
+				ModifyPlayerPoints(k4player, Config.PointSettings.BombDefused, "k4.phrases.bombdefused");
+
+				var players = plugin.K4Players.Where(p => p.IsValid && p.IsPlayer && p.Controller.Team == CsTeam.CounterTerrorist && p != k4player);
+				foreach (K4Player player in players)
+				{
+					ModifyPlayerPoints(player, Config.PointSettings.BombDefusedOthers, "k4.phrases.bombdefused");
+				}
 
 				return HookResult.Continue;
 			});
 
 			plugin.RegisterEventHandler((EventBombDropped @event, GameEventInfo info) =>
 			{
-				CCSPlayerController player = @event.Userid;
-				ModifyPlayerPoints(player, Config.PointSettings.BombDrop, "k4.phrases.bombdropped");
+				ModifyPlayerPointsConnector(@event.Userid, Config.PointSettings.BombDrop, "k4.phrases.bombdropped");
 				return HookResult.Continue;
 			});
 
 			plugin.RegisterEventHandler((EventBombExploded @event, GameEventInfo info) =>
 			{
-				Utilities.GetPlayers().Where(p => p.TeamNum == (int)CsTeam.Terrorist)
-					.ToList()
-					.ForEach(p => ModifyPlayerPoints(p, Config.PointSettings.BombExploded, "k4.phrases.bombexploded"));
-
+				foreach (K4Player k4player in plugin.K4Players)
+				{
+					if (k4player.IsValid && k4player.IsPlayer && k4player.Controller.Team == CsTeam.Terrorist)
+					{
+						ModifyPlayerPoints(k4player, Config.PointSettings.BombExploded, "k4.phrases.bombexploded");
+					}
+				}
 				return HookResult.Continue;
 			});
 
 			plugin.RegisterEventHandler((EventHostageRescuedAll @event, GameEventInfo info) =>
 			{
-				Utilities.GetPlayers().Where(p => p.TeamNum == (int)CsTeam.CounterTerrorist)
-					.ToList()
-					.ForEach(p => ModifyPlayerPoints(p, Config.PointSettings.HostageRescueAll, "k4.phrases.hostagerescuedall"));
-
+				foreach (K4Player k4player in plugin.K4Players)
+				{
+					if (k4player.IsValid && k4player.IsPlayer && k4player.Controller.Team == CsTeam.CounterTerrorist)
+					{
+						ModifyPlayerPoints(k4player, Config.PointSettings.HostageRescueAll, "k4.phrases.hostagerescuedall");
+					}
+				}
 				return HookResult.Continue;
 			});
 
 			plugin.RegisterEventHandler((EventRoundMvp @event, GameEventInfo info) =>
 			{
-				CCSPlayerController player = @event.Userid;
-				ModifyPlayerPoints(player, Config.PointSettings.MVP, "k4.phrases.mvp");
+				ModifyPlayerPointsConnector(@event.Userid, Config.PointSettings.MVP, "k4.phrases.mvp");
 				return HookResult.Continue;
 			});
 
 			plugin.RegisterEventHandler((EventRoundStart @event, GameEventInfo info) =>
 			{
-				List<CCSPlayerController> players = Utilities.GetPlayers().Where(p => p?.IsValid == true && p.PlayerPawn?.IsValid == true && !p.IsBot && !p.IsHLTV && p.SteamID.ToString().Length == 17).ToList();
-
-				players.Where(p => p.PawnIsAlive && PlayerCache.Instance.ContainsPlayer(p))
-					.ToList()
-					.ForEach(p =>
+				foreach (K4Player k4player in plugin.K4Players)
+				{
+					if (k4player.IsValid && k4player.IsPlayer)
 					{
-						RankData? rankData = PlayerCache.Instance.GetPlayerData(p).rankData;
+						RankData? rankData = k4player.rankData;
 						if (rankData is not null)
 						{
 							rankData.PlayedRound = true;
 						}
-					});
+					}
+				}
 
-				if (players.Count < Config.RankSettings.MinPlayers)
+				if (plugin.K4Players.Count(p => p.IsPlayer) < Config.RankSettings.MinPlayers)
+				{
 					Server.PrintToChatAll($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.ranks.notenoughplayers", Config.RankSettings.MinPlayers]}");
+				}
 
 				return HookResult.Continue;
 			}, HookMode.Post);
 
 			plugin.RegisterEventHandler((EventBombPlanted @event, GameEventInfo info) =>
 			{
-				CCSPlayerController player = @event.Userid;
-				ModifyPlayerPoints(player, Config.PointSettings.BombPlant, "k4.phrases.bombplanted");
+				ModifyPlayerPointsConnector(@event.Userid, Config.PointSettings.BombPlant, "k4.phrases.bombplanted");
 				return HookResult.Continue;
 			});
 
@@ -176,69 +163,71 @@ namespace K4System
 					return HookResult.Continue;
 				}
 
-				CCSPlayerController victim = @event.Userid;
-
-				if (victim is null || !victim.IsValid || !victim.PlayerPawn.IsValid || victim.Connected == PlayerConnectedState.PlayerDisconnecting)
+				K4Player? k4victim = plugin.GetK4Player(@event.Userid);
+				if (k4victim is null || !k4victim.IsValid)
 					return HookResult.Continue;
 
-				CCSPlayerController killer = @event.Attacker;
+				K4Player? k4attacker = plugin.GetK4Player(@event.Attacker);
 
-				if (!victim.IsBot)
+				if (!k4victim.IsPlayer)
 				{
-					playerKillStreaks[victim.Slot] = (0, DateTime.Now);
+					k4victim.KillStreak = (0, DateTime.Now);
 
-					if (killer is null || !killer.IsValid || victim.UserId == killer.UserId)
+					if (k4attacker is null || !k4attacker.IsValid)
 					{
-						ModifyPlayerPoints(victim, Config.PointSettings.Suicide, "k4.phrases.suicide");
-					}
-					else if (killer != null && killer.IsValid && (Config.RankSettings.PointsForBots || !killer.IsBot))
-					{
-						string? extraInfo = Config.RankSettings.PlayerNameKillMessages ? plugin.Localizer["k4.phrases.dying.extra", killer.PlayerName] : null!;
-						ModifyPlayerPoints(victim, CalculateDynamicPoints(killer, victim, Config.PointSettings.Death), "k4.phrases.dying", extraInfo);
-					}
-				}
-
-				if (killer?.IsValid == true && killer.PlayerPawn?.IsValid == true && !killer.IsBot && victim.UserId != killer.UserId && (Config.RankSettings.PointsForBots || !victim.IsBot))
-				{
-					if (!Config.GeneralSettings.FFAMode && killer.TeamNum == victim.TeamNum)
-					{
-						ModifyPlayerPoints(killer, Config.PointSettings.TeamKill, "k4.phrases.teamkill");
+						ModifyPlayerPoints(k4victim, Config.PointSettings.Suicide, "k4.phrases.suicide");
 					}
 					else
 					{
-						string? extraInfo = Config.RankSettings.PlayerNameKillMessages ? plugin.Localizer["k4.phrases.kill.extra", victim.PlayerName] : null!;
-						ModifyPlayerPoints(killer, CalculateDynamicPoints(killer, victim, Config.PointSettings.Kill), "k4.phrases.kill", extraInfo);
+						if (Config.RankSettings.PointsForBots || k4attacker.IsPlayer)
+						{
+							string? extraInfo = Config.RankSettings.PlayerNameKillMessages ? plugin.Localizer["k4.phrases.dying.extra", k4attacker.PlayerName] : null!;
+							ModifyPlayerPoints(k4victim, CalculateDynamicPoints(k4attacker, k4victim, Config.PointSettings.Death), "k4.phrases.dying", extraInfo);
+						}
+					}
+				}
+
+				if (k4attacker?.IsValid == true && k4attacker.IsPlayer && (Config.RankSettings.PointsForBots || k4victim.IsPlayer))
+				{
+					if (!Config.GeneralSettings.FFAMode && k4attacker.Controller.Team == k4victim.Controller.Team)
+					{
+						ModifyPlayerPoints(k4attacker, Config.PointSettings.TeamKill, "k4.phrases.teamkill");
+					}
+					else
+					{
+						string? extraInfo = Config.RankSettings.PlayerNameKillMessages ? plugin.Localizer["k4.phrases.kill.extra", k4victim.PlayerName] : null!;
+						ModifyPlayerPoints(k4attacker, CalculateDynamicPoints(k4attacker, k4victim, Config.PointSettings.Kill), "k4.phrases.kill", extraInfo);
 
 						if (@event.Headshot)
 						{
-							ModifyPlayerPoints(killer, Config.PointSettings.Headshot, "k4.phrases.headshot");
+							ModifyPlayerPoints(k4attacker, Config.PointSettings.Headshot, "k4.phrases.headshot");
 						}
 
 						int penetrateCount = @event.Penetrated;
 						if (penetrateCount > 0 && Config.PointSettings.Penetrated > 0)
 						{
 							int calculatedPoints = penetrateCount * Config.PointSettings.Penetrated;
-							ModifyPlayerPoints(killer, calculatedPoints, "k4.phrases.penetrated");
+							ModifyPlayerPoints(k4attacker, calculatedPoints, "k4.phrases.penetrated");
 						}
 
 						if (@event.Noscope)
 						{
-							ModifyPlayerPoints(killer, Config.PointSettings.NoScope, "k4.phrases.noscope");
+							ModifyPlayerPoints(k4attacker, Config.PointSettings.NoScope, "k4.phrases.noscope");
 						}
 
 						if (@event.Thrusmoke)
 						{
-							ModifyPlayerPoints(killer, Config.PointSettings.Thrusmoke, "k4.phrases.thrusmoke");
+							ModifyPlayerPoints(k4attacker, Config.PointSettings.Thrusmoke, "k4.phrases.thrusmoke");
 						}
 
 						if (@event.Attackerblind)
 						{
-							ModifyPlayerPoints(killer, Config.PointSettings.BlindKill, "k4.phrases.blindkill");
+							ModifyPlayerPoints(k4attacker, Config.PointSettings.BlindKill, "k4.phrases.blindkill");
 						}
 
 						if (@event.Distance >= Config.PointSettings.LongDistance)
 						{
-							ModifyPlayerPoints(killer, Config.PointSettings.LongDistanceKill, "k4.phrases.longdistance");
+							ModifyPlayerPoints(k4attacker, Config.PointSettings.LongDistanceKill, "k4.phrases.longdistance");
 						}
 
 						string lowerCaseWeaponName = @event.Weapon.ToLower();
@@ -248,45 +237,43 @@ namespace K4System
 							//Killed by grenade explosion
 							case var _ when lowerCaseWeaponName.Contains("hegrenade"):
 								{
-									ModifyPlayerPoints(killer, Config.PointSettings.GrenadeKill, "k4.phrases.grenadekill");
+									ModifyPlayerPoints(k4attacker, Config.PointSettings.GrenadeKill, "k4.phrases.grenadekill");
 									break;
 								}
 							//Molotov or Incendiary fire kill
 							case var _ when lowerCaseWeaponName.Contains("inferno"):
 								{
-									ModifyPlayerPoints(killer, Config.PointSettings.InfernoKill, "k4.phrases.infernokill");
+									ModifyPlayerPoints(k4attacker, Config.PointSettings.InfernoKill, "k4.phrases.infernokill");
 									break;
 								}
 							// Grenade impact kill (hitting a player and killing them with a grenade when they are 1hp for example)
 							case var _ when lowerCaseWeaponName.Contains("grenade") || lowerCaseWeaponName.Contains("molotov") || lowerCaseWeaponName.Contains("flashbang") || lowerCaseWeaponName.Contains("bumpmine"):
 								{
-									ModifyPlayerPoints(killer, Config.PointSettings.ImpactKill, "k4.phrases.impactkill");
+									ModifyPlayerPoints(k4attacker, Config.PointSettings.ImpactKill, "k4.phrases.impactkill");
 									break;
 								}
 							// knife_ would not handle default knives (therefore changed to just "knife"), this will also not handle other Danger Zone items such as axes and wrenches (if they are even implemented yet in CS2)
 							case var _ when lowerCaseWeaponName.Contains("knife") || lowerCaseWeaponName.Contains("bayonet"):
 								{
-									ModifyPlayerPoints(killer, Config.PointSettings.KnifeKill, "k4.phrases.knifekill");
+									ModifyPlayerPoints(k4attacker, Config.PointSettings.KnifeKill, "k4.phrases.knifekill");
 									break;
 								}
 							case "taser":
 								{
-									ModifyPlayerPoints(killer, Config.PointSettings.TaserKill, "k4.phrases.taserkill");
+									ModifyPlayerPoints(k4attacker, Config.PointSettings.TaserKill, "k4.phrases.taserkill");
 									break;
 								}
 						}
 
-						if (playerKillStreaks.ContainsKey(killer.Slot))
+						int time = Config.PointSettings.SecondsBetweenKills;
+						bool isTimeBetweenKills = time <= 0 || DateTime.Now - k4attacker.KillStreak.lastKillTime <= TimeSpan.FromSeconds(time);
+
+						if (k4attacker.KillStreak.killStreak > 0 && isTimeBetweenKills)
 						{
-							int time = Config.PointSettings.SecondsBetweenKills;
-							bool isTimeBetweenKills = time <= 0 || DateTime.Now - playerKillStreaks[killer.Slot].lastKillTime <= TimeSpan.FromSeconds(time);
+							k4attacker.KillStreak = (k4attacker.KillStreak.killStreak + 1, DateTime.Now);
+							int killStreak = k4attacker.KillStreak.killStreak;
 
-							if (playerKillStreaks[killer.Slot].killStreak > 0 && isTimeBetweenKills)
-							{
-								playerKillStreaks[killer.Slot] = (playerKillStreaks[killer.Slot].killStreak + 1, DateTime.Now);
-								int killStreak = playerKillStreaks[killer.Slot].killStreak;
-
-								Dictionary<int, (int points, string message)> killStreakMap = new Dictionary<int, (int points, string message)>
+							Dictionary<int, (int points, string message)> killStreakMap = new Dictionary<int, (int points, string message)>
 								{
 									{ 2, (Config.PointSettings.DoubleKill, "k4.phrases.doublekill") },
 									{ 3, (Config.PointSettings.TripleKill, "k4.phrases.triplekill") },
@@ -301,30 +288,27 @@ namespace K4System
 									{ 12, (Config.PointSettings.GodLike, "k4.phrases.godlike") }
 								};
 
-								if (killStreakMap.TryGetValue(killStreak, out var killStreakInfo))
-								{
-									ModifyPlayerPoints(killer, killStreakInfo.points, killStreakInfo.message);
-								}
-								else
-									playerKillStreaks[killer.Slot] = (1, DateTime.Now);
+							if (killStreakMap.TryGetValue(killStreak, out var killStreakInfo))
+							{
+								ModifyPlayerPoints(k4attacker, killStreakInfo.points, killStreakInfo.message);
 							}
 							else
-								playerKillStreaks[killer.Slot] = (1, DateTime.Now);
+								k4attacker.KillStreak = (1, DateTime.Now);
 						}
 						else
-							playerKillStreaks[killer.Slot] = (1, DateTime.Now);
+							k4attacker.KillStreak = (1, DateTime.Now);
+
 					}
 				}
 
-				CCSPlayerController assiter = @event.Assister;
-
-				if (assiter != null && assiter.IsValid && assiter.PlayerPawn.IsValid && !assiter.IsBot && (Config.RankSettings.PointsForBots || !victim.IsBot))
+				K4Player? k4assister = plugin.GetK4Player(@event.Assister);
+				if (k4assister?.IsValid == true && k4assister.IsPlayer && (Config.RankSettings.PointsForBots || k4victim.IsPlayer))
 				{
-					ModifyPlayerPoints(assiter, Config.PointSettings.Assist, "k4.phrases.assist");
+					ModifyPlayerPoints(k4assister, Config.PointSettings.Assist, "k4.phrases.assist");
 
 					if (@event.Assistedflash)
 					{
-						ModifyPlayerPoints(assiter, Config.PointSettings.AssistFlash, "k4.phrases.assistflash");
+						ModifyPlayerPoints(k4assister, Config.PointSettings.AssistFlash, "k4.phrases.assistflash");
 					}
 				}
 

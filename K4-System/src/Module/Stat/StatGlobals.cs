@@ -11,9 +11,10 @@ namespace K4System
 			public Dictionary<string, int> StatFields { get; set; } = new Dictionary<string, int>();
 		}
 
-		public readonly PluginContext PluginContext;
+		public readonly Plugin plugin;
 		public readonly ILogger<ModuleStat> Logger;
-		public required PluginConfig Config { get; set; }
+		public readonly PluginConfig Config;
+
 		public bool FirstBlood = false;
 	}
 }

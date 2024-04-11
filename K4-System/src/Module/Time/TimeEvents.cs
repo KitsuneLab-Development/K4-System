@@ -3,25 +3,19 @@ namespace K4System
 {
 	using CounterStrikeSharp.API.Core;
 	using CounterStrikeSharp.API.Modules.Utils;
+	using K4System.Models;
 
 	public partial class ModuleTime : IModuleTime
 	{
-		public void Initialize_Events(Plugin plugin)
+		public void Initialize_Events()
 		{
 			plugin.RegisterEventHandler((EventPlayerTeam @event, GameEventInfo info) =>
 			{
-				CCSPlayerController player = @event.Userid;
-
-				if (player is null || !player.IsValid || !player.PlayerPawn.IsValid)
+				K4Player? k4player = plugin.GetK4Player(@event.Userid);
+				if (k4player is null || !k4player.IsValid || !k4player.IsPlayer)
 					return HookResult.Continue;
 
-				if (player.IsBot || player.IsHLTV)
-					return HookResult.Continue;
-
-				if (!PlayerCache.Instance.ContainsPlayer(player))
-					return HookResult.Continue;
-
-				TimeData? playerData = PlayerCache.Instance.GetPlayerData(player).timeData;
+				TimeData? playerData = k4player.timeData;
 
 				if (playerData is null)
 					return HookResult.Continue;
@@ -43,18 +37,11 @@ namespace K4System
 
 			plugin.RegisterEventHandler((EventPlayerSpawn @event, GameEventInfo info) =>
 			{
-				CCSPlayerController player = @event.Userid;
-
-				if (player is null || !player.IsValid || !player.PlayerPawn.IsValid)
+				K4Player? k4player = plugin.GetK4Player(@event.Userid);
+				if (k4player is null || !k4player.IsValid || !k4player.IsPlayer)
 					return HookResult.Continue;
 
-				if (player.IsBot || player.IsHLTV)
-					return HookResult.Continue;
-
-				if (!PlayerCache.Instance.ContainsPlayer(player))
-					return HookResult.Continue;
-
-				TimeData? playerData = PlayerCache.Instance.GetPlayerData(player).timeData;
+				TimeData? playerData = k4player.timeData;
 
 				if (playerData is null)
 					return HookResult.Continue;
@@ -71,18 +58,12 @@ namespace K4System
 
 			plugin.RegisterEventHandler((EventPlayerDeath @event, GameEventInfo info) =>
 			{
-				CCSPlayerController player = @event.Userid;
+				K4Player? k4player = plugin.GetK4Player(@event.Userid);
 
-				if (player is null || !player.IsValid || !player.PlayerPawn.IsValid)
+				if (k4player is null || !k4player.IsValid || !k4player.IsPlayer)
 					return HookResult.Continue;
 
-				if (player.IsBot || player.IsHLTV)
-					return HookResult.Continue;
-
-				if (!PlayerCache.Instance.ContainsPlayer(player))
-					return HookResult.Continue;
-
-				TimeData? playerData = PlayerCache.Instance.GetPlayerData(player).timeData;
+				TimeData? playerData = k4player.timeData;
 
 				if (playerData is null)
 					return HookResult.Continue;

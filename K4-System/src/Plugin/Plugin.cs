@@ -6,6 +6,8 @@
     using CounterStrikeSharp.API.Core;
     using CounterStrikeSharp.API.Core.Attributes;
     using CounterStrikeSharp.API;
+    using K4System.Models;
+    using Dapper;
 
     [MinimumApiVersion(191)]
     public sealed partial class Plugin : BasePlugin, IPluginConfig<PluginConfig>
@@ -21,6 +23,8 @@
         private readonly IModuleTime ModuleTime;
         private readonly IModuleUtils ModuleUtils;
 
+        public List<K4Player> K4Players = new List<K4Player>();
+
         public Plugin(ModuleRank moduleRank, ModuleStat moduleStat, ModuleTime moduleTime, ModuleUtils moduleUtils)
         {
             this.ModuleRank = moduleRank;
@@ -35,19 +39,6 @@
             {
                 base.Logger.LogWarning("Configuration version mismatch (Expected: {0} | Current: {1})", this.Config.Version, config.Version);
             }
-
-            //** ? Database Connection Init */
-
-            DatabaseSettings databaseSettings = config.DatabaseSettings;
-
-            Database.Instance.Initialize(
-                server: databaseSettings.Host,
-                database: databaseSettings.Database,
-                userId: databaseSettings.Username,
-                password: databaseSettings.Password,
-                port: databaseSettings.Port,
-                sslMode: databaseSettings.Sslmode,
-                logger: base.Logger);
 
             //** ? Save Config */
 
@@ -97,7 +88,7 @@
         {
             //** ? Save Player Caches */
 
-            SaveAllPlayersCache();
+            Task.Run(SaveAllPlayersDataAsync);
 
             //** ? Release Modules */
 
@@ -132,25 +123,49 @@
 				) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;";
 
             string statsModuleTable = $@"CREATE TABLE IF NOT EXISTS `{this.Config.DatabaseSettings.TablePrefix}k4stats` (
-                    `steam_id` VARCHAR(32) COLLATE 'utf8mb4_unicode_ci' UNIQUE NOT NULL,
-                    `name` VARCHAR(255) COLLATE 'utf8mb4_unicode_ci' NOT NULL,
-                    `lastseen` DATETIME NOT NULL,
-                    `kills` INT NOT NULL DEFAULT 0,
-                    `firstblood` INT NOT NULL DEFAULT 0,
-                    `deaths` INT NOT NULL DEFAULT 0,
-                    `assists` INT NOT NULL DEFAULT 0,
-                    `shoots` INT NOT NULL DEFAULT 0,
-                    `hits_taken` INT NOT NULL DEFAULT 0,
-                    `hits_given` INT NOT NULL DEFAULT 0,
-                    `headshots` INT NOT NULL DEFAULT 0,
-                    `grenades` INT NOT NULL DEFAULT 0,
-                    `mvp` INT NOT NULL DEFAULT 0,
-                    `round_win` INT NOT NULL DEFAULT 0,
-                    `round_lose` INT NOT NULL DEFAULT 0,
-                    `game_win` INT NOT NULL DEFAULT 0,
-                    `game_lose` INT NOT NULL DEFAULT 0,
-                    UNIQUE (`steam_id`)
-                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;";
+                `steam_id` VARCHAR(32) COLLATE 'utf8mb4_unicode_ci' UNIQUE NOT NULL,
+                `name` VARCHAR(255) COLLATE 'utf8mb4_unicode_ci' NOT NULL,
+                `lastseen` DATETIME NOT NULL,
+                `kills` INT NOT NULL DEFAULT 0,
+                `firstblood` INT NOT NULL DEFAULT 0,
+                `deaths` INT NOT NULL DEFAULT 0,
+                `assists` INT NOT NULL DEFAULT 0,
+                `shoots` INT NOT NULL DEFAULT 0,
+                `hits_taken` INT NOT NULL DEFAULT 0,
+                `hits_given` INT NOT NULL DEFAULT 0,
+                `headshots` INT NOT NULL DEFAULT 0,
+                `chest_hits` INT NOT NULL DEFAULT 0,
+                `stomach_hits` INT NOT NULL DEFAULT 0,
+                `left_arm_hits` INT NOT NULL DEFAULT 0,
+                `right_arm_hits` INT NOT NULL DEFAULT 0,
+                `left_leg_hits` INT NOT NULL DEFAULT 0,
+                `right_leg_hits` INT NOT NULL DEFAULT 0,
+                `neck_hits` INT NOT NULL DEFAULT 0,
+                `unused_hits` INT NOT NULL DEFAULT 0,
+                `gear_hits` INT NOT NULL DEFAULT 0,
+                `special_hits` INT NOT NULL DEFAULT 0,
+                `grenades` INT NOT NULL DEFAULT 0,
+                `mvp` INT NOT NULL DEFAULT 0,
+                `round_win` INT NOT NULL DEFAULT 0,
+                `round_lose` INT NOT NULL DEFAULT 0,
+                `game_win` INT NOT NULL DEFAULT 0,
+                `game_lose` INT NOT NULL DEFAULT 0,
+                `rounds_overall` INT NOT NULL DEFAULT 0,
+                `rounds_ct` INT NOT NULL DEFAULT 0,
+                `rounds_t` INT NOT NULL DEFAULT 0,
+                `bomb_planted` INT NOT NULL DEFAULT 0,
+                `bomb_defused` INT NOT NULL DEFAULT 0,
+                `hostage_rescued` INT NOT NULL DEFAULT 0,
+                `hostage_killed` INT NOT NULL DEFAULT 0,
+                `noscope_kill` INT NOT NULL DEFAULT 0,
+                `penetrated_kill` INT NOT NULL DEFAULT 0,
+                `thrusmoke_kill` INT NOT NULL DEFAULT 0,
+                `flashed_kill` INT NOT NULL DEFAULT 0,
+                `dominated_kill` INT NOT NULL DEFAULT 0,
+                `revenge_kill` INT NOT NULL DEFAULT 0,
+                `assist_flash` INT NOT NULL DEFAULT 0,
+                UNIQUE (`steam_id`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;";
 
             string ranksModuleTable = $@"CREATE TABLE IF NOT EXISTS `{this.Config.DatabaseSettings.TablePrefix}k4ranks` (
                     `steam_id` VARCHAR(32) COLLATE 'utf8mb4_unicode_ci' UNIQUE NOT NULL,
@@ -178,25 +193,26 @@
                     `lastconnect` INT NOT NULL DEFAULT 0
                 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;";
 
-            await Database.Instance.ExecuteWithTransactionAsync(async (connection, transaction) =>
+            using (var connection = CreateConnection(Config))
             {
-                MySqlCommand? command1 = new MySqlCommand(timesModuleTable, connection, transaction);
-                await command1.ExecuteNonQueryAsync();
+                await connection.OpenAsync();
 
-                MySqlCommand? command2 = new MySqlCommand(statsModuleTable, connection, transaction);
-                await command2.ExecuteNonQueryAsync();
-
-                MySqlCommand? command3 = new MySqlCommand(ranksModuleTable, connection, transaction);
-                await command3.ExecuteNonQueryAsync();
-
-                if (Config.GeneralSettings.LevelRanksCompatibility)
+                using (var transaction = await connection.BeginTransactionAsync())
                 {
-                    MySqlCommand? command4 = new MySqlCommand(lvlranksModuleTable, connection, transaction);
-                    await command4.ExecuteNonQueryAsync();
-                }
-            });
+                    await connection.ExecuteAsync(timesModuleTable, transaction: transaction);
+                    await connection.ExecuteAsync(statsModuleTable, transaction: transaction);
+                    await connection.ExecuteAsync(ranksModuleTable, transaction: transaction);
 
-            await PurgeTableRows();
+                    if (Config.GeneralSettings.LevelRanksCompatibility)
+                    {
+                        await connection.ExecuteAsync(lvlranksModuleTable, transaction: transaction);
+                    }
+
+                    await transaction.CommitAsync();
+                }
+            }
+
+            await PurgeTableRowsAsync();
             return true;
         }
     }

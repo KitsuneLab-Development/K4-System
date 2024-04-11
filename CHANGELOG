@@ -1,3 +1,17 @@
+-- 2023.04.11 - V4.1.0
+
+- feat: Add Reset option for all module
+- feat: Add 25 new statistics
+- feat: Add new API endpoints
+- fix: Rank name not updating in MySQL
+- fix: Admin shows a user multiple times
+- fix: Toplist and Rank command lag spikes
+- fix: Rank resets sets 0 instead of starting points
+- fix: AutoPurge delete freshly moved database
+- fix: Add loading message to commands where needed
+- optimise: The full plugins code
+- upgrade: Changed support from NET7 to NET8
+
 -- 2023.03.28 - V4.0.4
 
 - fix: Table generation problems because of lastseen default value

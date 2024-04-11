@@ -1,61 +1,82 @@
 namespace K4System
 {
 	using K4SharedApi;
-	using static K4System.ModuleRank;
-
-	using CounterStrikeSharp.API;
 	using CounterStrikeSharp.API.Core;
 	using CounterStrikeSharp.API.Core.Capabilities;
-	using CounterStrikeSharp.API.Modules.Commands;
-	using CounterStrikeSharp.API.Modules.Utils;
+	using K4System.Models;
 
 	public sealed partial class Plugin : BasePlugin
 	{
-		public static PlayerCapability<IK4SharedApi> Capability_SharedAPI { get; } = new("k4-system:sharedapi");
+		public static PlayerCapability<IPlayerAPI> Capability_SharedPlayerAPI { get; } = new("k4-system:sharedapi-player");
 
 		public void Initialize_API()
 		{
-			Capabilities.RegisterPlayerCapability(Capability_SharedAPI, player => new PlayerAPIHandler(player));
+			Capabilities.RegisterPlayerCapability(Capability_SharedPlayerAPI, player => new PlayerAPIHandler(player, this));
 		}
 	}
 
-	public class PlayerAPIHandler : IK4SharedApi
+	public class PlayerAPIHandler : IPlayerAPI
 	{
-		private readonly CCSPlayerController _player;
-		private readonly PlayerCacheData? _playerCache;
-
-		public PlayerAPIHandler(CCSPlayerController player)
+		private readonly K4Player? _player;
+		public PlayerAPIHandler(CCSPlayerController player, Plugin plugin)
 		{
-			_player = player;
-
-			if (PlayerCache.Instance.ContainsPlayer(_player))
-				_playerCache = PlayerCache.Instance.GetPlayerData(_player);
+			_player = plugin.GetK4Player(player);
 		}
 
-		public int PlayerPoints
+		public bool IsLoaded => _player is not null;
+		public bool IsValid => _player?.IsValid == true;
+		public bool IsPlayer => _player?.IsPlayer == true;
+		public CCSPlayerController Controller => _player?.Controller ?? throw new Exception("K4-SharedAPI > Controller > Player is not valid or is not a player.");
+
+		public int Points
 		{
-			get => GetPlayerPoints();
+			get
+			{
+				if (_player is null || !_player.IsValid || !_player.IsPlayer || _player.rankData is null)
+					throw new Exception("K4-SharedAPI > Points (get) > Player is not valid or is not a player.");
+
+				return _player.rankData.Points;
+			}
+			set
+			{
+				if (_player is null || !_player.IsValid || !_player.IsPlayer || _player.rankData is null)
+					throw new Exception("K4-SharedAPI > Points (set) > Player is not valid or is not a player.");
+
+				_player.rankData.Points = value;
+			}
 		}
 
-		public int PlayerRankID
+		public int RankID
 		{
-			get => GetPlayerRankID();
+			get
+			{
+				if (_player is null || !_player.IsValid || !_player.IsPlayer || _player.rankData is null)
+					throw new Exception("K4-SharedAPI > RankID (get) > Player is not valid or is not a player.");
+
+				return _player.rankData.Rank.Id + 1;
+			}
 		}
 
-		public int GetPlayerPoints()
+		public string RankName
 		{
-			if (_playerCache?.rankData is null)
-				return 0;
+			get
+			{
+				if (_player is null || !_player.IsValid || !_player.IsPlayer || _player.rankData is null)
+					throw new Exception("K4-SharedAPI > RankName (get) > Player is not valid or is not a player.");
 
-			return _playerCache.rankData.Points;
+				return _player.rankData.Rank.Name;
+			}
 		}
 
-		public int GetPlayerRankID()
+		public string RankClanTag
 		{
-			if (_playerCache?.rankData is null)
-				return 0;
+			get
+			{
+				if (_player is null || !_player.IsValid || !_player.IsPlayer || _player.rankData is null)
+					throw new Exception("K4-SharedAPI > RankClanTag (get) > Player is not valid or is not a player.");
 
-			return _playerCache.rankData.Rank.Id + 1;
+				return _player.rankData.Rank.Tag ?? "";
+			}
 		}
 	}
 }

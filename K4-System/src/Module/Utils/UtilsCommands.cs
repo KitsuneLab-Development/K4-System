@@ -5,10 +5,11 @@ namespace K4System
 	using CounterStrikeSharp.API.Modules.Admin;
 	using CounterStrikeSharp.API.Modules.Commands;
 	using CounterStrikeSharp.API.Modules.Utils;
+	using K4System.Models;
 
 	public partial class ModuleUtils : IModuleUtils
 	{
-		public void Initialize_Commands(Plugin plugin)
+		public void Initialize_Commands()
 		{
 			CommandSettings commands = Config.CommandSettings;
 
@@ -23,36 +24,45 @@ namespace K4System
 			if (player == null || !player.IsValid || player.PlayerPawn.Value == null)
 				return;
 
-			Plugin plugin = (this.PluginContext.Plugin as Plugin)!;
+			List<string> adminList = new List<string>();
 
-			List<string> onlineAdmins = Utilities.GetPlayers()
-				.SelectMany(adminPlayer => Config.GeneralSettings.AdminSettingsList.Where(adminSettings =>
-				{
-					if (adminSettings.ListColor == null)
-						return false;
-
-					switch (adminSettings.Permission[0])
-					{
-						case '@':
-							return AdminManager.PlayerHasPermissions(adminPlayer, adminSettings.Permission);
-						case '#':
-							return AdminManager.PlayerInGroup(adminPlayer, adminSettings.Permission);
-						default:
-							return AdminManager.PlayerHasCommandOverride(adminPlayer, adminSettings.Permission);
-					}
-				}).Select(adminSettings => new { adminPlayer, adminSettings }))
-				.Select(x => $"{plugin.ApplyPrefixColors(x.adminSettings.ListColor ?? "default")}{x.adminPlayer.PlayerName}")
-				.ToList();
-
-			if (onlineAdmins.Count > 0)
+			foreach (K4Player k4player in plugin.K4Players)
 			{
-				string adminList = string.Join($"{ChatColors.Silver},", onlineAdmins);
+				if (!k4player.IsValid || !k4player.IsPlayer)
+					continue;
+
+				foreach (AdminSettingsEntry entry in Config.GeneralSettings.AdminSettingsList)
+				{
+					if (entry.ListColor == null)
+						continue;
+
+					if (PlayerHasPermission(k4player, entry.Permission))
+						adminList.Add($"{plugin.ApplyPrefixColors(entry.ListColor ?? "default")}{k4player.PlayerName}");
+				}
+			}
+
+			if (adminList.Count > 0)
+			{
+				string onlineAdmins = string.Join($"{ChatColors.Silver},", adminList);
 
 				info.ReplyToCommand($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.adminlist.title"]}");
-				info.ReplyToCommand($" {adminList}");
+				info.ReplyToCommand($" {onlineAdmins}");
 			}
 			else
 				info.ReplyToCommand($" {plugin.Localizer["k4.adminlist.no-admins"]}");
+
+			bool PlayerHasPermission(K4Player k4player, string permission)
+			{
+				switch (permission[0])
+				{
+					case '@':
+						return AdminManager.PlayerHasPermissions(k4player.Controller, permission);
+					case '#':
+						return AdminManager.PlayerInGroup(k4player.Controller, permission);
+					default:
+						return AdminManager.PlayerHasCommandOverride(k4player.Controller, permission);
+				}
+			}
 		}
 	}
 }
