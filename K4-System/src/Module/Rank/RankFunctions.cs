@@ -203,8 +203,8 @@ namespace K4System
 
                     if (result != null)
                     {
-                        int playerPlace = result.playerPlace + 1;
-                        int totalPlayers = result.totalPlayers;
+                        int playerPlace = (int)result.playerPlace + 1;
+                        int totalPlayers = (int)result.totalPlayers;
                         return (playerPlace, totalPlayers);
                     }
                 }

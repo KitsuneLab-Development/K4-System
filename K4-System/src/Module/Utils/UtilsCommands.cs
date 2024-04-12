@@ -37,7 +37,10 @@ namespace K4System
 						continue;
 
 					if (PlayerHasPermission(k4player, entry.Permission))
+					{
 						adminList.Add($"{plugin.ApplyPrefixColors(entry.ListColor ?? "default")}{k4player.PlayerName}");
+						break;
+					}
 				}
 			}
 

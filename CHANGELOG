@@ -1,3 +1,14 @@
+-- 2023.04.12 - V4.1.2
+
+- fix: AutoPurge query
+
+-- 2023.04.11 - V4.1.1
+
+- fix: Upgrade MySQL to primary key instead of UNIQUE
+- fix: Player couldnt load
+- fix: Rank command not prints
+- fix: Player data process
+
 -- 2023.04.11 - V4.1.0
 
 - feat: Add Reset option for all module

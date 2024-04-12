@@ -1,5 +1,6 @@
 
 using System.Data;
+using System.Text;
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using Dapper;
@@ -44,9 +45,9 @@ public sealed partial class Plugin : BasePlugin
 			parameters.Add("@days", Config.GeneralSettings.TablePurgeDays);
 
 			string query = $@"
-					DELETE FROM `{Config.DatabaseSettings.TablePrefix}k4times` WHERE `lastseen` < NOW() - INTERVAL @days DAY AND `lastseen` != '0000-00-00';
-					DELETE FROM `{Config.DatabaseSettings.TablePrefix}k4stats` WHERE `lastseen` < NOW() - INTERVAL @days DAY AND `lastseen` != '0000-00-00';
-					DELETE FROM `{Config.DatabaseSettings.TablePrefix}k4ranks` WHERE `lastseen` < NOW() - INTERVAL @days DAY AND `lastseen` != '0000-00-00';
+					DELETE FROM `{Config.DatabaseSettings.TablePrefix}k4times` WHERE `lastseen` < NOW() - INTERVAL @days DAY AND `lastseen` > STR_TO_DATE('1970-01-01', '%Y-%m-%d');
+					DELETE FROM `{Config.DatabaseSettings.TablePrefix}k4stats` WHERE `lastseen` < NOW() - INTERVAL @days DAY AND `lastseen` > STR_TO_DATE('1970-01-01', '%Y-%m-%d');
+					DELETE FROM `{Config.DatabaseSettings.TablePrefix}k4ranks` WHERE `lastseen` < NOW() - INTERVAL @days DAY AND `lastseen` > STR_TO_DATE('1970-01-01', '%Y-%m-%d');
 				";
 
 			if (Config.GeneralSettings.LevelRanksCompatibility)
@@ -260,11 +261,11 @@ public sealed partial class Plugin : BasePlugin
 						`name` = @escapedName,
 						`lastseen` = CURRENT_TIMESTAMP;
 
-					INSERT INTO `{Config.DatabaseSettings.TablePrefix}k4stats` (`name`, `steam_id`, `lastseen`, `kills`, `firstblood`, `deaths`, `assists`, `shoots`, `hits_taken`, `hits_given`, `headshots`, `grenades`, `mvp`, `round_win`, `round_lose`, `game_win`, `game_lose`, `rounds_overall`, `rounds_ct`, `rounds_t`, `bomb_planted`, `bomb_defused`, `hostage_rescued`, `hostage_killed`)
+					INSERT INTO `{Config.DatabaseSettings.TablePrefix}k4stats` (`name`, `steam_id`, `lastseen`)
 					VALUES (
 						@escapedName,
 						@steamid,
-						CURRENT_TIMESTAMP,
+						CURRENT_TIMESTAMP
 					)
 					ON DUPLICATE KEY UPDATE
 						`name` = @escapedName,
@@ -281,7 +282,7 @@ public sealed partial class Plugin : BasePlugin
 						`lastseen` = CURRENT_TIMESTAMP;
 
 					SELECT
-						r.`points`,
+					    r.`points`,
 						s.`kills`,
 						s.`firstblood`,
 						s.`deaths`,
@@ -290,6 +291,16 @@ public sealed partial class Plugin : BasePlugin
 						s.`hits_taken`,
 						s.`hits_given`,
 						s.`headshots`,
+						s.`chest_hits`,
+						s.`stomach_hits`,
+						s.`left_arm_hits`,
+						s.`right_arm_hits`,
+						s.`left_leg_hits`,
+						s.`right_leg_hits`,
+						s.`neck_hits`,
+						s.`unused_hits`,
+						s.`gear_hits`,
+						s.`special_hits`,
 						s.`grenades`,
 						s.`mvp`,
 						s.`round_win`,
@@ -303,6 +314,13 @@ public sealed partial class Plugin : BasePlugin
 						s.`bomb_defused`,
 						s.`hostage_rescued`,
 						s.`hostage_killed`,
+						s.`noscope_kill`,
+						s.`penetrated_kill`,
+						s.`thrusmoke_kill`,
+						s.`flashed_kill`,
+						s.`dominated_kill`,
+						s.`revenge_kill`,
+						s.`assist_flash`,
 						t.`all`,
 						t.`ct`,
 						t.`t`,
@@ -320,30 +338,30 @@ public sealed partial class Plugin : BasePlugin
 				";
 
 
-		MySqlParameter[] parameters =
-		[
-			new MySqlParameter("@escapedName", k4player.PlayerName),
-				new MySqlParameter("@steamid", k4player.SteamID),
-				new MySqlParameter("@noneRankName", ModuleRank.GetNoneRank()?.Name ?? "none"),
-				new MySqlParameter("@startPoints", Config.RankSettings.StartPoints)
-		];
-
 		try
 		{
 			using (var connection = CreateConnection(Config))
 			{
 				await connection.OpenAsync();
+
+				var parameters = new DynamicParameters();
+				parameters.Add("@escapedName", k4player.PlayerName);
+				parameters.Add("@steamid", k4player.SteamID);
+				parameters.Add("@noneRankName", ModuleRank.GetNoneRank()?.Name ?? "none");
+				parameters.Add("@startPoints", Config.RankSettings.StartPoints);
+
+				// Execute the query with the parameters
 				var rows = await connection.QueryAsync(combinedQuery, parameters);
 
 				foreach (var row in rows)
 				{
-					LoadPlayerRowToCache(k4player, row);
+					LoadPlayerRowToCache(k4player, row, false);
 				}
 			}
 		}
 		catch (Exception ex)
 		{
-			Logger.LogError($"A problem occurred while loading single player cache: {ex.Message}");
+			Logger.LogError("A problem occurred while loading single player cache: {ErrorMessage}", ex.Message);
 		}
 	}
 
@@ -354,29 +372,58 @@ public sealed partial class Plugin : BasePlugin
 		if (players.Count == 0)
 			return;
 
+		foreach (var player in players)
+		{
+			K4Player k4player = new K4Player(this, player);
+			K4Players.Add(k4player);
+		}
+
 		string combinedQuery = $@"SELECT
-					r.`steam_id`,
-					r.`points`,
-					s.`kills`,
-					s.`shoots`,
-					s.`firstblood`,
-					s.`deaths`,
-					s.`hits_given`,
-					s.`hits_taken`,
-					s.`headshots`,
-					s.`grenades`,
-					s.`mvp`,
-					s.`round_win`,
-					s.`round_lose`,
-					s.`game_win`,
-					s.`game_lose`,
-					s.`assists`,
-					t.`all`,
-					t.`ct`,
-					t.`t`,
-					t.`spec`,
-					t.`alive`,
-					t.`dead`
+				 r.`points`,
+						s.`kills`,
+						s.`firstblood`,
+						s.`deaths`,
+						s.`assists`,
+						s.`shoots`,
+						s.`hits_taken`,
+						s.`hits_given`,
+						s.`headshots`,
+						s.`chest_hits`,
+						s.`stomach_hits`,
+						s.`left_arm_hits`,
+						s.`right_arm_hits`,
+						s.`left_leg_hits`,
+						s.`right_leg_hits`,
+						s.`neck_hits`,
+						s.`unused_hits`,
+						s.`gear_hits`,
+						s.`special_hits`,
+						s.`grenades`,
+						s.`mvp`,
+						s.`round_win`,
+						s.`round_lose`,
+						s.`game_win`,
+						s.`game_lose`,
+						s.`rounds_overall`,
+						s.`rounds_ct`,
+						s.`rounds_t`,
+						s.`bomb_planted`,
+						s.`bomb_defused`,
+						s.`hostage_rescued`,
+						s.`hostage_killed`,
+						s.`noscope_kill`,
+						s.`penetrated_kill`,
+						s.`thrusmoke_kill`,
+						s.`flashed_kill`,
+						s.`dominated_kill`,
+						s.`revenge_kill`,
+						s.`assist_flash`,
+						t.`all`,
+						t.`ct`,
+						t.`t`,
+						t.`spec`,
+						t.`alive`,
+						t.`dead`
 				FROM
 					`{Config.DatabaseSettings.TablePrefix}k4ranks` AS r
 				LEFT JOIN
@@ -406,12 +453,15 @@ public sealed partial class Plugin : BasePlugin
 
 				foreach (var k4player in K4Players)
 				{
+					if (!k4player.IsValid || !k4player.IsPlayer)
+						continue;
+
 					await connection.OpenAsync();
 					var rows = await connection.QueryAsync(combinedQuery);
 
 					foreach (var row in rows)
 					{
-						LoadPlayerRowToCache(k4player, row);
+						LoadPlayerRowToCache(k4player, row, true);
 					}
 				}
 			}
@@ -422,25 +472,25 @@ public sealed partial class Plugin : BasePlugin
 		}
 	}
 
-	public void LoadPlayerRowToCache(K4Player k4player, DataRow row)
+	public void LoadPlayerRowToCache(K4Player k4player, dynamic row, bool all)
 	{
 		/** ? Load Rank to Cache */
 		RankData? rankData = null;
 
 		if (Config.GeneralSettings.ModuleRanks)
 		{
-			int points = Convert.ToInt32(row["points"]);
-
 			rankData = new RankData
 			{
-				Points = points,
-				Rank = ModuleRank.GetPlayerRank(points),
+				Points = row.points,
+				Rank = ModuleRank.GetPlayerRank(row.points),
 				PlayedRound = false,
 				RoundPoints = 0,
 				HideAdminTag = false,
 				MuteMessages = false
 			};
 		}
+
+		var rowDictionary = (IDictionary<string, object>)row;
 
 		/** ? Load Stat to Cache */
 		StatData? statData = null;
@@ -453,7 +503,7 @@ public sealed partial class Plugin : BasePlugin
 
 			foreach (string statField in statFieldNames)
 			{
-				NewStatFields[statField] = Convert.ToInt32(row[statField]);
+				NewStatFields[statField] = (int)rowDictionary[statField];
 			}
 
 			statData = new StatData
@@ -473,7 +523,7 @@ public sealed partial class Plugin : BasePlugin
 
 			foreach (string timeField in timeFieldNames)
 			{
-				TimeFields[timeField] = Convert.ToInt32(row[timeField]);
+				TimeFields[timeField] = (int)rowDictionary[timeField];
 			}
 
 			DateTime now = DateTime.UtcNow;
@@ -494,6 +544,7 @@ public sealed partial class Plugin : BasePlugin
 		k4player.statData = statData;
 		k4player.timeData = timeData;
 
-		K4Players.Add(k4player);
+		if (!all)
+			K4Players.Add(k4player);
 	}
 }
