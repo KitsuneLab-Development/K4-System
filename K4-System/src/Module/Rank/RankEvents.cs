@@ -142,7 +142,7 @@ namespace K4System
 					}
 				}
 
-				if (plugin.K4Players.Count(p => p.IsPlayer) < Config.RankSettings.MinPlayers)
+				if (plugin.K4Players.Count(p => p.IsValid && p.IsPlayer) < Config.RankSettings.MinPlayers)
 				{
 					Server.PrintToChatAll($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.ranks.notenoughplayers", Config.RankSettings.MinPlayers]}");
 				}
