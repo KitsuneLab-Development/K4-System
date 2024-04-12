@@ -95,6 +95,8 @@ public sealed partial class Plugin : BasePlugin
 				}
 			}
 		}
+
+		K4Players = new List<K4Player>(K4Players.Where(player => player.IsValid));
 	}
 
 	public async Task SavePlayerDataAsync(K4Player k4player, bool remove)
