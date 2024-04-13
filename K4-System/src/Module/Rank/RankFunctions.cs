@@ -38,7 +38,7 @@ namespace K4System
                 if (!k4player.IsValid || !k4player.IsPlayer)
                     continue;
 
-                if (!k4player.Controller.PawnIsAlive)
+                if (!k4player.Controller.PawnIsAlive || Config.RankSettings.KillstreakResetOnRoundEnd)
                     k4player.KillStreak = (0, DateTime.Now);
 
                 RankData? playerData = k4player.rankData;

@@ -169,7 +169,7 @@ namespace K4System
 
 				K4Player? k4attacker = plugin.GetK4Player(@event.Attacker);
 
-				if (!k4victim.IsPlayer)
+				if (k4victim.IsPlayer)
 				{
 					k4victim.KillStreak = (0, DateTime.Now);
 

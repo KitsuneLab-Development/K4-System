@@ -178,28 +178,31 @@ namespace K4System
 
 			Task.Run(async () =>
 			{
+				await plugin.SaveAllPlayersDataAsync();
 				List<(int points, string name)>? rankData = await FetchTopDataAsync(printCount);
 
-				if (rankData?.Count > 0)
+				Server.NextFrame(() =>
 				{
-					for (int i = 0; i < rankData.Count; i++)
+					if (!k4player.IsValid || !k4player.IsPlayer)
+						return;
+
+					if (rankData?.Count > 0)
 					{
-						int points = rankData[i].points;
-						string name = rankData[i].name;
-
-						Rank rank = GetPlayerRank(points);
-
-						Server.NextFrame(() =>
+						for (int i = 0; i < rankData.Count; i++)
 						{
-							player!.PrintToChat($" {plugin.Localizer["k4.ranks.top.line", i + 1, rank.Color, rank.Name, name, points]}");
-						});
-					}
+							int points = rankData[i].points;
+							string name = rankData[i].name;
 
-				}
-				else
-				{
-					player!.PrintToChat($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.ranks.top.notfound", printCount]}");
-				}
+							Rank rank = GetPlayerRank(points);
+
+							k4player.Controller.PrintToChat($" {plugin.Localizer["k4.ranks.top.line", i + 1, rank.Color, rank.Name, name, points]}");
+						}
+					}
+					else
+					{
+						k4player.Controller.PrintToChat($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.ranks.top.notfound", printCount]}");
+					}
+				});
 			});
 		}
 

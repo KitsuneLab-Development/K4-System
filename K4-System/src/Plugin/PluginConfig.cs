@@ -159,6 +159,9 @@ namespace K4System
 
 	public sealed class RankSettings
 	{
+		[JsonPropertyName("killstreak-reset-on-round-end")]
+		public bool KillstreakResetOnRoundEnd { get; set; } = false;
+
 		[JsonPropertyName("start-points")]
 		public int StartPoints { get; set; } = 0;
 
