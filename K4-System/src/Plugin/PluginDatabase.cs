@@ -37,27 +37,34 @@ public sealed partial class Plugin : BasePlugin
 		if (Config.GeneralSettings.TablePurgeDays <= 0)
 			return;
 
-		using (var connection = CreateConnection(Config))
+		try
 		{
-			await connection.OpenAsync();
+			using (var connection = CreateConnection(Config))
+			{
+				await connection.OpenAsync();
 
-			var parameters = new DynamicParameters();
-			parameters.Add("@days", Config.GeneralSettings.TablePurgeDays);
+				var parameters = new DynamicParameters();
+				parameters.Add("@days", Config.GeneralSettings.TablePurgeDays);
 
-			string query = $@"
+				string query = $@"
 					DELETE FROM `{Config.DatabaseSettings.TablePrefix}k4times` WHERE `lastseen` < NOW() - INTERVAL @days DAY AND `lastseen` > STR_TO_DATE('1970-01-01', '%Y-%m-%d');
 					DELETE FROM `{Config.DatabaseSettings.TablePrefix}k4stats` WHERE `lastseen` < NOW() - INTERVAL @days DAY AND `lastseen` > STR_TO_DATE('1970-01-01', '%Y-%m-%d');
 					DELETE FROM `{Config.DatabaseSettings.TablePrefix}k4ranks` WHERE `lastseen` < NOW() - INTERVAL @days DAY AND `lastseen` > STR_TO_DATE('1970-01-01', '%Y-%m-%d');
 				";
 
-			if (Config.GeneralSettings.LevelRanksCompatibility)
-			{
-				query += $@"
+				if (Config.GeneralSettings.LevelRanksCompatibility)
+				{
+					query += $@"
 						DELETE FROM `{Config.DatabaseSettings.LvLRanksTableName}` WHERE `lastconnect` < UNIX_TIMESTAMP(NOW() - INTERVAL @days DAY);
 					";
-			}
+				}
 
-			await connection.ExecuteAsync(query, parameters);
+				await connection.ExecuteAsync(query, parameters);
+			}
+		}
+		catch (Exception ex)
+		{
+			Server.NextFrame(() => Logger.LogError("An error occurred while saving all players data: {ErrorMessage}", ex.Message));
 		}
 	}
 
@@ -69,10 +76,11 @@ public sealed partial class Plugin : BasePlugin
 
 			using (var transaction = await connection.BeginTransactionAsync())
 			{
-				foreach (K4Player k4player in K4Players)
+				try
 				{
-					try
+					foreach (K4Player k4player in K4Players)
 					{
+
 						if (k4player.rankData != null)
 							await ExecuteRankUpdateAsync(transaction, k4player);
 
@@ -84,14 +92,15 @@ public sealed partial class Plugin : BasePlugin
 
 						if (Config.GeneralSettings.LevelRanksCompatibility)
 							await ExecuteLvlRanksUpdateAsync(transaction, k4player);
+					}
 
-						await transaction.CommitAsync();
-					}
-					catch (Exception)
-					{
-						await transaction.RollbackAsync();
-						throw;
-					}
+					await transaction.CommitAsync();
+				}
+				catch (Exception ex)
+				{
+					await transaction.RollbackAsync();
+					Server.NextFrame(() => Logger.LogError("An error occurred while saving all players data: {ErrorMessage}", ex.Message));
+					throw;
 				}
 			}
 		}
@@ -363,9 +372,10 @@ public sealed partial class Plugin : BasePlugin
 		}
 		catch (Exception ex)
 		{
-			Logger.LogError("A problem occurred while loading single player cache: {ErrorMessage}", ex.Message);
+			Server.NextFrame(() => Logger.LogError("An error occurred while loading player cache: {ErrorMessage}", ex.Message));
 		}
 	}
+
 
 	private void LoadAllPlayersCache()
 	{
@@ -435,14 +445,7 @@ public sealed partial class Plugin : BasePlugin
 				WHERE
 					r.`steam_id` IN (" + string.Join(",", players.Select(player => $"'{player.SteamID}'")) + ");";
 
-		try
-		{
-			Task.Run(() => LoadAllPlayersCacheAsync(combinedQuery));
-		}
-		catch (Exception ex)
-		{
-			Logger.LogError($"LoadAllPlayersCache > {ex.Message}");
-		}
+		Task.Run(() => LoadAllPlayersCacheAsync(combinedQuery));
 	}
 
 	public async Task LoadAllPlayersCacheAsync(string combinedQuery)
@@ -470,7 +473,7 @@ public sealed partial class Plugin : BasePlugin
 		}
 		catch (Exception ex)
 		{
-			Logger.LogError($"A problem occurred while loading all players cache: {ex.Message}");
+			Server.NextFrame(() => Logger.LogError("An error occurred while loading all players cache: {ErrorMessage}", ex.Message));
 		}
 	}
 
