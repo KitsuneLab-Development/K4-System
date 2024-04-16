@@ -269,7 +269,8 @@ namespace K4System
                 tag = tag.Length > 0 ? $"{countryTag} | {tag}" : countryTag;
             }
 
-            k4player.ClanTag = tag;
+            if (tag.Length > 0)
+                k4player.ClanTag = tag;
         }
 
         public string GetPlayerCountryCode(CCSPlayerController player)
