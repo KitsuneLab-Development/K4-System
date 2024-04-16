@@ -65,7 +65,7 @@ public sealed partial class Plugin : BasePlugin
 		}
 		catch (Exception ex)
 		{
-			Server.NextFrame(() => Logger.LogError("An error occurred while saving all players data: {ErrorMessage}", ex.Message));
+			Server.NextFrame(() => Logger.LogError("An error occurred while purging unused data: {ErrorMessage}", ex.Message));
 		}
 	}
 
@@ -79,8 +79,10 @@ public sealed partial class Plugin : BasePlugin
 			{
 				try
 				{
-					foreach (K4Player k4player in K4Players)
+					foreach (K4Player k4player in K4Players.ToList())
 					{
+						if (!k4player.IsValid || !k4player.IsPlayer)
+							continue;
 
 						if (k4player.rankData != null)
 							await ExecuteRankUpdateAsync(transaction, k4player);
@@ -455,14 +457,14 @@ public sealed partial class Plugin : BasePlugin
 		{
 			using (var connection = CreateConnection(Config))
 			{
+				await connection.OpenAsync();
 				var players = await connection.QueryAsync<dynamic>(combinedQuery);
 
-				foreach (var k4player in K4Players)
+				foreach (var k4player in K4Players.ToList())
 				{
 					if (!k4player.IsValid || !k4player.IsPlayer)
 						continue;
 
-					await connection.OpenAsync();
 					var rows = await connection.QueryAsync(combinedQuery);
 
 					foreach (var row in rows)

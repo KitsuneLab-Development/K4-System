@@ -1,3 +1,12 @@
+-- 2023.04.16 - V4.1.6
+
+- fix: Stats/Points not counted for bots even if they are enabled
+- fix: Hotreload MySQL problems when loading all players
+- fix: Compatibility issues with Multi Addon Manager
+- fix: Bots being processed by MySQL join check
+- fix: HTLV processed to K4Players
+- fix: SaveAllPlayers blocked by bots
+
 -- 2023.04.16 - V4.1.5
 
 - fix: Clantag set if its empty or disabled

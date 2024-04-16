@@ -90,11 +90,11 @@ namespace K4System
 
 		public void Initialize_Events()
 		{
-			RegisterEventHandler((EventPlayerConnectFull @event, GameEventInfo info) =>
+			RegisterEventHandler((EventPlayerActivate @event, GameEventInfo info) =>
 			{
 				CCSPlayerController player = @event.Userid;
 
-				if (player is null || !player.IsValid || !player.PlayerPawn.IsValid)
+				if (player is null || !player.IsValid || !player.PlayerPawn.IsValid || player.IsHLTV)
 					return HookResult.Continue;
 
 				// Do not load the data, if the user is in the cache already
@@ -103,6 +103,12 @@ namespace K4System
 					return HookResult.Continue;
 
 				K4Player k4player = new K4Player(this, player);
+
+				if (player.IsBot)
+				{
+					K4Players.Add(k4player);
+					return HookResult.Continue;
+				}
 
 				Task.Run(() => LoadPlayerCacheAsync(k4player));
 				return HookResult.Continue;
@@ -140,12 +146,9 @@ namespace K4System
 
 				lastRoundStartEventTime = DateTime.Now;
 
-				foreach (K4Player k4Player in K4Players)
+				foreach (K4Player k4Player in K4Players.ToList())
 				{
 					if (!k4Player.IsValid || !k4Player.IsPlayer)
-						continue;
-
-					if (k4Player.Controller.IsBot || k4Player.Controller.IsHLTV)
 						continue;
 
 					k4Player.Controller.PrintToChat($" {Localizer["k4.general.prefix"]} {ChatColors.Lime}{Localizer["k4.general.spawnmessage"]}");
