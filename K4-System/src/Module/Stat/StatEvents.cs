@@ -23,7 +23,7 @@ namespace K4System
 				if (!k4victim.IsPlayer && !Config.StatisticSettings.StatsForBots)
 					return HookResult.Continue;
 
-				if (!k4victim.IsPlayer)
+				if (k4victim.IsPlayer)
 				{
 					ModifyPlayerStats(k4victim, "deaths", 1);
 				}

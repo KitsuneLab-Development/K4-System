@@ -36,7 +36,7 @@ namespace K4System
 					if (entry.ListColor == null)
 						continue;
 
-					if (PlayerHasPermission(k4player, entry.Permission))
+					if (Plugin.PlayerHasPermission(k4player, entry.Permission))
 					{
 						adminList.Add($"{plugin.ApplyPrefixColors(entry.ListColor ?? "default")}{k4player.PlayerName}");
 						break;
@@ -53,19 +53,6 @@ namespace K4System
 			}
 			else
 				info.ReplyToCommand($" {plugin.Localizer["k4.adminlist.no-admins"]}");
-
-			bool PlayerHasPermission(K4Player k4player, string permission)
-			{
-				switch (permission[0])
-				{
-					case '@':
-						return AdminManager.PlayerHasPermissions(k4player.Controller, permission);
-					case '#':
-						return AdminManager.PlayerInGroup(k4player.Controller, permission);
-					default:
-						return AdminManager.PlayerHasCommandOverride(k4player.Controller, permission);
-				}
-			}
 		}
 	}
 }

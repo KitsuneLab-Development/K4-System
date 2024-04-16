@@ -81,5 +81,18 @@ namespace K4System
 		{
 			return K4Players.FirstOrDefault(player => player.Controller == playerController);
 		}
+
+		public static bool PlayerHasPermission(K4Player k4player, string permission)
+		{
+			switch (permission[0])
+			{
+				case '@':
+					return AdminManager.PlayerHasPermissions(k4player.Controller, permission);
+				case '#':
+					return AdminManager.PlayerInGroup(k4player.Controller, permission);
+				default:
+					return AdminManager.PlayerHasCommandOverride(k4player.Controller, permission);
+			}
+		}
 	}
 }

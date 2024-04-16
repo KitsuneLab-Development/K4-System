@@ -176,15 +176,28 @@ namespace K4System
 				printCount = Math.Clamp(parsedInt, 1, 25);
 			}
 
+			Logger.LogInformation($"Player {k4player.PlayerName} requested top {printCount} players.");
+
 			Task.Run(async () =>
 			{
+				Console.WriteLine("Saving all players data");
+
 				await plugin.SaveAllPlayersDataAsync();
+
+				Console.WriteLine("Fetching top data");
+
 				List<(int points, string name)>? rankData = await FetchTopDataAsync(printCount);
+
+				Console.WriteLine("Fetched top data, waiting tick to print to chat.");
 
 				Server.NextFrame(() =>
 				{
+					Console.WriteLine("Printing top data to chat.");
+
 					if (!k4player.IsValid || !k4player.IsPlayer)
 						return;
+
+					Console.WriteLine("Player is valid and is player.");
 
 					if (rankData?.Count > 0)
 					{
@@ -195,12 +208,12 @@ namespace K4System
 
 							Rank rank = GetPlayerRank(points);
 
-							k4player.Controller.PrintToChat($" {plugin.Localizer["k4.ranks.top.line", i + 1, rank.Color, rank.Name, name, points]}");
+							player!.PrintToChat($" {plugin.Localizer["k4.ranks.top.line", i + 1, rank.Color, rank.Name, name, points]}");
 						}
 					}
 					else
 					{
-						k4player.Controller.PrintToChat($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.ranks.top.notfound", printCount]}");
+						player!.PrintToChat($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.ranks.top.notfound", printCount]}");
 					}
 				});
 			});
@@ -223,7 +236,7 @@ namespace K4System
 			}
 			catch (Exception ex)
 			{
-				Logger.LogError($"A problem occurred while fetching top data: {ex.Message}");
+				Server.NextFrame(() => { Logger.LogError($"A problem occurred while fetching top data: {ex.Message}"); });
 				return null;
 			}
 		}

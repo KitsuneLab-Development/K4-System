@@ -3,6 +3,7 @@ using System.Data;
 using System.Text;
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
+using CounterStrikeSharp.API.Modules.Entities;
 using Dapper;
 using K4System.Models;
 using Microsoft.Extensions.Logging;
@@ -170,7 +171,7 @@ public sealed partial class Plugin : BasePlugin
 
 		var parameters = new
 		{
-			SteamId = k4player.SteamID.ToString().Replace("STEAM_0", "STEAM_1"),
+			SteamId = new SteamID(k4player.SteamID).SteamId2.Replace("STEAM_0", "STEAM_1"),
 			k4player.PlayerName,
 			Kills = k4player.statData?.StatFields["kills"] ?? 0,
 			Deaths = k4player.statData?.StatFields["deaths"] ?? 0,

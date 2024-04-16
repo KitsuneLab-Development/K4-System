@@ -211,7 +211,7 @@ namespace K4System
             }
             catch (Exception ex)
             {
-                Logger.LogError($"A problem occurred while fetching player place and count: {ex.Message}");
+                Server.NextFrame(() => Logger.LogError($"A problem occurred while fetching player place and count: {ex.Message}"));
             }
 
             return (0, 0);
@@ -255,20 +255,10 @@ namespace K4System
                     if (adminSettings.ClanTag == null)
                         continue;
 
-                    switch (adminSettings.Permission[0])
+                    if (Plugin.PlayerHasPermission(k4player, adminSettings.Permission))
                     {
-                        case '@':
-                            if (AdminManager.PlayerHasPermissions(k4player.Controller, adminSettings.Permission))
-                                tag = adminSettings.ClanTag;
-                            break;
-                        case '#':
-                            if (AdminManager.PlayerInGroup(k4player.Controller, adminSettings.Permission))
-                                tag = adminSettings.ClanTag;
-                            break;
-                        default:
-                            if (AdminManager.PlayerHasCommandOverride(k4player.Controller, adminSettings.Permission))
-                                tag = adminSettings.ClanTag;
-                            break;
+                        tag = adminSettings.ClanTag;
+                        break;
                     }
                 }
             }
