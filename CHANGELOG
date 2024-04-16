@@ -1,5 +1,6 @@
 -- 2023.04.16 - V4.1.5
 
+- fix: Clantag set if its empty or disabled
 - fix: Scoreboard rank missmatch of flag based ones
 - fix: LVLRanks MySQL SteamIDs
 - fix: Death stats not counted properly
