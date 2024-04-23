@@ -53,9 +53,7 @@
    "k4.ranks.selected.line2.current": "--- {silver}Puncte de rangare: {lime}{0} {silver}(Ești în prezent în acest rang)",
    "k4.ranks.selected.benefitline": "--- {silver}Beneficii:",
   
-   "k4.stats.title":
-  
-   "{lime}{0}{silver}'s Statistici",
+   "k4.stats.title": "{lime}{0}{silver}'s Statistici",
    "k4.stats.line1": "--- {silver}Ucideri: {lime}{0} {silver}| Prima Sânge: {lime}{1} {silver}| Asistențe: {lime}{2}",
    "k4.stats.line2": "--- {silver}Lovituri Date: {lime}{0} {silver}| Lovituri Primite: {lime}{1} {silver}| Morți: {lime}{2}",
    "k4.stats.line3": "--- {silver}Headshot-uri: {lime}{0} {silver}| Procentaj Headshot-uri: {lime}{1:n2}% {silver}| Grenade Aruncate: {lime}{2}",
