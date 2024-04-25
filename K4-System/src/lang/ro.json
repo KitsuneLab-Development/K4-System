@@ -24,7 +24,7 @@
   
    "k4.ranks.rank.title": "{lime}{0}{silver}'s Clasament",
    "k4.ranks.rank.line1": "--- {silver}Ai {lime}{0} {silver}puncte și ești în prezent {1}{2} {silver}({3} din {4})",
-   "k4.ranks.rank.line2": "--- {silver}Următorul rang: {0}{1}",
+   "k4.ranks.rank.line2": "--- {silver}Următorul rank: {0}{1}",
    "k4.ranks.rank.line3": "--- {silver}Puncte până la următorul rang: {lime}{0}",
    "k4.ranks.rank.line4": "--- {silver}Locul în top: {lime}{0} din {1}",
    "k4.ranks.resetmydata": "{lime}{0} {silver}și-a resetat datele.",
