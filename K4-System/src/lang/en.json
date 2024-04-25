@@ -44,6 +44,8 @@
   "k4.ranks.promote": "{silver}You have been {green}promoted {silver}to {0}{1}{silver}.",
   "k4.ranks.notenoughplayers": "{silver}There are not enough players on the server to gain points. You need at least {lime}{0} {silver}players.",
 
+  "k4.general.cooldown": "{lightred}Please wait {lime}{0} {silver}seconds before using this command again.",
+
   "k4.ranks.listitem": "{0}{1} - {2} Points",
   "k4.ranks.listdefault": "{0}{1} - Default Rank",
   "k4.ranks.selected.title": "{silver}Selected Rank: {0}{1}",

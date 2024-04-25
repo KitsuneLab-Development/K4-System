@@ -102,6 +102,18 @@ namespace K4System
 				return;
 			}
 
+			if (k4player.cooldownTimer != null)
+			{
+				info.ReplyToCommand($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.general.cooldown", Config.GeneralSettings.ExpensiveCommandCooldown]}");
+				return;
+			}
+
+			k4player.cooldownTimer = plugin.AddTimer(Config.GeneralSettings.ExpensiveCommandCooldown, () =>
+			{
+				k4player.cooldownTimer?.Kill();
+				k4player.cooldownTimer = null;
+			});
+
 			int printCount = 5;
 
 			if (int.TryParse(info.ArgByIndex(1), out int parsedInt))
@@ -168,6 +180,18 @@ namespace K4System
 				info.ReplyToCommand($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.general.loading"]}");
 				return;
 			}
+
+			if (k4player.cooldownTimer != null)
+			{
+				info.ReplyToCommand($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.general.cooldown", Config.GeneralSettings.ExpensiveCommandCooldown]}");
+				return;
+			}
+
+			k4player.cooldownTimer = plugin.AddTimer(Config.GeneralSettings.ExpensiveCommandCooldown, () =>
+			{
+				k4player.cooldownTimer?.Kill();
+				k4player.cooldownTimer = null;
+			});
 
 			int printCount = 5;
 

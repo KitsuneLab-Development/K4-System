@@ -17,6 +17,7 @@ public class K4Player
 	public readonly CCSPlayerController Controller;
 	public readonly ulong SteamID;
 	public readonly string PlayerName;
+	public CounterStrikeSharp.API.Modules.Timers.Timer? cooldownTimer = null;
 
 	//** ? Data */
 	public RankData? rankData { get; set; }

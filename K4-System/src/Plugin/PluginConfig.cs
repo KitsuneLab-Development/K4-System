@@ -40,6 +40,9 @@ namespace K4System
 		[JsonPropertyName("ffa-mode")]
 		public bool FFAMode { get; set; } = false;
 
+		[JsonPropertyName("expensive-command-cooldown")]
+		public int ExpensiveCommandCooldown { get; set; } = 3;
+
 		[JsonPropertyName("table-purge-days")]
 		public int TablePurgeDays { get; set; } = 30;
 
@@ -361,6 +364,6 @@ namespace K4System
 		public PointSettings PointSettings { get; set; } = new PointSettings();
 
 		[JsonPropertyName("ConfigVersion")]
-		public override int Version { get; set; } = 10;
+		public override int Version { get; set; } = 11;
 	}
 }

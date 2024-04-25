@@ -1,3 +1,7 @@
+-- 2023.04.16 - V4.1.7
+
+- fix: Expensive command crash exploit
+
 -- 2023.04.16 - V4.1.6
 
 - fix: Stats/Points not counted for bots even if they are enabled
