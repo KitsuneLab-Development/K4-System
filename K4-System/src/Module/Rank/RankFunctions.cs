@@ -33,7 +33,8 @@ namespace K4System
 
         public void BeforeRoundEnd(int winnerTeam)
         {
-            foreach (K4Player k4player in plugin.K4Players)
+            var temp = new List<K4Player>(plugin.K4Players);
+            foreach (K4Player k4player in temp)
             {
                 if (!k4player.IsValid || !k4player.IsPlayer)
                     continue;
