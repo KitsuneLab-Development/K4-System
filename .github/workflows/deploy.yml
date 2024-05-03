@@ -27,6 +27,31 @@ jobs:
           echo "::set-output name=version::$version"
           echo "::set-output name=changelog::$changelog"
 
+      - name: Get existing tags
+        id: get_tags
+        run: |
+          git fetch --tags
+          $tags = git tag
+          echo "::set-output name=tags::$tags"
+
+      - name: Set new tag
+        id: set_tag
+        run: |
+          $baseTag = "v${{ steps.extract_info.outputs.version }}"
+          $tags = "${{ steps.get_tags.outputs.tags }}"
+          $count = 0
+          while ($tags -contains "$baseTag-$count") {
+            $count++
+          }
+          if ($tags -contains $baseTag) {
+            $newTag = "$baseTag-$count"
+          } else {
+            $newTag = $baseTag
+          }
+          echo "New tag: $newTag"
+          echo "::set-output name=new_tag::$newTag"
+          echo "NewTag=$newTag" >> $GITHUB_ENV
+
       - name: Build Project
         run: dotnet build --configuration Release
 
@@ -43,8 +68,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: v${{ steps.extract_info.outputs.version }}
-          release_name: ${{ github.repository }} v${{ steps.extract_info.outputs.version }}
+          tag_name: ${{ steps.set_tag.outputs.new_tag }}
+          release_name: ${{ github.repository }} ${{ steps.set_tag.outputs.new_tag }}
           body: ${{ steps.extract_info.outputs.changelog }}
           draft: false
           prerelease: false
@@ -56,5 +81,5 @@ jobs:
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ./publish/${{ github.repository }}.zip
-          asset_name: ${{ github.repository }}-${{ steps.extract_info.outputs.version }}.zip
+          asset_name: ${{ github.repository }}-${{ steps.set_tag.outputs.new_tag }}.zip
           asset_content_type: application/zip
