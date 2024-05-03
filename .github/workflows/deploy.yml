@@ -1,0 +1,60 @@
+name: Build and Publish Release
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build_and_release:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Extract version and changelog
+        id: extract_info
+        run: |
+          $content = Get-Content -Path './CHANGELOG.md' -Raw
+          $matches = [Regex]::Matches($content, '--\s+(\d{4}\.\d{2}\.\d{2})\s+-\s+V([^\s]+)\r?\n\r?\n(-\s+[^-]+(?:\r?\n-.*?)*)(?=\r?\n--|\z)', 'Singleline')
+          $latest = $matches[0]
+          $version = $latest.Groups[2].Value
+          $changelog = $latest.Groups[3].Value.Trim()
+          echo "VERSION=$version" >> $GITHUB_ENV
+          echo "::set-output name=version::$version"
+          echo "::set-output name=changelog::$changelog"
+
+      - name: Build Project
+        run: dotnet build --configuration Release
+
+      - name: Publish Project
+        run: dotnet publish --configuration Release --output ./publish
+
+      - name: Zip Publish Folder
+        run: |
+          Compress-Archive -Path ./publish/* -DestinationPath ./publish/${{ github.repository }}.zip
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v${{ steps.extract_info.outputs.version }}
+          release_name: ${{ github.repository }} v${{ steps.extract_info.outputs.version }}
+          body: ${{ steps.extract_info.outputs.changelog }}
+          draft: false
+          prerelease: false
+
+      - name: Upload Release Asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./publish/${{ github.repository }}.zip
+          asset_name: ${{ github.repository }}-${{ steps.extract_info.outputs.version }}.zip
+          asset_content_type: application/zip
