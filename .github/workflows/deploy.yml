@@ -8,17 +8,16 @@ jobs:
     runs-on: windows-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@v1
+        uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '8.0.x'
 
       - name: Extract version and changelog
-        id: extract_info
         run: |
-          $content = Get-Content -Path './CHANGELOG.md' -Raw
+          $content = Get-Content -Path './CHANGELOG' -Raw  # Updated path
           $matches = [Regex]::Matches($content, '--\s+(\d{4}\.\d{2}\.\d{2})\s+-\s+V([^\s]+)\r?\n\r?\n(-\s+[^-]+(?:\r?\n-.*?)*)(?=\r?\n--|\z)', 'Singleline')
           $latest = $matches[0]
           $version = $latest.Groups[2].Value
