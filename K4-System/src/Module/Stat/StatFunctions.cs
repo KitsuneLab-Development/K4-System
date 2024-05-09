@@ -4,6 +4,7 @@ namespace K4System
 	using CounterStrikeSharp.API.Core;
 	using CounterStrikeSharp.API.Modules.Utils;
 	using K4System.Models;
+	using Microsoft.Extensions.Logging;
 
 	public partial class ModuleStat : IModuleStat
 	{

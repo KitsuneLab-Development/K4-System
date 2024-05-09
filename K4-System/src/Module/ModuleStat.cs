@@ -17,7 +17,8 @@ namespace K4System
 			this.plugin = (pluginContext.Plugin as Plugin)!;
 			this.Config = plugin.Config;
 
-			this.Logger.LogInformation("Initializing '{0}'", this.GetType().Name);
+			if (Config.GeneralSettings.LoadMessages)
+				this.Logger.LogInformation("Initializing '{0}'", this.GetType().Name);
 
 			//** ? Register Module Parts */
 
@@ -27,7 +28,8 @@ namespace K4System
 
 		public void Release(bool hotReload)
 		{
-			this.Logger.LogInformation("Releasing '{0}'", this.GetType().Name);
+			if (Config.GeneralSettings.LoadMessages)
+				this.Logger.LogInformation("Releasing '{0}'", this.GetType().Name);
 		}
 	}
 }

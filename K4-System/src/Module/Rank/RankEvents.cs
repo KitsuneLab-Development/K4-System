@@ -150,6 +150,49 @@ namespace K4System
 				return HookResult.Continue;
 			}, HookMode.Post);
 
+			plugin.RegisterEventHandler((EventRoundPrestart @event, GameEventInfo info) =>
+			{
+				if (Config.RankSettings.RankBasedTeamBalance)
+				{
+					int team1Size = plugin.K4Players.Count(p => p.Controller.Team == CsTeam.Terrorist);
+					int team2Size = plugin.K4Players.Count(p => p.Controller.Team == CsTeam.CounterTerrorist);
+
+					if (Math.Abs(team1Size - team2Size) > 1)
+					{
+						var team1Players = plugin.K4Players.Where(p => p.Controller.Team == CsTeam.Terrorist).ToList();
+						var team2Players = plugin.K4Players.Where(p => p.Controller.Team == CsTeam.CounterTerrorist).ToList();
+
+						var team1RankPoints = team1Players.Select(p => p.rankData?.Points ?? 0).Sum();
+						var team2RankPoints = team2Players.Select(p => p.rankData?.Points ?? 0).Sum();
+
+						while (Math.Abs(team1RankPoints - team2RankPoints) > Config.RankSettings.RankBasedTeamBalanceMaxDifference)
+						{
+							if (team1RankPoints > team2RankPoints)
+							{
+								var playerToSwitch = team1Players.OrderByDescending(p => p.rankData?.Points ?? 0).First();
+								team1Players.Remove(playerToSwitch);
+								team2Players.Add(playerToSwitch);
+								playerToSwitch.Controller.ChangeTeam(CsTeam.CounterTerrorist);
+							}
+							else
+							{
+								var playerToSwitch = team2Players.OrderByDescending(p => p.rankData?.Points ?? 0).First();
+								team2Players.Remove(playerToSwitch);
+								team1Players.Add(playerToSwitch);
+								playerToSwitch.Controller.ChangeTeam(CsTeam.Terrorist);
+							}
+
+							team1RankPoints = team1Players.Select(p => p.rankData?.Points ?? 0).Sum();
+							team2RankPoints = team2Players.Select(p => p.rankData?.Points ?? 0).Sum();
+						}
+
+						Server.PrintToChatAll($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.ranks.rank.teamsbalanced"]}");
+					}
+				}
+
+				return HookResult.Continue;
+			}, HookMode.Post);
+
 			plugin.RegisterEventHandler((EventBombPlanted @event, GameEventInfo info) =>
 			{
 				ModifyPlayerPointsConnector(@event.Userid, Config.PointSettings.BombPlant, "k4.phrases.bombplanted");

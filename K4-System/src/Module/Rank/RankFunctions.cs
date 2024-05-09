@@ -85,7 +85,7 @@ namespace K4System
             return rankDictionary.LastOrDefault(kv => points >= kv.Value.Point).Value ?? noneRank!;
         }
 
-        public void ModifyPlayerPointsConnector(CCSPlayerController player, int amount, string reason, string? extraInfo = null)
+        public void ModifyPlayerPointsConnector(CCSPlayerController? player, int amount, string reason, string? extraInfo = null)
         {
             K4Player? k4player = plugin.GetK4Player(player);
             if (k4player is null)
@@ -261,6 +261,14 @@ namespace K4System
                         tag = adminSettings.ClanTag;
                         break;
                     }
+                }
+            }
+
+            if (Config.RankSettings.DisplayToplistPlacement && k4player.rankData != null)
+            {
+                if (k4player.rankData.TopPlacement != 0 && k4player.rankData.TopPlacement <= Config.RankSettings.DisplayToplistPlacementMax)
+                {
+                    tag = $"{Config.RankSettings.DisplayToplistPlacementTag.Replace("{placement}", k4player.rankData.TopPlacement.ToString())} {tag}";
                 }
             }
 

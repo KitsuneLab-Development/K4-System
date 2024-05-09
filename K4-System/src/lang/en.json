@@ -22,6 +22,8 @@
   "k4.general.state.enabled": "{green}ENABLED",
   "k4.general.state.disabled": "{lightred}DISABLED",
 
+  "k4.ranks.rank.teamsbalanced": "{orange}Teams are now automatically balanced based on rank points.",
+
   "k4.ranks.rank.title": "{lime}{0}{silver}'s Rank",
   "k4.ranks.rank.line1": "--- {silver}You have {lime}{0} {silver}points and are currently {1}{2} {silver}({3} out of {4})",
   "k4.ranks.rank.line2": "--- {silver}Next rank: {0}{1}",

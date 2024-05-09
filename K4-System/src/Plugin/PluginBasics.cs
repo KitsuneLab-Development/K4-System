@@ -9,6 +9,7 @@ namespace K4System
 	using CounterStrikeSharp.API.Modules.Commands.Targeting;
 	using CounterStrikeSharp.API.Modules.Utils;
 	using K4System.Models;
+	using Microsoft.Extensions.Logging;
 	using static K4System.ModuleRank;
 	using static K4System.ModuleStat;
 	using static K4System.ModuleTime;
@@ -29,23 +30,41 @@ namespace K4System
 
 				CommandSettings commands = Config.CommandSettings;
 
-				string rankLocale = Localizer["k4.general.availablecommands.rank"];
+				Dictionary<string, List<string>> commandCategories = new Dictionary<string, List<string>>();
+
+				if (Config.GeneralSettings.ModuleRanks)
+				{
+					string rankLocale = Localizer["k4.general.availablecommands.rank"];
+
+					commandCategories[rankLocale] = new List<string>();
+					commandCategories[rankLocale].AddRange(commands.RankCommands);
+					commandCategories[rankLocale].AddRange(commands.TopCommands);
+					commandCategories[rankLocale].AddRange(commands.RanksCommands);
+				}
+
+				if (Config.GeneralSettings.ModuleStats)
+				{
+					string statLocale = Localizer["k4.general.availablecommands.stat"];
+
+					commandCategories[statLocale] = new List<string>();
+					commandCategories[statLocale].AddRange(commands.StatCommands);
+				}
+
+				if (Config.GeneralSettings.ModuleTimes)
+				{
+					string timeLocale = Localizer["k4.general.availablecommands.time"];
+
+					commandCategories[timeLocale] = new List<string>();
+					commandCategories[timeLocale].AddRange(commands.TimeCommands);
+				}
+
 				string otherLocale = Localizer["k4.general.availablecommands.other"];
 
-				Dictionary<string, List<string>> commandCategories = new Dictionary<string, List<string>>
-				{
-					{ rankLocale, new List<string>() },
-					{ otherLocale, new List<string>() },
-					{ Localizer["k4.general.availablecommands.stat"], commands.StatCommands },
-					{ Localizer["k4.general.availablecommands.time"], commands.TimeCommands },
-				};
+				commandCategories[otherLocale] = new List<string>();
+				commandCategories[otherLocale].AddRange(commands.ResetMyCommands);
 
-				commandCategories[rankLocale].AddRange(commands.RankCommands);
-				commandCategories[rankLocale].AddRange(commands.TopCommands);
-				commandCategories[rankLocale].AddRange(commands.ResetMyCommands);
-				commandCategories[rankLocale].AddRange(commands.RanksCommands);
-
-				commandCategories[otherLocale].AddRange(commands.AdminListCommands);
+				if (Config.GeneralSettings.ModuleUtils)
+					commandCategories[otherLocale].AddRange(commands.AdminListCommands);
 
 				StringBuilder messageBuilder = new StringBuilder();
 
@@ -92,7 +111,7 @@ namespace K4System
 		{
 			RegisterEventHandler((EventPlayerActivate @event, GameEventInfo info) =>
 			{
-				CCSPlayerController player = @event.Userid;
+				CCSPlayerController? player = @event.Userid;
 
 				if (player is null || !player.IsValid || !player.PlayerPawn.IsValid || player.IsHLTV)
 					return HookResult.Continue;
@@ -102,7 +121,7 @@ namespace K4System
 				if (K4Players.Any(p => p.Controller == player))
 					return HookResult.Continue;
 
-				K4Player k4player = new K4Player(this, player);
+				K4Player k4player = new K4Player(player);
 
 				if (player.IsBot)
 				{
@@ -180,7 +199,12 @@ namespace K4System
 			RegisterListener<Listeners.OnMapEnd>(() =>
 			{
 				GameRules = null;
-				Task.Run(PurgeTableRowsAsync);
+				Task.Run(async () =>
+				{
+					await SaveAllPlayersDataAsync();
+					await PurgeTableRowsAsync();
+					Logger.LogCritical("Map ended, all player data saved and table rows purged");
+				});
 			});
 		}
 

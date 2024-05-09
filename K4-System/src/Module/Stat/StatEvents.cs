@@ -5,6 +5,7 @@ namespace K4System
 	using CounterStrikeSharp.API.Core;
 	using CounterStrikeSharp.API.Modules.Utils;
 	using K4System.Models;
+	using Microsoft.Extensions.Logging;
 
 	public partial class ModuleStat : IModuleStat
 	{
@@ -60,11 +61,11 @@ namespace K4System
 					if (@event.Assistedflash)
 						ModifyPlayerStats(k4attacker, "assist_flash", 1);
 
+					if (@event.Headshot)
+						ModifyPlayerStats(k4attacker, "headshots", 1);
+
 					switch (@event.Hitgroup)
 					{
-						case (int)HitGroup_t.HITGROUP_HEAD:
-							ModifyPlayerStats(k4attacker, "headshots", 1);
-							break;
 						case (int)HitGroup_t.HITGROUP_CHEST:
 							ModifyPlayerStats(k4attacker, "chest_hits", 1);
 							break;
@@ -138,11 +139,6 @@ namespace K4System
 				if (k4attacker != null && k4attacker.IsValid && k4attacker.IsPlayer)
 				{
 					ModifyPlayerStats(k4attacker, "hits_given", 1);
-
-					if (@event.Hitgroup == 1)
-					{
-						ModifyPlayerStats(k4attacker, "headshots", 1);
-					}
 				}
 
 				return HookResult.Continue;
@@ -277,10 +273,14 @@ namespace K4System
 					{
 						k4players.Where(p => p.Controller.Team > CsTeam.Spectator)
 							.ToList()
-							.ForEach(p => ModifyPlayerStats(p, p.Controller.Team == winnerTeam ? "game_win" : "game_lose", 1));
+							.ForEach(p =>
+							{
+								ModifyPlayerStats(p, p.Controller.Team == winnerTeam ? "game_win" : "game_lose", 1);
+							});
 					}
 				}
 
+				Task.Run(plugin.SaveAllPlayersDataAsync);
 				return HookResult.Continue;
 			});
 		}

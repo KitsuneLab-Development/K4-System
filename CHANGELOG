@@ -1,3 +1,14 @@
+-- 2023.05.09 - V4.2.0
+
+- feat: Toplist placement for ranks can now be displayed on scoreboard with new settings
+- feat: Auto team balancer by rank points (experimental)
+- fix: Removed debug messages lefover
+- fix: Commands show up even if the module disabled
+- fix: Compile warning from CSS updates
+- fix: Headshot is now only counted if it was a kill
+- fix: Points by playtime not counts anymore after 2-3 ticks
+- fix: Game win and lose stats not counted properly
+
 -- 2023.04.16 - V4.1.9
 
 - fix: Collection was modified

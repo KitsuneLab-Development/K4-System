@@ -200,8 +200,6 @@ namespace K4System
 				printCount = Math.Clamp(parsedInt, 1, 25);
 			}
 
-			Logger.LogInformation($"Player {k4player.PlayerName} requested top {printCount} players.");
-
 			Task.Run(async () =>
 			{
 				Console.WriteLine("Saving all players data");

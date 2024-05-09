@@ -77,7 +77,7 @@ namespace K4System
 			return K4Players.FirstOrDefault(player => player.SteamID == steamID);
 		}
 
-		public K4Player? GetK4Player(CCSPlayerController playerController)
+		public K4Player? GetK4Player(CCSPlayerController? playerController)
 		{
 			return K4Players.FirstOrDefault(player => player.Controller == playerController);
 		}

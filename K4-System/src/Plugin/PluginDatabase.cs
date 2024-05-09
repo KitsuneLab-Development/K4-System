@@ -389,7 +389,7 @@ public sealed partial class Plugin : BasePlugin
 
 		foreach (var player in players)
 		{
-			K4Player k4player = new K4Player(this, player);
+			K4Player k4player = new K4Player(player);
 			K4Players.Add(k4player);
 		}
 
@@ -494,7 +494,8 @@ public sealed partial class Plugin : BasePlugin
 				PlayedRound = false,
 				RoundPoints = 0,
 				HideAdminTag = false,
-				MuteMessages = false
+				MuteMessages = false,
+				TopPlacement = 0
 			};
 		}
 

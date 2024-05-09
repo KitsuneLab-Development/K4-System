@@ -10,9 +10,6 @@ namespace K4System.Models;
 
 public class K4Player
 {
-	//** ? Main */
-	private readonly Plugin Plugin;
-
 	//** ? Player */
 	public readonly CCSPlayerController Controller;
 	public readonly ulong SteamID;
@@ -25,10 +22,8 @@ public class K4Player
 	public TimeData? timeData { get; set; }
 	public (int killStreak, DateTime lastKillTime) KillStreak = (0, DateTime.MinValue);
 
-	public K4Player(Plugin plugin, CCSPlayerController playerController)
+	public K4Player(CCSPlayerController playerController)
 	{
-		Plugin = plugin;
-
 		Controller = playerController;
 		SteamID = playerController.SteamID;
 		PlayerName = playerController.PlayerName;

@@ -30,6 +30,7 @@ namespace K4System
 			public required int RoundPoints { get; set; }
 			public required bool HideAdminTag { get; set; }
 			public required bool MuteMessages { get; set; }
+			public int TopPlacement { get; set; }
 		}
 
 		public required Plugin plugin;

@@ -19,6 +19,9 @@ namespace K4System
 
 	public sealed class GeneralSettings
 	{
+		[JsonPropertyName("load-messages")]
+		public bool LoadMessages { get; set; } = true;
+
 		[JsonPropertyName("spawn-message")]
 		public bool SpawnMessage { get; set; } = true;
 
@@ -162,6 +165,21 @@ namespace K4System
 
 	public sealed class RankSettings
 	{
+		[JsonPropertyName("rank-based-team-balance")]
+		public bool RankBasedTeamBalance { get; set; } = false;
+
+		[JsonPropertyName("rank-based-team-balance-max-difference")]
+		public int RankBasedTeamBalanceMaxDifference { get; set; } = 200;
+
+		[JsonPropertyName("display-toplist-placement")]
+		public bool DisplayToplistPlacement { get; set; } = true;
+
+		[JsonPropertyName("display-toplist-placement-max")]
+		public int DisplayToplistPlacementMax { get; set; } = 10;
+
+		[JsonPropertyName("display-toplist-placement-tag")]
+		public string DisplayToplistPlacementTag { get; set; } = "Top{placement} |";
+
 		[JsonPropertyName("killstreak-reset-on-round-end")]
 		public bool KillstreakResetOnRoundEnd { get; set; } = false;
 
@@ -364,6 +382,6 @@ namespace K4System
 		public PointSettings PointSettings { get; set; } = new PointSettings();
 
 		[JsonPropertyName("ConfigVersion")]
-		public override int Version { get; set; } = 11;
+		public override int Version { get; set; } = 12;
 	}
 }
