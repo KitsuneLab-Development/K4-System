@@ -36,32 +36,31 @@ namespace K4System
 				{
 					string rankLocale = Localizer["k4.general.availablecommands.rank"];
 
-					commandCategories[rankLocale] = new List<string>();
-					commandCategories[rankLocale].AddRange(commands.RankCommands);
-					commandCategories[rankLocale].AddRange(commands.TopCommands);
-					commandCategories[rankLocale].AddRange(commands.RanksCommands);
+					commandCategories[rankLocale] =
+					[
+						.. commands.RankCommands,
+						.. commands.TopCommands,
+						.. commands.RanksCommands,
+					];
 				}
 
 				if (Config.GeneralSettings.ModuleStats)
 				{
 					string statLocale = Localizer["k4.general.availablecommands.stat"];
 
-					commandCategories[statLocale] = new List<string>();
-					commandCategories[statLocale].AddRange(commands.StatCommands);
+					commandCategories[statLocale] = [.. commands.StatCommands];
 				}
 
 				if (Config.GeneralSettings.ModuleTimes)
 				{
 					string timeLocale = Localizer["k4.general.availablecommands.time"];
 
-					commandCategories[timeLocale] = new List<string>();
-					commandCategories[timeLocale].AddRange(commands.TimeCommands);
+					commandCategories[timeLocale] = [.. commands.TimeCommands];
 				}
 
 				string otherLocale = Localizer["k4.general.availablecommands.other"];
 
-				commandCategories[otherLocale] = new List<string>();
-				commandCategories[otherLocale].AddRange(commands.ResetMyCommands);
+				commandCategories[otherLocale] = [.. commands.ResetMyCommands];
 
 				if (Config.GeneralSettings.ModuleUtils)
 					commandCategories[otherLocale].AddRange(commands.AdminListCommands);
