@@ -54,18 +54,20 @@ namespace K4System
 
 			if (Config.RankSettings.DisplayToplistPlacement)
 			{
-				reservePlacementTimer = plugin.AddTimer(5, () =>
+				reservePlacementTimer = plugin.AddTimer(300, () =>
 				{
-
 					string query = $@"SELECT steam_id,
                                 (SELECT COUNT(*) FROM `{Config.DatabaseSettings.TablePrefix}k4ranks`
                                  WHERE `points` > (SELECT `points` FROM `{Config.DatabaseSettings.TablePrefix}k4ranks` WHERE `steam_id` = t.steam_id)) AS playerPlace
                              FROM `{Config.DatabaseSettings.TablePrefix}k4ranks` t
                              WHERE steam_id IN @SteamIds";
 
-					var steamIds = plugin.K4Players.Where(p => p.IsValid && p.IsPlayer && p.rankData != null)
+					var steamIds = plugin.K4Players.Where(p => p.IsValid && p.IsPlayer && p.rankData != null && p.SteamID.ToString().Length == 17)
 						   .Select(p => p.SteamID)
 						   .ToArray();
+
+					if (steamIds.Length == 0)
+						return;
 
 					Task.Run(async () =>
 					{
@@ -96,7 +98,6 @@ namespace K4System
 					});
 				}, TimerFlags.REPEAT);
 			}
-
 		}
 
 		public void Release(bool hotReload)

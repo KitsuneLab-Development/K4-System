@@ -1,3 +1,10 @@
+-- 2023.05.11 - V4.2.1
+
+- fix: Toplist placements is now fetched every 5 minutes instead of the mistake 5 seconds
+- fix: Do not try to fetch placements if noone is online to do for
+- fix: Removed a duplicated save
+- fix: Removed a debug message leftover
+
 -- 2023.05.09 - V4.2.0
 
 - feat: Toplist placement for ranks can now be displayed on scoreboard with new settings

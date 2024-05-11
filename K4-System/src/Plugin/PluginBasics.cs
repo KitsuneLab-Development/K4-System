@@ -199,12 +199,7 @@ namespace K4System
 			RegisterListener<Listeners.OnMapEnd>(() =>
 			{
 				GameRules = null;
-				Task.Run(async () =>
-				{
-					await SaveAllPlayersDataAsync();
-					await PurgeTableRowsAsync();
-					Logger.LogCritical("Map ended, all player data saved and table rows purged");
-				});
+				Task.Run(async () => await PurgeTableRowsAsync());
 			});
 		}
 
