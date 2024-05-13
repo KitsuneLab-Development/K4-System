@@ -90,7 +90,7 @@ You can get these addons to make K4 and your server gameplay much better:
 
 * **[CSS-BANS](https://github.com/counterstrikesharp-panel/css-bans):** This panel also supports K4-System, so you can have another web panel.
 * **[K4-System-Website](https://github.com/sdg12321/K4-System-Website):** This is a simple website that displays information from the K4-System and CS2-SimpleAdmin plugin database. MultiServer support.
-* **[K4-System-Time-Played-Website]([https://github.com/PorcusorulMagic](https://github.com/PorcusorulMagic/K4-System-Time-Played-Website)):** A website which connects to mysql stats from K4-System plugin.
+* **[K4-System-Time-Played-Website](https://github.com/PorcusorulMagic/K4-System-Time-Played-Website):** A website which connects to mysql stats from K4-System plugin.
 * The list of third party addons can be seen [here](https://github.com/K4ryuu/K4-System/wiki/Extensions) on the [Wikipedia of K4-System](https://github.com/K4ryuu/K4-System/wiki)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
