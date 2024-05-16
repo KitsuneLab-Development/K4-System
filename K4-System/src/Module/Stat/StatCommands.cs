@@ -12,7 +12,7 @@ namespace K4System
 
 			commands.StatCommands.ForEach(commandString =>
 			{
-				plugin.AddCommand($"css_{commandString}", "Check your statistics", plugin.CallbackAnonymizer(OnCommandStats));
+				plugin.AddCommand($"css_{commandString}", "Check your statistics", OnCommandStats);
 			});
 		}
 

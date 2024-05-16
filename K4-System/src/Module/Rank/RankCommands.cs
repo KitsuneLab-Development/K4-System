@@ -21,25 +21,25 @@ namespace K4System
 
 			commands.RankCommands.ForEach(commandString =>
 			{
-				plugin.AddCommand($"css_{commandString}", "Check the current rank and points", plugin.CallbackAnonymizer(OnCommandRank));
+				plugin.AddCommand($"css_{commandString}", "Check the current rank and points", OnCommandRank);
 			});
 
 			commands.RanksCommands.ForEach(commandString =>
 			{
-				plugin.AddCommand($"css_{commandString}", "Check the available ranks and their data", plugin.CallbackAnonymizer(OnCommandRanks));
+				plugin.AddCommand($"css_{commandString}", "Check the available ranks and their data", OnCommandRanks);
 			});
 
 			commands.TopCommands.ForEach(commandString =>
 			{
-				plugin.AddCommand($"css_{commandString}", "Check the top players by points", plugin.CallbackAnonymizer(OnCommandTop));
+				plugin.AddCommand($"css_{commandString}", "Check the top players by points", OnCommandTop);
 			});
 
 
-			plugin.AddCommand("css_setpoints", "SEt the targeted player's points", plugin.CallbackAnonymizer(OnCommandSetPoints));
-			plugin.AddCommand("css_givepoints", "Give points the targeted player", plugin.CallbackAnonymizer(OnCommandGivePoints));
-			plugin.AddCommand("css_removepoints", "Remove points from the targeted player", plugin.CallbackAnonymizer(OnCommandRemovePoints));
-			plugin.AddCommand("css_toggletag", "Toggles the tag assigned by permissions", plugin.CallbackAnonymizer(OnCommandToggleTag));
-			plugin.AddCommand("css_togglepointmsg", "Toggles the chat messages of points modifications", plugin.CallbackAnonymizer(OnCommandTogglePointMessages));
+			plugin.AddCommand("css_setpoints", "SEt the targeted player's points", OnCommandSetPoints);
+			plugin.AddCommand("css_givepoints", "Give points the targeted player", OnCommandGivePoints);
+			plugin.AddCommand("css_removepoints", "Remove points from the targeted player", OnCommandRemovePoints);
+			plugin.AddCommand("css_toggletag", "Toggles the tag assigned by permissions", OnCommandToggleTag);
+			plugin.AddCommand("css_togglepointmsg", "Toggles the chat messages of points modifications", OnCommandTogglePointMessages);
 		}
 
 		public void OnCommandTogglePointMessages(CCSPlayerController? player, CommandInfo info)
@@ -202,24 +202,14 @@ namespace K4System
 
 			Task.Run(async () =>
 			{
-				Console.WriteLine("Saving all players data");
-
 				await plugin.SaveAllPlayersDataAsync();
-
-				Console.WriteLine("Fetching top data");
 
 				List<(int points, string name)>? rankData = await FetchTopDataAsync(printCount);
 
-				Console.WriteLine("Fetched top data, waiting tick to print to chat.");
-
 				Server.NextFrame(() =>
 				{
-					Console.WriteLine("Printing top data to chat.");
-
 					if (!k4player.IsValid || !k4player.IsPlayer)
 						return;
-
-					Console.WriteLine("Player is valid and is player.");
 
 					if (rankData?.Count > 0)
 					{

@@ -7,6 +7,7 @@ namespace K4System
 	using CounterStrikeSharp.API.Modules.Memory;
 	using CounterStrikeSharp.API.Modules.Utils;
 	using K4System.Models;
+	using Microsoft.Extensions.Logging;
 
 	public partial class ModuleRank : IModuleRank
 	{
@@ -152,46 +153,62 @@ namespace K4System
 
 			plugin.RegisterEventHandler((EventRoundPrestart @event, GameEventInfo info) =>
 			{
-				if (Config.RankSettings.RankBasedTeamBalance)
+				try
 				{
-					int team1Size = plugin.K4Players.Count(p => p.Controller.Team == CsTeam.Terrorist);
-					int team2Size = plugin.K4Players.Count(p => p.Controller.Team == CsTeam.CounterTerrorist);
-
-					if (Math.Abs(team1Size - team2Size) > 1)
+					if (Config.RankSettings.RankBasedTeamBalance)
 					{
-						var team1Players = plugin.K4Players.Where(p => p.Controller.Team == CsTeam.Terrorist).ToList();
-						var team2Players = plugin.K4Players.Where(p => p.Controller.Team == CsTeam.CounterTerrorist).ToList();
+						List<K4Player> players = plugin.K4Players.Where(p => p.IsValid && p.IsPlayer).ToList();
 
-						var team1RankPoints = team1Players.Select(p => p.rankData?.Points ?? 0).Sum();
-						var team2RankPoints = team2Players.Select(p => p.rankData?.Points ?? 0).Sum();
+						int team1Size = players.Count(p => p?.Controller?.Team == CsTeam.Terrorist);
+						int team2Size = players.Count(p => p?.Controller?.Team == CsTeam.CounterTerrorist);
 
-						while (Math.Abs(team1RankPoints - team2RankPoints) > Config.RankSettings.RankBasedTeamBalanceMaxDifference)
+						if (Math.Abs(team1Size - team2Size) > 1)
 						{
-							if (team1RankPoints > team2RankPoints)
+							var team1Players = players.Where(p => p?.Controller?.Team == CsTeam.Terrorist).ToList();
+							var team2Players = players.Where(p => p?.Controller?.Team == CsTeam.CounterTerrorist).ToList();
+
+							var team1RankPoints = team1Players.Select(p => p?.rankData?.Points ?? 0).Sum();
+							var team2RankPoints = team2Players.Select(p => p?.rankData?.Points ?? 0).Sum();
+
+							while (Math.Abs(team1RankPoints - team2RankPoints) > Config.RankSettings.RankBasedTeamBalanceMaxDifference)
 							{
-								var playerToSwitch = team1Players.OrderByDescending(p => p.rankData?.Points ?? 0).First();
-								team1Players.Remove(playerToSwitch);
-								team2Players.Add(playerToSwitch);
-								playerToSwitch.Controller.ChangeTeam(CsTeam.CounterTerrorist);
-							}
-							else
-							{
-								var playerToSwitch = team2Players.OrderByDescending(p => p.rankData?.Points ?? 0).First();
-								team2Players.Remove(playerToSwitch);
-								team1Players.Add(playerToSwitch);
-								playerToSwitch.Controller.ChangeTeam(CsTeam.Terrorist);
+								if (team1RankPoints > team2RankPoints)
+								{
+									var playerToSwitch = team1Players.OrderByDescending(p => p?.rankData?.Points ?? 0).FirstOrDefault();
+									if (playerToSwitch != null)
+									{
+										team1Players.Remove(playerToSwitch);
+										team2Players.Add(playerToSwitch);
+										playerToSwitch.Controller?.ChangeTeam(CsTeam.CounterTerrorist);
+									}
+								}
+								else
+								{
+									var playerToSwitch = team2Players.OrderByDescending(p => p?.rankData?.Points ?? 0).FirstOrDefault();
+									if (playerToSwitch != null)
+									{
+										team2Players.Remove(playerToSwitch);
+										team1Players.Add(playerToSwitch);
+										playerToSwitch.Controller?.ChangeTeam(CsTeam.Terrorist);
+									}
+								}
+
+								team1RankPoints = team1Players.Select(p => p?.rankData?.Points ?? 0).Sum();
+								team2RankPoints = team2Players.Select(p => p?.rankData?.Points ?? 0).Sum();
 							}
 
-							team1RankPoints = team1Players.Select(p => p.rankData?.Points ?? 0).Sum();
-							team2RankPoints = team2Players.Select(p => p.rankData?.Points ?? 0).Sum();
+							Server.PrintToChatAll($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.ranks.rank.teamsbalanced"]}");
 						}
-
-						Server.PrintToChatAll($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.ranks.rank.teamsbalanced"]}");
 					}
+				}
+				catch (Exception ex)
+				{
+					plugin.Logger.LogError($"Error balancing teams: {ex.Message}\n{ex.StackTrace}");
 				}
 
 				return HookResult.Continue;
 			}, HookMode.Post);
+
 
 			plugin.RegisterEventHandler((EventBombPlanted @event, GameEventInfo info) =>
 			{

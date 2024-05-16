@@ -28,6 +28,17 @@ namespace K4System
 		public bool IsPlayer => _player?.IsPlayer == true;
 		public CCSPlayerController Controller => _player?.Controller ?? throw new Exception("K4-SharedAPI > Controller > Player is not valid or is not a player.");
 
+		public int TopPlacement
+		{
+			get
+			{
+				if (_player is null || !_player.IsValid || !_player.IsPlayer || _player.rankData is null)
+					throw new Exception("K4-SharedAPI > TopPlacement (get) > Player is not valid or is not a player.");
+
+				return _player.rankData.TopPlacement;
+			}
+		}
+
 		public int Points
 		{
 			get

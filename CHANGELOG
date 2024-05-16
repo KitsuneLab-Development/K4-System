@@ -1,3 +1,14 @@
+-- 2023.05.16 - V4.3.0
+
+- feat: Added connect and disconnect messages with variables (if you need some other variable let me know)
+- fix: Add current points to round summary
+- fix: Error log on round start because of team balance
+- fix: Enumeration problems on getting k4players
+- fix: AutoTeamBalance error logs
+- remove: Removed round summary translations. Now the regular gain/loss is used instead
+- remove: CallbackAnonymizer removed since that bug was fixed in CSS
+- remove: Debug logs on fetch
+
 -- 2023.05.11 - V4.2.1
 
 - fix: Toplist placements is now fetched every 5 minutes instead of the mistake 5 seconds

@@ -1,8 +1,6 @@
 namespace K4System
 {
-	using CounterStrikeSharp.API;
 	using CounterStrikeSharp.API.Core;
-	using CounterStrikeSharp.API.Modules.Admin;
 	using CounterStrikeSharp.API.Modules.Commands;
 	using CounterStrikeSharp.API.Modules.Utils;
 	using K4System.Models;
@@ -13,10 +11,13 @@ namespace K4System
 		{
 			CommandSettings commands = Config.CommandSettings;
 
-			commands.AdminListCommands.ForEach(commandString =>
+			if (Config.UtilSettings.AdminListEnable)
 			{
-				plugin.AddCommand($"css_{commandString}", "Check online admins", plugin.CallbackAnonymizer(OnCommandAdmins));
-			});
+				commands.AdminListCommands.ForEach(commandString =>
+				{
+					plugin.AddCommand($"css_{commandString}", "Check online admins", OnCommandAdmins);
+				});
+			}
 		}
 
 		public void OnCommandAdmins(CCSPlayerController? player, CommandInfo info)

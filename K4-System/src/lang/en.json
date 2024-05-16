@@ -39,9 +39,6 @@
   "k4.ranks.removepoints": "{lime}{0} {silver}has taken {lime}{1} {silver}points from {lime}{2}{silver}.",
   "k4.ranks.points.gain": "{silver}Points: {green}{0} [+{1} {2}]",
   "k4.ranks.points.loss": "{silver}Points: {red}{0} [-{1} {2}]",
-  "k4.ranks.summarypoints.gain": "{silver}Points: {green}+{0} Round Summary",
-  "k4.ranks.summarypoints.loss": "{silver}Points: {red}-{0} Round Summary",
-  "k4.ranks.summarypoints.nochange": "{silver}No point changes in this round.",
   "k4.ranks.demote": "{silver}You have been {lightred}demoted {silver}to {0}{1}{silver}.",
   "k4.ranks.promote": "{silver}You have been {green}promoted {silver}to {0}{1}{silver}.",
   "k4.ranks.notenoughplayers": "{silver}There are not enough players on the server to gain points. You need at least {lime}{0} {silver}players.",
@@ -75,6 +72,7 @@
   "k4.adminlist.title": "{lime}Online Administrators",
   "k4.adminlist.no-admins": "{lightred}Currently no administrators online.",
 
+  "k4.phrases.roundsummary": "Round Summary",
   "k4.phrases.suicide": "Suicide",
   "k4.phrases.dying": "Dying",
   "k4.phrases.dying.extra": "to {lightred}{0}",

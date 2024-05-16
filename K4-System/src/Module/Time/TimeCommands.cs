@@ -13,7 +13,7 @@ namespace K4System
 
 			commands.TimeCommands.ForEach(commandString =>
 			{
-				plugin.AddCommand($"css_{commandString}", "Check your playtime", plugin.CallbackAnonymizer(OnCommandTime));
+				plugin.AddCommand($"css_{commandString}", "Check your playtime", OnCommandTime);
 			});
 		}
 

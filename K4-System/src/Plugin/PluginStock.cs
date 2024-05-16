@@ -7,14 +7,12 @@ namespace K4System
 	using CounterStrikeSharp.API.Modules.Admin;
 	using System.Data;
 	using K4System.Models;
+	using MaxMind.GeoIP2;
+	using Microsoft.Extensions.Logging;
+	using MaxMind.GeoIP2.Exceptions;
 
 	public sealed partial class Plugin : BasePlugin
 	{
-		public CommandInfo.CommandCallback CallbackAnonymizer(Action<CCSPlayerController?, CommandInfo> action)
-		{
-			return new CommandInfo.CommandCallback(action);
-		}
-
 		public string ApplyPrefixColors(string msg)
 		{
 			var chatColors = typeof(ChatColors).GetFields().Select(f => (f.Name, Value: f.GetValue(null)?.ToString()));
@@ -74,12 +72,12 @@ namespace K4System
 
 		public K4Player? GetK4Player(ulong steamID)
 		{
-			return K4Players.FirstOrDefault(player => player.SteamID == steamID);
+			return K4Players.ToList().FirstOrDefault(player => player.SteamID == steamID);
 		}
 
 		public K4Player? GetK4Player(CCSPlayerController? playerController)
 		{
-			return K4Players.FirstOrDefault(player => player.Controller == playerController);
+			return K4Players.ToList().FirstOrDefault(player => player.Controller == playerController);
 		}
 
 		public static bool PlayerHasPermission(K4Player k4player, string permission)
@@ -92,6 +90,43 @@ namespace K4System
 					return AdminManager.PlayerInGroup(k4player.Controller, permission);
 				default:
 					return AdminManager.PlayerHasCommandOverride(k4player.Controller, permission);
+			}
+		}
+
+		public string GetPlayerCountryCode(CCSPlayerController player)
+		{
+			string? playerIp = player.IpAddress;
+
+			if (playerIp == null)
+				return "??";
+
+			string[] parts = playerIp.Split(':');
+			string realIP = parts.Length == 2 ? parts[0] : playerIp;
+
+			string filePath = Path.Combine(ModuleDirectory, "GeoLite2-Country.mmdb");
+			if (!File.Exists(filePath))
+			{
+				Logger.LogError($"GeoLite2-Country.mmdb not found in {filePath}. Download it from https://github.com/P3TERX/GeoLite.mmdb/releases and place it in the same directory as the plugin.");
+				return "??";
+			}
+
+			using (DatabaseReader reader = new DatabaseReader(filePath))
+			{
+				try
+				{
+					MaxMind.GeoIP2.Responses.CountryResponse response = reader.Country(realIP);
+					return response.Country.IsoCode ?? "??";
+				}
+				catch (AddressNotFoundException)
+				{
+					Logger.LogError($"The address {realIP} is not in the database.");
+					return "??";
+				}
+				catch (GeoIP2Exception ex)
+				{
+					Logger.LogError($"Error: {ex.Message}");
+					return "??";
+				}
 			}
 		}
 	}

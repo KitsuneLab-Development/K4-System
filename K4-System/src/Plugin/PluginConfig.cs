@@ -67,6 +67,25 @@ namespace K4System
 		};
 	}
 
+	public sealed class UtilSettings
+	{
+		[JsonPropertyName("admin-list-enable")]
+		public bool AdminListEnable { get; set; } = true;
+
+		[JsonPropertyName("connect-message-enable")]
+		public bool ConnectMessageEnable { get; set; } = true;
+
+		[JsonPropertyName("connect-message")]
+		public string ConnectMessage { get; set; } = "» {green}{rank} {name} {orange}has joined the server from {lightred}{country}";
+
+		[JsonPropertyName("disconnect-message-enable")]
+		public bool DisconnectMessageEnable { get; set; } = true;
+
+		[JsonPropertyName("disconnect-message")]
+		public string DisconnectMessage { get; set; } = "» {green}{rank} {name} {orange}has left the server with {lightred}{points} points";
+
+	}
+
 	public sealed class CommandSettings
 	{
 		[JsonPropertyName("rank-commands")]
@@ -374,6 +393,9 @@ namespace K4System
 
 		[JsonPropertyName("statistic-settings")]
 		public StatisticSettings StatisticSettings { get; set; } = new StatisticSettings();
+
+		[JsonPropertyName("util-settings")]
+		public UtilSettings UtilSettings { get; set; } = new UtilSettings();
 
 		[JsonPropertyName("rank-settings")]
 		public RankSettings RankSettings { get; set; } = new RankSettings();

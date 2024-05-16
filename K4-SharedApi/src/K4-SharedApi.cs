@@ -4,6 +4,7 @@ namespace K4SharedApi
 {
 	public interface IPlayerAPI
 	{
+		int TopPlacement { get; }
 		bool IsLoaded { get; }
 		bool IsValid { get; }
 		bool IsPlayer { get; }

@@ -1,4 +1,3 @@
-using CounterStrikeSharp.API.Core;
 using static K4System.ModuleRank;
 
 namespace K4System;

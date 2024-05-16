@@ -100,10 +100,10 @@ namespace K4System
 
 			Config.CommandSettings.ResetMyCommands.ForEach(commandString =>
 			{
-				AddCommand($"css_{commandString}", "Resets the player's own points to zero", CallbackAnonymizer(OnCommandResetMyData));
+				AddCommand($"css_{commandString}", "Resets the player's own points to zero", OnCommandResetMyData);
 			});
 
-			AddCommand("css_resetdata", "Resets the targeted player's data to zero", CallbackAnonymizer(OnCommandResetData));
+			AddCommand("css_resetdata", "Resets the targeted player's data to zero", OnCommandResetData);
 		}
 
 		public void Initialize_Events()
@@ -119,6 +119,8 @@ namespace K4System
 				// This free up some resources and prevent plugin to load the same data twice
 				if (K4Players.Any(p => p.Controller == player))
 					return HookResult.Continue;
+
+
 
 				K4Player k4player = new K4Player(player);
 

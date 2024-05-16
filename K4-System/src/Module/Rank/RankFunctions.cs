@@ -1,18 +1,12 @@
 namespace K4System
 {
-    using MySqlConnector;
-
     using CounterStrikeSharp.API;
     using CounterStrikeSharp.API.Core;
     using CounterStrikeSharp.API.Modules.Admin;
     using CounterStrikeSharp.API.Modules.Utils;
     using Microsoft.Extensions.Logging;
-    using System.Data;
-    using K4SharedApi;
     using K4System.Models;
     using Dapper;
-    using MaxMind.GeoIP2;
-    using MaxMind.GeoIP2.Exceptions;
 
     public partial class ModuleRank : IModuleRank
     {
@@ -66,14 +60,12 @@ namespace K4System
                 {
                     if (playerData.RoundPoints > 0)
                     {
-                        k4player.Controller.PrintToChat($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.ranks.summarypoints.gain", playerData.RoundPoints]}");
+                        k4player.Controller.PrintToChat($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.ranks.points.gain", playerData.Points, playerData.RoundPoints, plugin.Localizer["k4.phrases.roundsummary"]]}");
                     }
                     else if (playerData.RoundPoints < 0)
                     {
-                        k4player.Controller.PrintToChat($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.ranks.summarypoints.loss", Math.Abs(playerData.RoundPoints)]}");
+                        k4player.Controller.PrintToChat($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.ranks.points.loss", playerData.Points, Math.Abs(playerData.RoundPoints), plugin.Localizer["k4.phrases.roundsummary"]]}");
                     }
-                    else
-                        k4player.Controller.PrintToChat($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.ranks.summarypoints.nochange"]}");
                 }
 
                 playerData.RoundPoints = 0;
@@ -274,49 +266,12 @@ namespace K4System
 
             if (Config.RankSettings.CountryTagEnabled)
             {
-                string countryTag = GetPlayerCountryCode(k4player.Controller);
+                string countryTag = plugin.GetPlayerCountryCode(k4player.Controller);
                 tag = tag.Length > 0 ? $"{countryTag} | {tag}" : countryTag;
             }
 
             if (tag.Length > 0)
                 k4player.ClanTag = tag;
-        }
-
-        public string GetPlayerCountryCode(CCSPlayerController player)
-        {
-            string? playerIp = player.IpAddress;
-
-            if (playerIp == null)
-                return "??";
-
-            string[] parts = playerIp.Split(':');
-            string realIP = parts.Length == 2 ? parts[0] : playerIp;
-
-            string filePath = Path.Combine(plugin.ModuleDirectory, "GeoLite2-Country.mmdb");
-            if (!File.Exists(filePath))
-            {
-                Logger.LogError($"GeoLite2-Country.mmdb not found in {filePath}. Download it from https://github.com/P3TERX/GeoLite.mmdb/releases and place it in the same directory as the plugin.");
-                return "??";
-            }
-
-            using (DatabaseReader reader = new DatabaseReader(filePath))
-            {
-                try
-                {
-                    MaxMind.GeoIP2.Responses.CountryResponse response = reader.Country(realIP);
-                    return response.Country.IsoCode ?? "??";
-                }
-                catch (AddressNotFoundException)
-                {
-                    Logger.LogError($"The address {realIP} is not in the database.");
-                    return "??";
-                }
-                catch (GeoIP2Exception ex)
-                {
-                    Logger.LogError($"Error: {ex.Message}");
-                    return "??";
-                }
-            }
         }
     }
 }
