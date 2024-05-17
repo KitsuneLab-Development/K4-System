@@ -1,3 +1,7 @@
+-- 2023.05.17 - V4.3.1
+
+- fix: Connect/Disconnect message parentheses
+
 -- 2023.05.16 - V4.3.0
 
 - feat: Added connect and disconnect messages with variables (if you need some other variable let me know)
