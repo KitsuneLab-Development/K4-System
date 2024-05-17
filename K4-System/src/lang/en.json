@@ -121,5 +121,8 @@
   "k4.phrases.shortday": "d",
   "k4.phrases.shorthour": "h",
   "k4.phrases.shortminute": "m",
-  "k4.phrases.shortsecond": "s"
+  "k4.phrases.shortsecond": "s",
+
+  "k4.announcement.connect": "» {green}{rank} {name} {orange}has joined the server from {lightred}{country}",
+  "k4.announcement.disconnect": "» {green}{rank} {name} {orange}has left the server with {lightred}{points} points"
 }

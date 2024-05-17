@@ -10,9 +10,14 @@ namespace K4System
 	using MaxMind.GeoIP2;
 	using Microsoft.Extensions.Logging;
 	using MaxMind.GeoIP2.Exceptions;
+	using System.Reflection;
 
 	public sealed partial class Plugin : BasePlugin
 	{
+		private static readonly Dictionary<string, char> PredefinedColors = typeof(ChatColors)
+			.GetFields(BindingFlags.Public | BindingFlags.Static)
+			.ToDictionary(field => $"{{{field.Name}}}", field => (char)(field.GetValue(null) ?? '\x01'));
+
 		public string ApplyPrefixColors(string msg)
 		{
 			var chatColors = typeof(ChatColors).GetFields().Select(f => (f.Name, Value: f.GetValue(null)?.ToString()));
@@ -134,19 +139,19 @@ namespace K4System
 		{
 			Dictionary<string, string> placeholders = new Dictionary<string, string>
 			{
-				{ "{name}", k4player.PlayerName },
-				{ "{steamid}", k4player.SteamID.ToString() },
-				{ "{clantag}", k4player.ClanTag },
-				{ "{rank}", k4player.rankData?.Rank.Name ?? "Unranked" },
-				{ "{country}", GetPlayerCountryCode(k4player.Controller) },
-				{ "{points}", k4player.rankData?.Points.ToString() ?? "0" },
-				{ "{topplacement}", k4player.rankData?.TopPlacement.ToString() ?? "0" },
-				{ "{playtime}", k4player.timeData?.TimeFields["all"].ToString() ?? "0" },
+				{ "name", k4player.PlayerName },
+				{ "steamid", k4player.SteamID.ToString() },
+				{ "clantag", k4player.ClanTag },
+				{ "rank", k4player.rankData?.Rank.Name ?? "Unranked" },
+				{ "country", GetPlayerCountryCode(k4player.Controller) },
+				{ "points", k4player.rankData?.Points.ToString() ?? "0" },
+				{ "topplacement", k4player.rankData?.TopPlacement.ToString() ?? "0" },
+				{ "playtime", k4player.timeData?.TimeFields["all"].ToString() ?? "0" },
 			};
 
 			foreach (var placeholder in placeholders)
 			{
-				text = text.Replace(placeholder.Key, placeholder.Value);
+				text = text.Replace($"{{{placeholder.Key}}}", placeholder.Value);
 			}
 
 			return text;

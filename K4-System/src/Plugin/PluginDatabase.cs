@@ -555,7 +555,7 @@ public sealed partial class Plugin : BasePlugin
 		if (!all)
 		{
 			K4Players.Add(k4player);
-			Server.NextWorldUpdate(() => Server.PrintToChatAll(ReplacePlaceholders(k4player, ApplyPrefixColors(Config.UtilSettings.ConnectMessage))));
+			Server.NextWorldUpdate(() => Server.PrintToChatAll(ReplacePlaceholders(k4player, Localizer["k4.announcement.connect"])));
 		}
 	}
 }

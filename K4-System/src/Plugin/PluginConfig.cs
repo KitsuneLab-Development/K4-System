@@ -75,15 +75,8 @@ namespace K4System
 		[JsonPropertyName("connect-message-enable")]
 		public bool ConnectMessageEnable { get; set; } = true;
 
-		[JsonPropertyName("connect-message")]
-		public string ConnectMessage { get; set; } = "» {green}{rank} {name} {orange}has joined the server from {lightred}{country}";
-
 		[JsonPropertyName("disconnect-message-enable")]
 		public bool DisconnectMessageEnable { get; set; } = true;
-
-		[JsonPropertyName("disconnect-message")]
-		public string DisconnectMessage { get; set; } = "» {green}{rank} {name} {orange}has left the server with {lightred}{points} points";
-
 	}
 
 	public sealed class CommandSettings
