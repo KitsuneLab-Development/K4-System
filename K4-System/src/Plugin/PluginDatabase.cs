@@ -369,7 +369,10 @@ public sealed partial class Plugin : BasePlugin
 
 				foreach (var row in rows)
 				{
-					LoadPlayerRowToCache(k4player, row, false);
+					Server.NextFrame(() =>
+					{
+						LoadPlayerRowToCache(k4player, row, false);
+					});
 				}
 			}
 		}
@@ -393,6 +396,7 @@ public sealed partial class Plugin : BasePlugin
 		}
 
 		string combinedQuery = $@"SELECT
+			r.`steam_id`,
             r.`points`,
             s.`kills`,
             s.`firstblood`,
@@ -466,14 +470,14 @@ public sealed partial class Plugin : BasePlugin
 					string steamId = row.steam_id;
 					K4Player? k4player = K4Players.FirstOrDefault(p => p.SteamID == ulong.Parse(steamId));
 
-					if (k4player is null)
-						continue;
-
-					Server.NextFrame(() =>
+					if (k4player != null)
 					{
-						if (k4player.IsValid && k4player.IsPlayer)
-							LoadPlayerRowToCache(k4player, row, true);
-					});
+						Server.NextFrame(() =>
+						{
+							if (k4player.IsValid && k4player.IsPlayer)
+								LoadPlayerRowToCache(k4player, row, true);
+						});
+					}
 				}
 			}
 		}

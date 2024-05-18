@@ -1,4 +1,9 @@
--- 2023.05.17 - V4.3.2
+-- 2023.05.18 - V4.3.3
+
+- fix: Threading problems
+- fix: All player load was full bad and caused too much resource usage on map changes
+
+-- 2023.05.18 - V4.3.2
 
 - fix: Connect message shown even if its disabled
 - fix: Placeholder replaced error logs
