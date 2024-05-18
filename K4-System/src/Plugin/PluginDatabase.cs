@@ -466,10 +466,14 @@ public sealed partial class Plugin : BasePlugin
 					string steamId = row.steam_id;
 					K4Player? k4player = K4Players.FirstOrDefault(p => p.SteamID == ulong.Parse(steamId));
 
-					if (k4player != null && k4player.IsValid && k4player.IsPlayer)
+					if (k4player is null)
+						continue;
+
+					Server.NextFrame(() =>
 					{
-						LoadPlayerRowToCache(k4player, row, true);
-					}
+						if (k4player.IsValid && k4player.IsPlayer)
+							LoadPlayerRowToCache(k4player, row, true);
+					});
 				}
 			}
 		}
