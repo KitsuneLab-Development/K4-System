@@ -18,7 +18,10 @@ namespace K4System
 					if (k4player is null || !k4player.IsValid || !k4player.IsPlayer)
 						return HookResult.Continue;
 
-					Server.PrintToChatAll(plugin.ReplacePlaceholders(k4player, plugin.Localizer["k4.announcement.disconnect"]));
+					string? message = plugin.ReplacePlaceholders(k4player, plugin.Localizer["k4.announcement.disconnect"]);
+					if (message != null)
+						Server.PrintToChatAll(message);
+
 					return HookResult.Continue;
 				});
 			}

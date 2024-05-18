@@ -1,3 +1,10 @@
+-- 2023.05.17 - V4.3.2
+
+- fix: Connect message shown even if its disabled
+- fix: Placeholder replaced error logs
+- fix: Player top placement is not fetched on join
+- fix: Load all player cache is running the query two times
+
 -- 2023.05.17 - V4.3.1
 
 - fix: Connect/Disconnect message parentheses

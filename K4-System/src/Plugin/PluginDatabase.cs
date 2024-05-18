@@ -262,94 +262,95 @@ public sealed partial class Plugin : BasePlugin
 	public async Task LoadPlayerCacheAsync(K4Player k4player)
 	{
 		string combinedQuery = $@"
-					INSERT INTO `{Config.DatabaseSettings.TablePrefix}k4ranks` (`name`, `steam_id`, `rank`, `points`, `lastseen`)
-					VALUES (
-						@escapedName,
-						@steamid,
-						@noneRankName,
-						@startPoints,
-						CURRENT_TIMESTAMP
-					)
-					ON DUPLICATE KEY UPDATE
-						`name` = @escapedName,
-						`lastseen` = CURRENT_TIMESTAMP;
+                INSERT INTO `{Config.DatabaseSettings.TablePrefix}k4ranks` (`name`, `steam_id`, `rank`, `points`, `lastseen`)
+                VALUES (
+                    @escapedName,
+                    @steamid,
+                    @noneRankName,
+                    @startPoints,
+                    CURRENT_TIMESTAMP
+                )
+                ON DUPLICATE KEY UPDATE
+                    `name` = @escapedName,
+                    `lastseen` = CURRENT_TIMESTAMP;
 
-					INSERT INTO `{Config.DatabaseSettings.TablePrefix}k4stats` (`name`, `steam_id`, `lastseen`)
-					VALUES (
-						@escapedName,
-						@steamid,
-						CURRENT_TIMESTAMP
-					)
-					ON DUPLICATE KEY UPDATE
-						`name` = @escapedName,
-						`lastseen` = CURRENT_TIMESTAMP;
+                INSERT INTO `{Config.DatabaseSettings.TablePrefix}k4stats` (`name`, `steam_id`, `lastseen`)
+                VALUES (
+                    @escapedName,
+                    @steamid,
+                    CURRENT_TIMESTAMP
+                )
+                ON DUPLICATE KEY UPDATE
+                    `name` = @escapedName,
+                    `lastseen` = CURRENT_TIMESTAMP;
 
-					INSERT INTO `{Config.DatabaseSettings.TablePrefix}k4times` (`name`, `steam_id`, `lastseen`)
-					VALUES (
-						@escapedName,
-						@steamid,
-						CURRENT_TIMESTAMP
-					)
-					ON DUPLICATE KEY UPDATE
-						`name` = @escapedName,
-						`lastseen` = CURRENT_TIMESTAMP;
+                INSERT INTO `{Config.DatabaseSettings.TablePrefix}k4times` (`name`, `steam_id`, `lastseen`)
+                VALUES (
+                    @escapedName,
+                    @steamid,
+                    CURRENT_TIMESTAMP
+                )
+                ON DUPLICATE KEY UPDATE
+                    `name` = @escapedName,
+                    `lastseen` = CURRENT_TIMESTAMP;
 
-					SELECT
-					    r.`points`,
-						s.`kills`,
-						s.`firstblood`,
-						s.`deaths`,
-						s.`assists`,
-						s.`shoots`,
-						s.`hits_taken`,
-						s.`hits_given`,
-						s.`headshots`,
-						s.`chest_hits`,
-						s.`stomach_hits`,
-						s.`left_arm_hits`,
-						s.`right_arm_hits`,
-						s.`left_leg_hits`,
-						s.`right_leg_hits`,
-						s.`neck_hits`,
-						s.`unused_hits`,
-						s.`gear_hits`,
-						s.`special_hits`,
-						s.`grenades`,
-						s.`mvp`,
-						s.`round_win`,
-						s.`round_lose`,
-						s.`game_win`,
-						s.`game_lose`,
-						s.`rounds_overall`,
-						s.`rounds_ct`,
-						s.`rounds_t`,
-						s.`bomb_planted`,
-						s.`bomb_defused`,
-						s.`hostage_rescued`,
-						s.`hostage_killed`,
-						s.`noscope_kill`,
-						s.`penetrated_kill`,
-						s.`thrusmoke_kill`,
-						s.`flashed_kill`,
-						s.`dominated_kill`,
-						s.`revenge_kill`,
-						s.`assist_flash`,
-						t.`all`,
-						t.`ct`,
-						t.`t`,
-						t.`spec`,
-						t.`alive`,
-						t.`dead`
-					FROM
-						`{Config.DatabaseSettings.TablePrefix}k4ranks` AS r
-					LEFT JOIN
-						`{Config.DatabaseSettings.TablePrefix}k4stats` AS s ON r.`steam_id` = s.`steam_id`
-					LEFT JOIN
-						`{Config.DatabaseSettings.TablePrefix}k4times` AS t ON r.`steam_id` = t.`steam_id`
-					WHERE
-						r.`steam_id` = @steamid;
-				";
-
+                SELECT
+                    r.`points`,
+                    s.`kills`,
+                    s.`firstblood`,
+                    s.`deaths`,
+                    s.`assists`,
+                    s.`shoots`,
+                    s.`hits_taken`,
+                    s.`hits_given`,
+                    s.`headshots`,
+                    s.`chest_hits`,
+                    s.`stomach_hits`,
+                    s.`left_arm_hits`,
+                    s.`right_arm_hits`,
+                    s.`left_leg_hits`,
+                    s.`right_leg_hits`,
+                    s.`neck_hits`,
+                    s.`unused_hits`,
+                    s.`gear_hits`,
+                    s.`special_hits`,
+                    s.`grenades`,
+                    s.`mvp`,
+                    s.`round_win`,
+                    s.`round_lose`,
+                    s.`game_win`,
+                    s.`game_lose`,
+                    s.`rounds_overall`,
+                    s.`rounds_ct`,
+                    s.`rounds_t`,
+                    s.`bomb_planted`,
+                    s.`bomb_defused`,
+                    s.`hostage_rescued`,
+                    s.`hostage_killed`,
+                    s.`noscope_kill`,
+                    s.`penetrated_kill`,
+                    s.`thrusmoke_kill`,
+                    s.`flashed_kill`,
+                    s.`dominated_kill`,
+                    s.`revenge_kill`,
+                    s.`assist_flash`,
+                    t.`all`,
+                    t.`ct`,
+                    t.`t`,
+                    t.`spec`,
+                    t.`alive`,
+                    t.`dead`,
+                    (SELECT COUNT(*) FROM `{Config.DatabaseSettings.TablePrefix}k4ranks`
+                     WHERE `points` > (SELECT `points` FROM `{Config.DatabaseSettings.TablePrefix}k4ranks` WHERE `steam_id` = @steamid)) AS playerPlace
+                FROM
+                    `{Config.DatabaseSettings.TablePrefix}k4ranks` AS r
+                LEFT JOIN
+                    `{Config.DatabaseSettings.TablePrefix}k4stats` AS s ON r.`steam_id` = s.`steam_id`
+                LEFT JOIN
+                    `{Config.DatabaseSettings.TablePrefix}k4times` AS t ON r.`steam_id` = t.`steam_id`
+                WHERE
+                    r.`steam_id` = @steamid;
+            ";
 
 		try
 		{
@@ -378,7 +379,6 @@ public sealed partial class Plugin : BasePlugin
 		}
 	}
 
-
 	private void LoadAllPlayersCache()
 	{
 		List<CCSPlayerController> players = Utilities.GetPlayers().Where(player => player?.IsValid == true && player.PlayerPawn?.IsValid == true).ToList();
@@ -393,59 +393,61 @@ public sealed partial class Plugin : BasePlugin
 		}
 
 		string combinedQuery = $@"SELECT
-				 r.`points`,
-						s.`kills`,
-						s.`firstblood`,
-						s.`deaths`,
-						s.`assists`,
-						s.`shoots`,
-						s.`hits_taken`,
-						s.`hits_given`,
-						s.`headshots`,
-						s.`chest_hits`,
-						s.`stomach_hits`,
-						s.`left_arm_hits`,
-						s.`right_arm_hits`,
-						s.`left_leg_hits`,
-						s.`right_leg_hits`,
-						s.`neck_hits`,
-						s.`unused_hits`,
-						s.`gear_hits`,
-						s.`special_hits`,
-						s.`grenades`,
-						s.`mvp`,
-						s.`round_win`,
-						s.`round_lose`,
-						s.`game_win`,
-						s.`game_lose`,
-						s.`rounds_overall`,
-						s.`rounds_ct`,
-						s.`rounds_t`,
-						s.`bomb_planted`,
-						s.`bomb_defused`,
-						s.`hostage_rescued`,
-						s.`hostage_killed`,
-						s.`noscope_kill`,
-						s.`penetrated_kill`,
-						s.`thrusmoke_kill`,
-						s.`flashed_kill`,
-						s.`dominated_kill`,
-						s.`revenge_kill`,
-						s.`assist_flash`,
-						t.`all`,
-						t.`ct`,
-						t.`t`,
-						t.`spec`,
-						t.`alive`,
-						t.`dead`
-				FROM
-					`{Config.DatabaseSettings.TablePrefix}k4ranks` AS r
-				LEFT JOIN
-					`{Config.DatabaseSettings.TablePrefix}k4stats` AS s ON r.`steam_id` = s.`steam_id`
-				LEFT JOIN
-					`{Config.DatabaseSettings.TablePrefix}k4times` AS t ON r.`steam_id` = t.`steam_id`
-				WHERE
-					r.`steam_id` IN (" + string.Join(",", players.Select(player => $"'{player.SteamID}'")) + ");";
+            r.`points`,
+            s.`kills`,
+            s.`firstblood`,
+            s.`deaths`,
+            s.`assists`,
+            s.`shoots`,
+            s.`hits_taken`,
+            s.`hits_given`,
+            s.`headshots`,
+            s.`chest_hits`,
+            s.`stomach_hits`,
+            s.`left_arm_hits`,
+            s.`right_arm_hits`,
+            s.`left_leg_hits`,
+            s.`right_leg_hits`,
+            s.`neck_hits`,
+            s.`unused_hits`,
+            s.`gear_hits`,
+            s.`special_hits`,
+            s.`grenades`,
+            s.`mvp`,
+            s.`round_win`,
+            s.`round_lose`,
+            s.`game_win`,
+            s.`game_lose`,
+            s.`rounds_overall`,
+            s.`rounds_ct`,
+            s.`rounds_t`,
+            s.`bomb_planted`,
+            s.`bomb_defused`,
+            s.`hostage_rescued`,
+            s.`hostage_killed`,
+            s.`noscope_kill`,
+            s.`penetrated_kill`,
+            s.`thrusmoke_kill`,
+            s.`flashed_kill`,
+            s.`dominated_kill`,
+            s.`revenge_kill`,
+            s.`assist_flash`,
+            t.`all`,
+            t.`ct`,
+            t.`t`,
+            t.`spec`,
+            t.`alive`,
+            t.`dead`,
+            (SELECT COUNT(*) FROM `{Config.DatabaseSettings.TablePrefix}k4ranks`
+             WHERE `points` > (SELECT `points` FROM `{Config.DatabaseSettings.TablePrefix}k4ranks` WHERE `steam_id` = r.`steam_id`)) AS playerPlace
+        FROM
+            `{Config.DatabaseSettings.TablePrefix}k4ranks` AS r
+        LEFT JOIN
+            `{Config.DatabaseSettings.TablePrefix}k4stats` AS s ON r.`steam_id` = s.`steam_id`
+        LEFT JOIN
+            `{Config.DatabaseSettings.TablePrefix}k4times` AS t ON r.`steam_id` = t.`steam_id`
+        WHERE
+            r.`steam_id` IN (" + string.Join(",", players.Select(player => $"'{player.SteamID}'")) + ");";
 
 		Task.Run(() => LoadAllPlayersCacheAsync(combinedQuery));
 	}
@@ -457,16 +459,14 @@ public sealed partial class Plugin : BasePlugin
 			using (var connection = CreateConnection(Config))
 			{
 				await connection.OpenAsync();
-				var players = await connection.QueryAsync<dynamic>(combinedQuery);
+				var rows = await connection.QueryAsync<dynamic>(combinedQuery);
 
-				foreach (var k4player in K4Players.ToList())
+				foreach (var row in rows)
 				{
-					if (!k4player.IsValid || !k4player.IsPlayer)
-						continue;
+					string steamId = row.steam_id;
+					K4Player? k4player = K4Players.FirstOrDefault(p => p.SteamID == ulong.Parse(steamId));
 
-					var rows = await connection.QueryAsync(combinedQuery);
-
-					foreach (var row in rows)
+					if (k4player != null && k4player.IsValid && k4player.IsPlayer)
 					{
 						LoadPlayerRowToCache(k4player, row, true);
 					}
@@ -494,7 +494,7 @@ public sealed partial class Plugin : BasePlugin
 				RoundPoints = 0,
 				HideAdminTag = false,
 				MuteMessages = false,
-				TopPlacement = 0
+				TopPlacement = (int)row.playerPlace + 1
 			};
 		}
 
@@ -555,7 +555,14 @@ public sealed partial class Plugin : BasePlugin
 		if (!all)
 		{
 			K4Players.Add(k4player);
-			Server.NextWorldUpdate(() => Server.PrintToChatAll(ReplacePlaceholders(k4player, Localizer["k4.announcement.connect"])));
+
+			if (Config.UtilSettings.ConnectMessageEnable)
+			{
+				string? message = ReplacePlaceholders(k4player, Localizer["k4.announcement.connect"]);
+
+				if (message != null)
+					Server.NextWorldUpdate(() => Server.PrintToChatAll(message));
+			}
 		}
 	}
 }

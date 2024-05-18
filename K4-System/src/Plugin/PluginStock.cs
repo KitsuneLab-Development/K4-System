@@ -135,14 +135,17 @@ namespace K4System
 			}
 		}
 
-		public string ReplacePlaceholders(K4Player k4player, string text)
+		public string? ReplacePlaceholders(K4Player k4player, string text)
 		{
+			if (k4player == null)
+				return text;
+
 			Dictionary<string, string> placeholders = new Dictionary<string, string>
 			{
 				{ "name", k4player.PlayerName },
 				{ "steamid", k4player.SteamID.ToString() },
 				{ "clantag", k4player.ClanTag },
-				{ "rank", k4player.rankData?.Rank.Name ?? "Unranked" },
+				{ "rank", k4player.rankData?.Rank?.Name ?? "Unranked" },
 				{ "country", GetPlayerCountryCode(k4player.Controller) },
 				{ "points", k4player.rankData?.Points.ToString() ?? "0" },
 				{ "topplacement", k4player.rankData?.TopPlacement.ToString() ?? "0" },
