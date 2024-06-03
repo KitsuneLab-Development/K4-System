@@ -333,7 +333,7 @@ namespace K4System
 					if (playerData is null)
 						return;
 
-					playerData.RoundPoints -= playerData.Points;
+					playerData.RoundPoints = 0;
 					playerData.Points = Config.RankSettings.StartPoints;
 					playerData.Rank = ModuleRank.GetNoneRank();
 				}

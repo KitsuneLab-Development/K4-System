@@ -264,14 +264,21 @@ namespace K4System
                 }
             }
 
-            if (Config.RankSettings.CountryTagEnabled)
+            string? playerIp = k4player.Controller?.IpAddress;
+            Task.Run(async () =>
             {
-                string countryTag = plugin.GetPlayerCountryCode(k4player.Controller);
-                tag = tag.Length > 0 ? $"{countryTag} | {tag}" : countryTag;
-            }
+                if (Config.RankSettings.CountryTagEnabled)
+                {
+                    string countryTag = await plugin.GetPlayerCountryCodeAsync(playerIp);
+                    tag = tag.Length > 0 ? $"{countryTag} | {tag}" : countryTag;
+                }
 
-            if (tag.Length > 0)
-                k4player.ClanTag = tag;
+                Server.NextWorldUpdate(() =>
+                {
+                    if (tag.Length > 0)
+                        k4player.ClanTag = tag;
+                });
+            });
         }
     }
 }

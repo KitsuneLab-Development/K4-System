@@ -1,3 +1,10 @@
+-- 2023.06.03 - V4.3.4
+
+- fix: Country tag performance issues
+- fix: Disconnect announcement not shown
+- fix: Fixed the resetrank problem
+- fix: Color replacing problems with DarkRed or DarkBlue and so
+
 -- 2023.05.18 - V4.3.3
 
 - fix: Threading problems

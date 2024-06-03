@@ -566,10 +566,14 @@ public sealed partial class Plugin : BasePlugin
 
 			if (Config.UtilSettings.ConnectMessageEnable)
 			{
-				string? message = ReplacePlaceholders(k4player, Localizer["k4.announcement.connect"]);
-
-				if (message != null)
-					Server.NextWorldUpdate(() => Server.PrintToChatAll(message));
+				ReplacePlaceholders(k4player, Localizer["k4.announcement.connect"], (result) =>
+				{
+					Server.NextWorldUpdate(() =>
+					{
+						if (result != null)
+							Server.NextWorldUpdate(() => Server.PrintToChatAll(result));
+					});
+				});
 			}
 		}
 	}

@@ -15,12 +15,17 @@ namespace K4System
 				{
 					K4Player? k4player = plugin.GetK4Player(@event.Userid);
 
-					if (k4player is null || !k4player.IsValid || !k4player.IsPlayer)
+					if (k4player is null || !k4player.IsPlayer)
 						return HookResult.Continue;
 
-					string? message = plugin.ReplacePlaceholders(k4player, plugin.Localizer["k4.announcement.disconnect"]);
-					if (message != null)
-						Server.PrintToChatAll(message);
+					plugin.ReplacePlaceholders(k4player, plugin.Localizer["k4.announcement.disconnect"], (result) =>
+					{
+						Server.NextWorldUpdate(() =>
+						{
+							if (result != null)
+								Server.NextWorldUpdate(() => Server.PrintToChatAll(result));
+						});
+					});
 
 					return HookResult.Continue;
 				});
