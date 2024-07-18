@@ -371,6 +371,9 @@ namespace K4System
 
 		[JsonPropertyName("playtime-minutes")]
 		public float PlaytimeMinutes { get; set; } = 5.00f;
+
+		[JsonPropertyName("playtime-reward-afk")]
+		public bool PlaytimeRewardAFK { get; set; } = false;
 	}
 
 	public sealed class PluginConfig : BasePluginConfig
@@ -397,6 +400,6 @@ namespace K4System
 		public PointSettings PointSettings { get; set; } = new PointSettings();
 
 		[JsonPropertyName("ConfigVersion")]
-		public override int Version { get; set; } = 12;
+		public override int Version { get; set; } = 13;
 	}
 }
