@@ -46,7 +46,7 @@ namespace K4System
 						if (!k4player.IsValid || !k4player.IsPlayer)
 							continue;
 
-						if (k4player.Controller.Team == CsTeam.Terrorist)
+						if (Config.PointSettings.PlaytimeRewardAFK || k4player.Controller.Team >= CsTeam.Terrorist)
 							ModifyPlayerPoints(k4player, Config.PointSettings.PlaytimePoints, "k4.phrases.playtime");
 					}
 				}, TimerFlags.REPEAT);
