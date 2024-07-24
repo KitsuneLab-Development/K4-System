@@ -23,6 +23,7 @@ namespace K4System
 			//** ? Register Module Parts */
 
 			Initialize_Commands();
+			Initialize_Events();
 		}
 
 		public void Release(bool hotReload)

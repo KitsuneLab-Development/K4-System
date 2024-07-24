@@ -3,6 +3,7 @@
 - feat: ranks config self-repair added to prevent issues with them
 - fix: death statistics counter from bots even if disabled
 - fix: remove unused code part
+- fix: Disconnect message not shown even if enabled
 
 -- 2024.06.03 - V4.4.0
 
