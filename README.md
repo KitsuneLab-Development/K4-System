@@ -4,122 +4,85 @@
 ![GitHub Repo stars](https://img.shields.io/github/stars/KitsuneLab-Development/K4-System?style=for-the-badge)
 ![GitHub issues](https://img.shields.io/github/issues/KitsuneLab-Development/K4-System?style=for-the-badge)
 ![GitHub](https://img.shields.io/github/license/KitsuneLab-Development/K4-System?style=for-the-badge)
-![GitHub contributors](https://img.shields.io/github/contributors/KitsuneLab-Development/K4-System?style=for-the-badge)
 ![GitHub all releases](https://img.shields.io/github/downloads/KitsuneLab-Development/K4-System/total?style=for-the-badge)
 ![GitHub last commit (branch)](https://img.shields.io/github/last-commit/KitsuneLab-Development/K4-System/dev?style=for-the-badge)
 
 <!-- PROJECT LOGO -->
 <br />
 <div align="center">
-  <h1 align="center">KitsuneLab-Development</h1>
-  <h3 align="center">K4-System</h3>
-
+  <a href="https://github.com/KitsuneLab-Development/K4-System">
+    <img src="https://i.imgur.com/sej1ZzD.png" alt="Logo" width="400" height="256">
+  </a>
+  <h3 align="center">CounterStrike2 | K4-System</h3>
   <p align="center">
-    An awesome CS2 server addon created with <a href="https://github.com/roflmuffin/CounterStrikeSharp"><strong>CounterStrikeSharp</strong></a>
-    <br />
+    K4-Systems is a plugin that enhances the server with features such as a playtime tracker, statistical records, and player ranks. Additionally, it includes VIP functions and admin commands for added functionality.
     <br />
     <a href="https://github.com/KitsuneLab-Development/K4-System/releases">Download</a>
     ·
-    <a href="https://github.com/KitsuneLab-Development/K4-System/issues/new?assignees=KitsuneLab-Development&labels=bug&projects=&template=bug_report.md&title=%5BBUG%5D">Report Bug</a>
+    <a href="https://github.com/KitsuneLab-Development/K4-System/issues/new?assignees=KitsuneLab-Development&labels=bug&template=bug_report.md&title=%5BBUG%5D">Report Bug</a>
     ·
-    <a href="https://github.com/KitsuneLab-Development/K4-System/issues/new?assignees=KitsuneLab-Development&labels=enhancement&projects=&template=feature_request.md&title=%5BREQ%5D">Request Feature</a>
+    <a href="https://github.com/KitsuneLab-Development/K4-System/issues/new?assignees=KitsuneLab-Development&labels=enhancement&template=feature_request.md&title=%5BREQ%5D">Request Feature</a>
+     ·
+    <a href="https://kitsune-lab.com">Website</a>
+     ·
+    <a href="https://nests.kitsune-lab.com/tickets/create?department_id=2">Hire Us</a>
   </p>
 </div>
-
-<!-- TABLE OF CONTENTS -->
-<details>
-  <summary>Table of Contents</summary>
-  <ol>
-    <li>
-      <a href="#about-the-project">About The Project</a>
-      <ul>
-        <li><a href="#addons">Addons</a></li>
-        <li><a href="#support-my-work">Support My Work</a></li>
-      </ul>
-    </li>
-    <li><a href="#wiki">Wiki</a></li>
-    <li><a href="#roadmap">Roadmap</a></li>
-    <li><a href="#license">License</a></li>
-    <li><a href="#contact">Contact</a></li>
-  </ol>
-</details>
 
 <!-- ABOUT THE PROJECT -->
 
 ## About The Project
 
-K4-Systems is a plugin that enhances the server with features such as a playtime tracker, statistical records, and player ranks. Additionally, it includes VIP functions and admin commands for added functionality.
+For guidance or detailed informations about settings, installation, api, update or much more, you should definitely cehck out the [Wikipedia](https://github.com/KitsuneLab-Development/K4-System/wiki) page of the project.
+
+### Dependencies
+
+To use this server addon, you'll need the following dependencies installed:
+
+- [**CounterStrikeSharp**](https://github.com/roflmuffin/CounterStrikeSharp/releases): CounterStrikeSharp allows you to write server plugins in C# for Counter-Strike 2/Source2/CS2.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-### Support My Work
-
-I offer various ways to support my journey:
-
-- 💬 **Request Private Paid Jobs:** Got a specific project in mind? Let's chat, and I'll provide a quote.
-- 🎁 **Subscribe to My Tiers:** Join one of my subscription tiers for exclusive benefits, early access to projects, and personalized support.
-- ☕ **Buy Me a Coffee:** One-time donations keep me motivated and my creativity flowing.
-- 💼 **Shop from My Paid Resources:** Explore and purchase resources I've crafted for private use.
-
-Your support keeps my creative engine running and allows me to share knowledge with the community. Thanks for being part of my journey.
-
-<p align="center">
-<a href="https://www.buymeacoffee.com/KitsuneLab-Development">
-<img src="https://img.buymeacoffee.com/button-api/?text=Support Me&emoji=☕&slug=KitsuneLab-Development&button_colour=FF5F5F&font_colour=ffffff&font_family=Inter&outline_colour=000000&coffee_colour=FFDD00" />
-</a>
-</p>
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
+<!-- ADDONS -->
 
 ### Official Addons
 
 You can get these addons to make K4 and your server gameplay much better:
 
-- [**K4-Missions**](https://www.buymeacoffee.com/KitsuneLab-Development/e/212956): This masterpiece lets you create your own missions to your server, through a really easy json file (5 line per mission). You don't have to configure big codes or so, just easily add few words and the mission is generated automatically. Normal players have less mission slots than VIPs so it's good to entertain your players and get more rank purchase possibly. The code is really really complex for the basic level of CSS scripts, because the hooks are made "dynamically" to support everything.
+- [**K4-Missions**](https://nests.kitsune-lab.com/store/view/16): This masterpiece lets you create your own missions to your server, through a really easy json file (5 line per mission). You don't have to configure big codes or so, just easily add few words and the mission is generated automatically. Normal players have less mission slots than VIPs so it's good to entertain your players and get more rank purchase possibly. Support every other plugin also which has any command to give something.
 - [**K4-System Matchmaking Ranks**](https://github.com/KitsuneLab-Development/K4-System-MMRanks): Display K4-System points as prime points or matchmaking ranks on scoreboard. Probably you have to install a metamod addon in order to reveal all player's rank, but you find that in the issues of that plugin.
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-### Credits
-
-- [**KillStr3aK**](https://github.com/KillStr3aK): Guided me through tons of questions and the dependency injection. A real hero...
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-### Third Party Addons
-
-- **[CSS-BANS](https://github.com/counterstrikesharp-panel/css-bans):** This panel also supports K4-System, so you can have another web panel.
-- **[K4-System-Website](https://github.com/sdg12321/K4-System-Website):** This is a simple website that displays information from the K4-System and CS2-SimpleAdmin plugin database. MultiServer support.
-- **[K4-System-Time-Played-Website](https://github.com/PorcusorulMagic/K4-System-Time-Played-Website):** A website which connects to mysql stats from K4-System plugin.
-- The list of third party addons can be seen [here](https://github.com/KitsuneLab-Development/K4-System/wiki/Extensions) on the [Wikipedia of K4-System](https://github.com/KitsuneLab-Development/K4-System/wiki)
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-### Translators
-
-I really appreciate the help of the following people who translated the plugin into their language:
-
-- **jinni**: German
-- **jinni**: Italian
-- [**onurcanertekin**](https://github.com/onurcanertekin): Turkish
-- [**ViTamin**](https://github.com/ezekutor): Russian
-- [**rcon420**](https://github.com/rcon420): Latvian
-- [**criskkky**](https://github.com/criskkky): Spanish
-- [**TianxSky**](https://github.com/TianxSky): Chinese (cn)
-- [**Gabriel 'sopax' Lima**](https://github.com/gabrielsdelima75) & [**crashzk**](https://github.com/crashzk): Brazilian Portuguese
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-<!-- Wiki -->
-
-## Wikipedia
-
-If you need any help or information about settings, installation, api, update or much more, you should definitely cehck out the [Wikipedia](https://github.com/KitsuneLab-Development/K4-System/wiki) page of the project.
 
 <!-- ROADMAP -->
 
 ## Roadmap
 
-- [ ] Nothing planned yet
+- [ ] No plans for now
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+<!-- AUTHORS -->
+
+## Authors
+
+- [**K4ryuu**](https://github.com/K4ryuu) - _Initial work_
+- [**KillStr3aK**](https://github.com/KillStr3aK): _Guided me through tons of questions when I started with CSS_
+
+See also the list of [contributors](https://github.com/KitsuneLab-Development/K4-System/graphs/contributors) who participated in this project as an outside contributor.
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+<!-- LICENSE -->
+
+## License
+
+Distributed under the GPL-3.0 License. See `LICENSE.md` for more information.
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+<!-- CONTACT -->
+
+## Contact
+
+- **KitsuneLab Team** - [contact@kitsune-lab.com](mailto:contact@kitsune-lab.com)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
