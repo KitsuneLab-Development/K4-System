@@ -1,6 +1,7 @@
 -- 2024.07.24 - V4.4.1
 
-- fix: Death statistics counter from bots even if disabled
+- fix: death statistics counter from bots even if disabled
+- fix: remove unused code part
 
 -- 2024.06.03 - V4.4.0
 

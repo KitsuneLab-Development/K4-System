@@ -16,10 +16,6 @@ namespace K4System
 
 	public sealed partial class Plugin : BasePlugin
 	{
-		private static readonly Dictionary<string, char> PredefinedColors = typeof(ChatColors)
-			.GetFields(BindingFlags.Public | BindingFlags.Static)
-			.ToDictionary(field => $"{{{field.Name}}}", field => (char)(field.GetValue(null) ?? '\x01'));
-
 		public string ApplyPrefixColors(string msg)
 		{
 			var chatColors = typeof(ChatColors).GetFields()
