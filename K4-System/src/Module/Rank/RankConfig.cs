@@ -138,17 +138,44 @@ namespace K4System
 	}
 }";
 
-			if (!File.Exists(ranksFilePath))
-			{
-				File.WriteAllText(ranksFilePath, defaultRanksContent);
-				Logger.LogInformation("Default ranks file created.");
-			}
-
 			try
 			{
-				var jsonContent = Regex.Replace(File.ReadAllText(ranksFilePath), @"/\*(.*?)\*/|//(.*)", string.Empty, RegexOptions.Multiline);
-				rankDictionary = JsonConvert.DeserializeObject<Dictionary<string, Rank>>(jsonContent)!;
+				// Check and create default ranks file if it doesn't exist
+				if (!File.Exists(ranksFilePath))
+				{
+					File.WriteAllText(ranksFilePath, defaultRanksContent);
+					Logger.LogInformation("Default ranks file created.");
+				}
 
+				// Read file content
+				string fileContent = File.ReadAllText(ranksFilePath);
+
+				// Ensure content is valid, else reset to default
+				if (string.IsNullOrWhiteSpace(fileContent))
+				{
+					ResetToDefaultRanksFile(ranksFilePath, defaultRanksContent);
+					fileContent = File.ReadAllText(ranksFilePath);
+				}
+
+				// Remove comments
+				string jsonContent = RemoveComments(fileContent);
+
+				// Ensure JSON content is valid, else reset to default
+				if (string.IsNullOrWhiteSpace(jsonContent))
+				{
+					ResetToDefaultRanksFile(ranksFilePath, defaultRanksContent);
+					jsonContent = RemoveComments(File.ReadAllText(ranksFilePath));
+				}
+
+				// Deserialize JSON content to dictionary
+				rankDictionary = JsonConvert.DeserializeObject<Dictionary<string, Rank>>(jsonContent)!;
+				if (rankDictionary == null)
+				{
+					ResetToDefaultRanksFile(ranksFilePath, defaultRanksContent);
+					rankDictionary = JsonConvert.DeserializeObject<Dictionary<string, Rank>>(RemoveComments(File.ReadAllText(ranksFilePath)))!;
+				}
+
+				// Order and assign ranks
 				rankDictionary = rankDictionary.OrderBy(kv => kv.Value.Point).ToDictionary(kv => kv.Key, kv => kv.Value);
 
 				int id = rankDictionary.Values.First().Point == -1 ? -1 : 0;
@@ -158,26 +185,30 @@ namespace K4System
 					rank.Color = plugin.ApplyPrefixColors(rank.Color);
 				}
 
-				Rank? temp = rankDictionary.Values.FirstOrDefault(rank => rank.Point == -1);
-				if (temp == null)
+				// Ensure default rank is set
+				noneRank = rankDictionary.Values.FirstOrDefault(rank => rank.Point == -1) ?? new Rank
 				{
-					Logger.LogWarning("Default rank is not set. You can set it by creating a rank with -1 point.");
-
-					noneRank = new Rank
-					{
-						Id = -1,
-						Name = "None",
-						Point = -1,
-						Color = "Default"
-					};
-				}
-				else
-					noneRank = temp;
+					Id = -1,
+					Name = "None",
+					Point = -1,
+					Color = "Default"
+				};
 			}
 			catch (Exception ex)
 			{
 				Logger.LogError("An error occurred: " + ex.Message);
 			}
+		}
+
+		private void ResetToDefaultRanksFile(string filePath, string defaultContent)
+		{
+			File.WriteAllText(filePath, defaultContent);
+			Logger.LogWarning("Invalid content found. Default ranks file regenerated.");
+		}
+
+		private string RemoveComments(string content)
+		{
+			return Regex.Replace(content, @"/\*(.*?)\*/|//(.*)", string.Empty, RegexOptions.Multiline);
 		}
 	}
 }

@@ -1,5 +1,6 @@
 -- 2024.07.24 - V4.4.1
 
+- feat: ranks config self-repair added to prevent issues with them
 - fix: death statistics counter from bots even if disabled
 - fix: remove unused code part
 
