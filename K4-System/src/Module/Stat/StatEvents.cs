@@ -24,78 +24,79 @@ namespace K4System
 				if (!k4victim.IsPlayer && !Config.StatisticSettings.StatsForBots)
 					return HookResult.Continue;
 
-				if (k4victim.IsPlayer)
-				{
-					ModifyPlayerStats(k4victim, "deaths", 1);
-				}
-
 				K4Player? k4attacker = plugin.GetK4Player(@event.Attacker);
-				if (k4attacker != null && k4attacker.IsValid && k4attacker.IsPlayer)
+				if (k4attacker != null && k4attacker.IsValid)
 				{
-					ModifyPlayerStats(k4attacker, "kills", 1);
+					if (k4attacker.IsPlayer || Config.StatisticSettings.StatsForBots)
+						ModifyPlayerStats(k4victim, "deaths", 1);
 
-					if (!FirstBlood)
+					if (k4attacker.IsPlayer)
 					{
-						FirstBlood = true;
-						ModifyPlayerStats(k4attacker, "firstblood", 1);
-					}
+						ModifyPlayerStats(k4attacker, "kills", 1);
 
-					if (@event.Noscope)
-						ModifyPlayerStats(k4attacker, "noscope_kill", 1);
+						if (!FirstBlood)
+						{
+							FirstBlood = true;
+							ModifyPlayerStats(k4attacker, "firstblood", 1);
+						}
 
-					if (@event.Penetrated > 0)
-						ModifyPlayerStats(k4attacker, "penetrated_kill", 1);
+						if (@event.Noscope)
+							ModifyPlayerStats(k4attacker, "noscope_kill", 1);
 
-					if (@event.Thrusmoke)
-						ModifyPlayerStats(k4attacker, "thrusmoke_kill", 1);
+						if (@event.Penetrated > 0)
+							ModifyPlayerStats(k4attacker, "penetrated_kill", 1);
 
-					if (@event.Attackerblind)
-						ModifyPlayerStats(k4attacker, "flashed_kill", 1);
+						if (@event.Thrusmoke)
+							ModifyPlayerStats(k4attacker, "thrusmoke_kill", 1);
 
-					if (@event.Dominated > 0)
-						ModifyPlayerStats(k4attacker, "dominated_kill", 1);
+						if (@event.Attackerblind)
+							ModifyPlayerStats(k4attacker, "flashed_kill", 1);
 
-					if (@event.Revenge > 0)
-						ModifyPlayerStats(k4attacker, "revenge_kill", 1);
+						if (@event.Dominated > 0)
+							ModifyPlayerStats(k4attacker, "dominated_kill", 1);
 
-					if (@event.Assistedflash)
-						ModifyPlayerStats(k4attacker, "assist_flash", 1);
+						if (@event.Revenge > 0)
+							ModifyPlayerStats(k4attacker, "revenge_kill", 1);
 
-					if (@event.Headshot)
-						ModifyPlayerStats(k4attacker, "headshots", 1);
+						if (@event.Assistedflash)
+							ModifyPlayerStats(k4attacker, "assist_flash", 1);
 
-					switch (@event.Hitgroup)
-					{
-						case (int)HitGroup_t.HITGROUP_CHEST:
-							ModifyPlayerStats(k4attacker, "chest_hits", 1);
-							break;
-						case (int)HitGroup_t.HITGROUP_STOMACH:
-							ModifyPlayerStats(k4attacker, "stomach_hits", 1);
-							break;
-						case (int)HitGroup_t.HITGROUP_LEFTARM:
-							ModifyPlayerStats(k4attacker, "left_arm_hits", 1);
-							break;
-						case (int)HitGroup_t.HITGROUP_RIGHTARM:
-							ModifyPlayerStats(k4attacker, "right_arm_hits", 1);
-							break;
-						case (int)HitGroup_t.HITGROUP_LEFTLEG:
-							ModifyPlayerStats(k4attacker, "left_leg_hits", 1);
-							break;
-						case (int)HitGroup_t.HITGROUP_RIGHTLEG:
-							ModifyPlayerStats(k4attacker, "right_leg_hits", 1);
-							break;
-						case (int)HitGroup_t.HITGROUP_NECK:
-							ModifyPlayerStats(k4attacker, "neck_hits", 1);
-							break;
-						case (int)HitGroup_t.HITGROUP_UNUSED:
-							ModifyPlayerStats(k4attacker, "unused_hits", 1);
-							break;
-						case (int)HitGroup_t.HITGROUP_GEAR:
-							ModifyPlayerStats(k4attacker, "gear_hits", 1);
-							break;
-						case (int)HitGroup_t.HITGROUP_SPECIAL:
-							ModifyPlayerStats(k4attacker, "special_hits", 1);
-							break;
+						if (@event.Headshot)
+							ModifyPlayerStats(k4attacker, "headshots", 1);
+
+						switch (@event.Hitgroup)
+						{
+							case (int)HitGroup_t.HITGROUP_CHEST:
+								ModifyPlayerStats(k4attacker, "chest_hits", 1);
+								break;
+							case (int)HitGroup_t.HITGROUP_STOMACH:
+								ModifyPlayerStats(k4attacker, "stomach_hits", 1);
+								break;
+							case (int)HitGroup_t.HITGROUP_LEFTARM:
+								ModifyPlayerStats(k4attacker, "left_arm_hits", 1);
+								break;
+							case (int)HitGroup_t.HITGROUP_RIGHTARM:
+								ModifyPlayerStats(k4attacker, "right_arm_hits", 1);
+								break;
+							case (int)HitGroup_t.HITGROUP_LEFTLEG:
+								ModifyPlayerStats(k4attacker, "left_leg_hits", 1);
+								break;
+							case (int)HitGroup_t.HITGROUP_RIGHTLEG:
+								ModifyPlayerStats(k4attacker, "right_leg_hits", 1);
+								break;
+							case (int)HitGroup_t.HITGROUP_NECK:
+								ModifyPlayerStats(k4attacker, "neck_hits", 1);
+								break;
+							case (int)HitGroup_t.HITGROUP_UNUSED:
+								ModifyPlayerStats(k4attacker, "unused_hits", 1);
+								break;
+							case (int)HitGroup_t.HITGROUP_GEAR:
+								ModifyPlayerStats(k4attacker, "gear_hits", 1);
+								break;
+							case (int)HitGroup_t.HITGROUP_SPECIAL:
+								ModifyPlayerStats(k4attacker, "special_hits", 1);
+								break;
+						}
 					}
 				}
 

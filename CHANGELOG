@@ -1,3 +1,7 @@
+-- 2024.07.24 - V4.4.1
+
+- fix: Death statistics counter from bots even if disabled
+
 -- 2024.06.03 - V4.4.0
 
 - feat: New config to decide whther or not to give points for playtime for AFK players
