@@ -5,6 +5,7 @@
 - fix: remove unused code part
 - fix: disconnect message not shown even if enabled
 - fix: team-balance freeze/crash the server
+- fix: error log on connect message due to clantag getter
 - chore: update README.md to use new team standards and fix broken links
 
 -- 2024.06.03 - V4.4.0

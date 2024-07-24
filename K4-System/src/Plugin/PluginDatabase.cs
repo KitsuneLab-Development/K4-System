@@ -566,6 +566,9 @@ public sealed partial class Plugin : BasePlugin
 
 			if (Config.UtilSettings.ConnectMessageEnable)
 			{
+				if (!k4player.IsValid || !k4player.IsPlayer)
+					return;
+
 				ReplacePlaceholders(k4player, Localizer["k4.announcement.connect"], (result) =>
 				{
 					Server.NextWorldUpdate(() =>
