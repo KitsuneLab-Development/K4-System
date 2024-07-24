@@ -167,11 +167,15 @@ namespace K4System
 							var team1Players = players.Where(p => p?.Controller?.Team == CsTeam.Terrorist).ToList();
 							var team2Players = players.Where(p => p?.Controller?.Team == CsTeam.CounterTerrorist).ToList();
 
-							var team1RankPoints = team1Players.Select(p => p?.rankData?.Points ?? 0).Sum();
-							var team2RankPoints = team2Players.Select(p => p?.rankData?.Points ?? 0).Sum();
+							var team1RankPoints = team1Players.Sum(p => p?.rankData?.Points ?? 0);
+							var team2RankPoints = team2Players.Sum(p => p?.rankData?.Points ?? 0);
 
-							while (Math.Abs(team1RankPoints - team2RankPoints) > Config.RankSettings.RankBasedTeamBalanceMaxDifference)
+							int maxSwitches = 10; // Safety break for the loop
+
+							while (Math.Abs(team1RankPoints - team2RankPoints) > Config.RankSettings.RankBasedTeamBalanceMaxDifference && maxSwitches > 0)
 							{
+								maxSwitches--;
+
 								if (team1RankPoints > team2RankPoints)
 								{
 									var playerToSwitch = team1Players.OrderByDescending(p => p?.rankData?.Points ?? 0).FirstOrDefault();
@@ -180,6 +184,8 @@ namespace K4System
 										team1Players.Remove(playerToSwitch);
 										team2Players.Add(playerToSwitch);
 										playerToSwitch.Controller?.ChangeTeam(CsTeam.CounterTerrorist);
+										team1RankPoints -= playerToSwitch?.rankData?.Points ?? 0;
+										team2RankPoints += playerToSwitch?.rankData?.Points ?? 0;
 									}
 								}
 								else
@@ -190,14 +196,20 @@ namespace K4System
 										team2Players.Remove(playerToSwitch);
 										team1Players.Add(playerToSwitch);
 										playerToSwitch.Controller?.ChangeTeam(CsTeam.Terrorist);
+										team2RankPoints -= playerToSwitch?.rankData?.Points ?? 0;
+										team1RankPoints += playerToSwitch?.rankData?.Points ?? 0;
 									}
 								}
-
-								team1RankPoints = team1Players.Select(p => p?.rankData?.Points ?? 0).Sum();
-								team2RankPoints = team2Players.Select(p => p?.rankData?.Points ?? 0).Sum();
 							}
 
-							Server.PrintToChatAll($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.ranks.rank.teamsbalanced"]}");
+							if (maxSwitches > 0)
+							{
+								Server.PrintToChatAll($" {plugin.Localizer["k4.general.prefix"]} {plugin.Localizer["k4.ranks.rank.teamsbalanced"]}");
+							}
+							else
+							{
+								plugin.Logger.LogWarning("Max team switch attempts reached, team balance may not be perfect.");
+							}
 						}
 					}
 				}
@@ -208,7 +220,6 @@ namespace K4System
 
 				return HookResult.Continue;
 			}, HookMode.Post);
-
 
 			plugin.RegisterEventHandler((EventBombPlanted @event, GameEventInfo info) =>
 			{
