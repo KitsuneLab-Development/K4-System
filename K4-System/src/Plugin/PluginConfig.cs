@@ -267,8 +267,14 @@ namespace K4System
 		[JsonPropertyName("assist")]
 		public int Assist { get; set; } = 5;
 
+		[JsonPropertyName("team-assist")]
+		public int TeamAssist { get; set; } = -5;
+
 		[JsonPropertyName("assist-flash")]
 		public int AssistFlash { get; set; } = 7;
+
+		[JsonPropertyName("team-assist-flash")]
+		public int TeamAssistFlash { get; set; } = -7;
 
 		[JsonPropertyName("round-win")]
 		public int RoundWin { get; set; } = 5;
