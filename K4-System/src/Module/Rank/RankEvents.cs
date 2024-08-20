@@ -251,7 +251,7 @@ namespace K4System
 					}
 					else
 					{
-						
+
 						RankData k4attackerRankData = k4attacker.rankData;
 						if (Config.RankSettings.PointsForBots || k4attacker.IsPlayer)
 						{
@@ -270,9 +270,12 @@ namespace K4System
 					else
 					{
 						string? extraInfo;
-						if (k4attacker.IsPlayer && k4victimRankData != null) {
+						if (k4attacker.IsPlayer && k4victimRankData != null)
+						{
 							extraInfo = Config.RankSettings.PlayerNameKillMessages ? plugin.Localizer["k4.phrases.kill.extra", k4victim.PlayerName, k4victimRankData.Points] : null!;
-						} else {
+						}
+						else
+						{
 							extraInfo = Config.RankSettings.PlayerNameKillMessages ? plugin.Localizer["k4.phrases.kill.extra", k4victim.PlayerName, 0] : null!;
 						}
 						ModifyPlayerPoints(k4attacker, CalculateDynamicPoints(k4attacker, k4victim, Config.PointSettings.Kill), "k4.phrases.kill", extraInfo);
@@ -383,11 +386,24 @@ namespace K4System
 				K4Player? k4assister = plugin.GetK4Player(@event.Assister);
 				if (k4assister?.IsValid == true && k4assister.IsPlayer && (Config.RankSettings.PointsForBots || k4victim.IsPlayer))
 				{
-					ModifyPlayerPoints(k4assister, Config.PointSettings.Assist, "k4.phrases.assist");
+					bool isFFAMode = Config.GeneralSettings.FFAMode;
+					bool victimIsEnemy = isFFAMode || (k4assister.Controller.Team != k4victim.Controller.Team);
 
-					if (@event.Assistedflash)
+					if (victimIsEnemy && !@event.Assistedflash)
+					{
+						ModifyPlayerPoints(k4assister, Config.PointSettings.Assist, "k4.phrases.assist");
+					}
+					else if (!victimIsEnemy && !@event.Assistedflash)
+					{
+						ModifyPlayerPoints(k4assister, Config.PointSettings.TeamAssist, "k4.phrases.teamassist");
+					}
+					else if (victimIsEnemy && @event.Assistedflash)
 					{
 						ModifyPlayerPoints(k4assister, Config.PointSettings.AssistFlash, "k4.phrases.assistflash");
+					}
+					else if (!victimIsEnemy && @event.Assistedflash)
+					{
+						ModifyPlayerPoints(k4assister, Config.PointSettings.TeamAssistFlash, "k4.phrases.teamassistflash");
 					}
 				}
 
