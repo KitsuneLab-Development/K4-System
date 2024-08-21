@@ -245,7 +245,7 @@ namespace K4System
 				{
 					k4victim.KillStreak = (0, DateTime.Now);
 
-					if (k4attacker is null || !k4attacker.IsValid || k4attacker.rankData is null)
+					if (k4attacker is null || !k4attacker.IsValid || k4attacker.rankData is null || k4attacker == k4victim)
 					{
 						ModifyPlayerPoints(k4victim, Config.PointSettings.Suicide, "k4.phrases.suicide");
 					}
