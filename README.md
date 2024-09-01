@@ -7,6 +7,9 @@
 ![GitHub all releases](https://img.shields.io/github/downloads/KitsuneLab-Development/K4-System/total?style=for-the-badge)
 ![GitHub last commit (branch)](https://img.shields.io/github/last-commit/KitsuneLab-Development/K4-System/dev?style=for-the-badge)
 
+> [!CAUTION]
+> This plugin has been archived due to the rework - bigger, better - got released: https://github.com/KitsuneLab-Development/K4-Zenith
+
 <!-- PROJECT LOGO -->
 <br />
 <div align="center">
