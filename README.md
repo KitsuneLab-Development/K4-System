@@ -8,7 +8,7 @@
 ![GitHub last commit (branch)](https://img.shields.io/github/last-commit/KitsuneLab-Development/K4-System/dev?style=for-the-badge)
 
 > [!CAUTION]
-> This plugin has been archived due to the rework - bigger, better - got released: https://github.com/KitsuneLab-Development/K4-Zenith
+> This plugin has been archived due to the rework - bigger, better - got released: https://kitsune-lab.com/store/view/23 (FREE)
 
 <!-- PROJECT LOGO -->
 <br />
